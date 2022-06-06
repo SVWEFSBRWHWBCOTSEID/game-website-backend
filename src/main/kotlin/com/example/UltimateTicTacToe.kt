@@ -1,5 +1,7 @@
 package com.example
 
+import java.util.UUID
+
 
 // board has 9 grids with 9 tiles each
 data class UltimateTicTacToeMove(val board: Int, val tile: Int, val symbol: String): Move()
@@ -16,6 +18,21 @@ class UltimateTicTacToe : GameStateManager<UltimateTicTacToeMove>() {
     private var lastMove = EMPTY
     private var activeBoard = 4  // first move must go in middle board
     private var status = TicTacToeStatus.PLAYING
+    private val playerIds = mutableMapOf<Symbol, UUID>()
+
+    override fun addPlayer(): UUID {
+        val playerId = UUID.randomUUID()
+        if (!playerIds.containsKey(X)) {
+            playerIds[X] = playerId
+            return playerId
+        }
+        if (!playerIds.containsKey(O)) {
+            playerIds[O] = playerId
+            return playerId
+        }
+
+        throw GameFullException()
+    }
     override fun playMove(move: UltimateTicTacToeMove) {
         if (!(0 until 9).contains(move.board)) {
             throw InvalidMoveException("board is not between 0 and 8")

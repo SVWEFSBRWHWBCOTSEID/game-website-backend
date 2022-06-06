@@ -1,24 +1,20 @@
 package com.example
 
-typealias GameId = String
+import java.util.UUID
 
 class GameExistsException : Exception("game already exists! + L + ratio + get better + skill issue + bozo")
 class GameDoesNotExistException: Exception("game does not exist! + L + ratio + get better + skill issue + bozo")
 
 class GameManager<out T: GameStateManager<Move>>(private val gameFactory: () -> T) {
-    private val games = mutableMapOf<GameId, T>()
+    private val games = mutableMapOf<UUID, T>()
 
-    fun createGame(): GameId {
+    fun createGame(): T {
         val newGame = gameFactory()
         games[newGame.gameId] = newGame
-        return newGame.gameId
+        return newGame
     }
 
-    fun getGame(gameId: GameId): T {
+    fun getGame(gameId: UUID): T {
         return games[gameId] ?: throw GameDoesNotExistException()
-    }
-
-    fun playMove(gameId: GameId, move: Move) {
-        return getGame(gameId).playMove(move)
     }
 }

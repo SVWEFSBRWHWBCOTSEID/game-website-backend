@@ -1,5 +1,9 @@
 package com.example
 
+import java.util.UUID
+
+typealias Symbol = String
+
 enum class TicTacToeStatus {
     PLAYING, TIED, X_VICTORY, O_VICTORY
 }
@@ -15,6 +19,22 @@ class TicTacToe(private val allowDoubleMove: Boolean = false) : GameStateManager
     private val board = Array(9) { EMPTY }
     private var lastMove = EMPTY
     var status = TicTacToeStatus.PLAYING
+    private val playerIds = mutableMapOf<Symbol, UUID>()
+
+    override fun addPlayer(): UUID {
+        val playerId = UUID.randomUUID()
+        if (!playerIds.containsKey(X)) {
+            playerIds[X] = playerId
+            return playerId
+        }
+        if (!playerIds.containsKey(O)) {
+            playerIds[O] = playerId
+            return playerId
+        }
+
+        throw GameFullException()
+    }
+
     override fun playMove(move: TicTacToeMove) {
         if (!(0 until 9).contains(move.tile)) {
             throw InvalidMoveException("tile is not between 0 and 8")

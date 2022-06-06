@@ -1,9 +1,6 @@
 package com.example.plugins
 
-import com.example.GameDoesNotExistException
-import com.example.GameManager
-import com.example.TicTacToe
-import com.example.UltimateTicTacToe
+import com.example.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -11,31 +8,45 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import java.util.UUID
 
 fun Application.configureRouting() {
     val tttGameManager = GameManager { TicTacToe() }
     val utttGameManager = GameManager { UltimateTicTacToe() }
 
+    // create new game
     routing {
-        post("/api/new/{gameType}/") {
+        post("/api/new/{gameType}") {
             val gameType = call.parameters["gameType"]
                 ?: return@post call.respond(HttpStatusCode.BadRequest, "gameType is missing")
 
             if (gameType == "ttt") {
-                val gameId = tttGameManager.createGame()
-                call.respond(HttpStatusCode.Accepted, gameId)
+                val game = tttGameManager.createGame()
+                val playerId = game.addPlayer()
+                val info = GamePlayerInfo(game.gameId.toString(), playerId.toString())
+                call.respond(HttpStatusCode.Accepted, Json.encodeToString(info))
             } else if (gameType == "uttt") {
-                val gameId = utttGameManager.createGame()
-                call.respond(HttpStatusCode.Accepted, gameId)
+                val game = utttGameManager.createGame()
+                val playerId = game.addPlayer()
+                val info = GamePlayerInfo(game.gameId.toString(), playerId.toString())
+                call.respond(HttpStatusCode.Accepted, Json.encodeToString(info))
             }
         }
     }
+    // fetch game state
     routing {
-        get("/api/{gameType}/{gameId}") {
+        get("/api/game/{gameType}/{gameId}") {
             val gameType = call.parameters["gameType"]
                 ?: return@get call.respond(HttpStatusCode.BadRequest, "gameType is missing")
-            val gameId = call.parameters["gameId"]
+            val gameIdStr = call.parameters["gameId"]
                 ?: return@get call.respond(HttpStatusCode.BadRequest, "gameId is missing")
+            val gameId = try {
+                UUID.fromString(gameIdStr)
+            } catch (e: IllegalArgumentException) {
+                return@get call.respond(HttpStatusCode.BadRequest, "gameId is invalid")
+            }
 
             try {
                 if (gameType == "ttt") {
@@ -46,11 +57,18 @@ fun Application.configureRouting() {
                     call.sendSseEvents(game.getFlow())
                 }
             } catch (e: GameDoesNotExistException) {
-                call.respond(HttpStatusCode.BadRequest, "invalid gameId")
+                call.respond(HttpStatusCode.BadRequest, "gameId not found")
             }
         }
     }
+    // make move
+//    routing {
+//        post("/api/game/{gameType}/{gameId}")
+//    }
 }
+
+@Serializable
+data class GamePlayerInfo(val gameId: String, val playerId: String)
 
 // https://github.com/ktorio/ktor-samples/blob/main/sse/src/SseApplication.kt#L109-L137
 /**
