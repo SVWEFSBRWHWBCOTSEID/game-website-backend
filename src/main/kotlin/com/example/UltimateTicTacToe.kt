@@ -1,9 +1,14 @@
 package com.example
 
+import com.example.plugins.SseEvent
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.util.UUID
 
 
 // board has 9 grids with 9 tiles each
+@Serializable
 data class UltimateTicTacToeMove(val board: Int, val tile: Int, val symbol: String): Move()
 
 // use String instead of Char since empty string isn't a Char and JS doesn't have Char
@@ -14,7 +19,7 @@ private const val O = "◯"
 private const val ANY_BOARD = -1
 
 class UltimateTicTacToe : GameStateManager<UltimateTicTacToeMove>() {
-    private val board = Array(9) { TicTacToe(allowDoubleMove = true) }
+    private val board = Array(9) { TicTacToe(independentGame = false) }
     private var lastMove = EMPTY
     private var activeBoard = 4  // first move must go in middle board
     private var status = TicTacToeStatus.PLAYING
@@ -33,7 +38,7 @@ class UltimateTicTacToe : GameStateManager<UltimateTicTacToeMove>() {
 
         throw GameFullException()
     }
-    override fun playMove(move: UltimateTicTacToeMove) {
+    override fun playMove(playerId: UUID, move: UltimateTicTacToeMove) {
         if (!(0 until 9).contains(move.board)) {
             throw InvalidMoveException("board is not between 0 and 8")
         }
@@ -55,8 +60,11 @@ class UltimateTicTacToe : GameStateManager<UltimateTicTacToeMove>() {
         if (status != TicTacToeStatus.PLAYING) {
             throw InvalidMoveException("game is already over")
         }
+        if (playerIds[move.symbol] != playerId) {
+            throw InvalidMoveException("cannot move for other player")
+        }
 
-        board[move.board].playMove(TicTacToeMove(move.tile, move.symbol))
+        board[move.board].playMove(playerId, TicTacToeMove(move.tile, move.symbol))
         lastMove = move.symbol
 
         if (checkRow(move.tile) || checkCol(move.tile) || checkDiag(move.tile)) {
@@ -64,6 +72,8 @@ class UltimateTicTacToe : GameStateManager<UltimateTicTacToeMove>() {
         } else if (TicTacToeStatus.PLAYING !in board.map { it.status }) {
             status = TicTacToeStatus.TIED
         }
+
+        flow.tryEmit(SseEvent(Json.encodeToString(board)))
     }
 
     private fun checkRow(tile: Int): Boolean {

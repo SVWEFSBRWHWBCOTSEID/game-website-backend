@@ -1,5 +1,9 @@
 package com.example
 
+import com.example.plugins.SseEvent
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.util.UUID
 
 typealias Symbol = String
@@ -8,6 +12,7 @@ enum class TicTacToeStatus {
     PLAYING, TIED, X_VICTORY, O_VICTORY
 }
 
+@Serializable
 data class TicTacToeMove(val tile: Int, val symbol: String): Move()
 
 // use String instead of Char since empty string isn't a Char and JS doesn't have Char
@@ -15,7 +20,7 @@ private const val EMPTY = ""
 private const val X = "✕"
 private const val O = "◯"
 
-class TicTacToe(private val allowDoubleMove: Boolean = false) : GameStateManager<TicTacToeMove>() {
+class TicTacToe(private val independentGame: Boolean = true) : GameStateManager<TicTacToeMove>() {
     private val board = Array(9) { EMPTY }
     private var lastMove = EMPTY
     var status = TicTacToeStatus.PLAYING
@@ -35,7 +40,7 @@ class TicTacToe(private val allowDoubleMove: Boolean = false) : GameStateManager
         throw GameFullException()
     }
 
-    override fun playMove(move: TicTacToeMove) {
+    override fun playMove(playerId: UUID, move: TicTacToeMove) {
         if (!(0 until 9).contains(move.tile)) {
             throw InvalidMoveException("tile is not between 0 and 8")
         }
@@ -45,11 +50,14 @@ class TicTacToe(private val allowDoubleMove: Boolean = false) : GameStateManager
         if (board[move.tile] != EMPTY) {
             throw InvalidMoveException("tile ${move.tile} is already occupied")
         }
-        if (!allowDoubleMove && move.symbol == lastMove) {
+        if (independentGame && move.symbol == lastMove) {
             throw InvalidMoveException("$lastMove made a move last turn")
         }
         if (status != TicTacToeStatus.PLAYING) {
             throw InvalidMoveException("game is already over")
+        }
+        if (independentGame && playerIds[move.symbol] != playerId) {
+            throw InvalidMoveException("cannot move for other player")
         }
 
         board[move.tile] = move.symbol
@@ -60,6 +68,8 @@ class TicTacToe(private val allowDoubleMove: Boolean = false) : GameStateManager
         } else if (EMPTY !in board) {
             status = TicTacToeStatus.TIED
         }
+
+        flow.tryEmit(SseEvent(Json.encodeToString(board)))
     }
 
     private fun checkRow(tile: Int): Boolean {

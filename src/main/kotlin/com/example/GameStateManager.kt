@@ -1,9 +1,9 @@
 package com.example
 
 import com.example.plugins.SseEvent
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
 
 class GameFullException: Exception("game has no spots left for new players")
@@ -13,13 +13,13 @@ abstract class Move
 
 abstract class GameStateManager<out T: Move> {
     val gameId: UUID = UUID.randomUUID()
-    private val flow = MutableSharedFlow<SseEvent>()
+    protected val flow = MutableStateFlow(SseEvent("game has not started"))
 
-    fun getFlow(): SharedFlow<SseEvent> {
-        return flow.asSharedFlow()
+    fun getFlow(): StateFlow<SseEvent> {
+        return flow.asStateFlow()
     }
 
-    abstract fun playMove(move: @UnsafeVariance T)  // TODO find a better way
+    abstract fun playMove(playerId: UUID, move: @UnsafeVariance T)  // TODO find a better way
 
     abstract fun addPlayer(): UUID
 }

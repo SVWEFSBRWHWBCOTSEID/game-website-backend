@@ -3,14 +3,17 @@ package com.example.plugins
 import com.example.*
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-import java.util.UUID
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.util.*
 
 fun Application.configureRouting() {
     val tttGameManager = GameManager { TicTacToe() }
@@ -62,9 +65,45 @@ fun Application.configureRouting() {
         }
     }
     // make move
-//    routing {
-//        post("/api/game/{gameType}/{gameId}")
-//    }
+    routing {
+        post("/api/game/{gameType}/{gameId}") {
+            val gameType = call.parameters["gameType"]
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "gameType is missing")
+            val gameIdStr = call.parameters["gameId"]
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "gameId is missing")
+            val gameId = try {
+                UUID.fromString(gameIdStr)
+            } catch (e: IllegalArgumentException) {
+                return@post call.respond(HttpStatusCode.BadRequest, "gameId is invalid")
+            }
+            val params = call.receiveParameters()
+            val playerIdStr = params["playerId"]
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "playerId is missing")
+            val playerId = try {
+                UUID.fromString(playerIdStr)
+            } catch (e: IllegalArgumentException) {
+                return@post call.respond(HttpStatusCode.BadRequest, "playerId is invalid")
+            }
+            val moveStr = params["move"]
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "move is missing")
+
+            try {
+                if (gameType == "ttt") {
+                    val game = tttGameManager.getGame(gameId)
+                    val move: TicTacToeMove = Json.decodeFromString(moveStr)
+                    game.playMove(playerId, move)
+                } else if (gameType == "uttt") {
+                    val game = utttGameManager.getGame(gameId)
+                    val move: UltimateTicTacToeMove = Json.decodeFromString(moveStr)
+                    game.playMove(playerId, move)
+                }
+            } catch (e: Exception) {
+                return@post call.respond(HttpStatusCode.BadRequest, "gameId not found or move is invalid")
+            }
+
+            call.respond(HttpStatusCode.Accepted)
+        }
+    }
 }
 
 @Serializable
@@ -76,7 +115,7 @@ data class GamePlayerInfo(val gameId: String, val playerId: String)
  */
 data class SseEvent(val data: String, val event: String? = null, val id: String? = null)
 
-suspend fun ApplicationCall.sendSseEvents(flow: SharedFlow<SseEvent>) {
+suspend fun ApplicationCall.sendSseEvents(flow: StateFlow<SseEvent>) {
     response.cacheControl(CacheControl.NoCache(null))
     respondTextWriter(contentType = ContentType.Text.EventStream) {
         flow.collect { event ->
@@ -96,3 +135,5 @@ suspend fun ApplicationCall.sendSseEvents(flow: SharedFlow<SseEvent>) {
         }
     }
 }
+
+// http --form POST localhost:3000/api/game/ttt/<gameId> playerId=<playerId> move='{"tile":0, "symbol":"✕"}'
