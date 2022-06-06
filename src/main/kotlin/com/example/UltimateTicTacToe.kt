@@ -7,9 +7,9 @@ import kotlinx.serialization.json.Json
 import java.util.UUID
 
 
-// board has 9 grids with 9 tiles each
+// there are 9 boards with 9 tiles each
 @Serializable
-data class UltimateTicTacToeMove(val board: Int, val tile: Int, val symbol: String): Move()
+data class UltimateTicTacToeMove(val board: Int, val tile: Int, val symbol: String) : Move()
 
 // use String instead of Char since empty string isn't a Char and JS doesn't have Char
 private const val EMPTY = ""
@@ -38,32 +38,30 @@ class UltimateTicTacToe : GameStateManager<UltimateTicTacToeMove>() {
 
         throw GameFullException()
     }
-    override fun playMove(playerId: UUID, move: UltimateTicTacToeMove) {
-        if (!(0 until 9).contains(move.board)) {
-            throw InvalidMoveException("board is not between 0 and 8")
-        }
-        if (activeBoard != ANY_BOARD && activeBoard != move.board) {
-            throw InvalidMoveException("board is not the active board ($activeBoard)")
-        }
-        if (!(0 until 9).contains(move.tile)) {
-            throw InvalidMoveException("tile is not between 0 and 8")
-        }
-        if (move.symbol != X && move.symbol != O) {
-            throw InvalidMoveException("symbol is not $X or $O")
-        }
-        if (board[move.tile].status != TicTacToeStatus.PLAYING) {
-            throw InvalidMoveException("board ${move.board} is no longer active")
-        }
-        if (move.symbol == lastMove) {
-            throw InvalidMoveException("$lastMove made a move last turn")
-        }
-        if (status != TicTacToeStatus.PLAYING) {
-            throw InvalidMoveException("game is already over")
-        }
-        if (playerIds[move.symbol] != playerId) {
-            throw InvalidMoveException("cannot move for other player")
-        }
 
+    override fun canStart(): Boolean {
+        return playerIds.containsKey(X) && playerIds.containsKey(O)
+    }
+
+    override fun playMove(playerId: UUID, move: UltimateTicTacToeMove) {
+        if (!canStart())
+            throw InvalidMoveException("game is not ready to start")
+        if (!(0 until 9).contains(move.board))
+            throw InvalidMoveException("board is not between 0 and 8")
+        if (activeBoard != ANY_BOARD && activeBoard != move.board)
+            throw InvalidMoveException("board is not the active board ($activeBoard)")
+        if (move.symbol != X && move.symbol != O)
+            throw InvalidMoveException("symbol is not $X or $O")
+        if (board[move.board].status != TicTacToeStatus.PLAYING)
+            throw InvalidMoveException("board ${move.board} is no longer active")
+        if (move.symbol == lastMove)
+            throw InvalidMoveException("$lastMove made a move last turn")
+        if (status != TicTacToeStatus.PLAYING)
+            throw InvalidMoveException("game is already over")
+        if (playerIds[move.symbol] != playerId)
+            throw InvalidMoveException("cannot move for other player")
+
+        // check for tile selection validity is done in TicTacToe.playMove
         board[move.board].playMove(playerId, TicTacToeMove(move.tile, move.symbol))
         lastMove = move.symbol
 
@@ -80,10 +78,12 @@ class UltimateTicTacToe : GameStateManager<UltimateTicTacToeMove>() {
         val row = tile / 3  // get the row number
         return check(board[3 * row], board[3 * row + 1], board[3 * row + 2])
     }
+
     private fun checkCol(tile: Int): Boolean {
         val col = tile % 3
         return check(board[col], board[col + 3], board[col + 6])
     }
+
     private fun checkDiag(tile: Int): Boolean {
         // 0 1 2
         // 3 4 5
@@ -96,6 +96,7 @@ class UltimateTicTacToe : GameStateManager<UltimateTicTacToeMove>() {
 
         return false
     }
+
     private fun check(a: TicTacToe, b: TicTacToe, c: TicTacToe): Boolean {
         return a.status == b.status && b.status == c.status
     }

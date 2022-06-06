@@ -13,7 +13,7 @@ enum class TicTacToeStatus {
 }
 
 @Serializable
-data class TicTacToeMove(val tile: Int, val symbol: String): Move()
+data class TicTacToeMove(val tile: Int, val symbol: String) : Move()
 
 // use String instead of Char since empty string isn't a Char and JS doesn't have Char
 private const val EMPTY = ""
@@ -40,25 +40,25 @@ class TicTacToe(private val independentGame: Boolean = true) : GameStateManager<
         throw GameFullException()
     }
 
+    override fun canStart(): Boolean {
+        return !independentGame || (playerIds.containsKey(X) && playerIds.containsKey(O))
+    }
+
     override fun playMove(playerId: UUID, move: TicTacToeMove) {
-        if (!(0 until 9).contains(move.tile)) {
+        if (!canStart())
+            throw InvalidMoveException("game is not ready to start")
+        if (!(0 until 9).contains(move.tile))
             throw InvalidMoveException("tile is not between 0 and 8")
-        }
-        if (move.symbol != X && move.symbol != O) {
+        if (move.symbol != X && move.symbol != O)
             throw InvalidMoveException("symbol is not $X or $O")
-        }
-        if (board[move.tile] != EMPTY) {
+        if (board[move.tile] != EMPTY)
             throw InvalidMoveException("tile ${move.tile} is already occupied")
-        }
-        if (independentGame && move.symbol == lastMove) {
+        if (independentGame && move.symbol == lastMove)
             throw InvalidMoveException("$lastMove made a move last turn")
-        }
-        if (status != TicTacToeStatus.PLAYING) {
+        if (status != TicTacToeStatus.PLAYING)
             throw InvalidMoveException("game is already over")
-        }
-        if (independentGame && playerIds[move.symbol] != playerId) {
+        if (independentGame && playerIds[move.symbol] != playerId)
             throw InvalidMoveException("cannot move for other player")
-        }
 
         board[move.tile] = move.symbol
         lastMove = move.symbol
@@ -76,10 +76,12 @@ class TicTacToe(private val independentGame: Boolean = true) : GameStateManager<
         val row = tile / 3  // get the row number
         return check(board[3 * row], board[3 * row + 1], board[3 * row + 2])
     }
+
     private fun checkCol(tile: Int): Boolean {
         val col = tile % 3
         return check(board[col], board[col + 3], board[col + 6])
     }
+
     private fun checkDiag(tile: Int): Boolean {
         // 0 1 2
         // 3 4 5
@@ -92,6 +94,7 @@ class TicTacToe(private val independentGame: Boolean = true) : GameStateManager<
 
         return false
     }
+
     private fun check(a: String, b: String, c: String): Boolean {
         return a == b && b == c
     }
