@@ -5,6 +5,7 @@ import java.util.UUID
 class GameExistsException : Exception("game already exists! + L + ratio + get better + skill issue + bozo")
 class GameDoesNotExistException: Exception("game does not exist! + L + ratio + get better + skill issue + bozo")
 
+// TODO see if we can get rid of GameManager
 class GameManager<out T: GameStateManager<Move>>(private val gameFactory: () -> T) {
     private val games = mutableMapOf<UUID, T>()
 
