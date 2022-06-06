@@ -4,12 +4,15 @@ import com.example.plugins.SseEvent
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.util.UUID
+import java.util.*
 
 
 // there are 9 boards with 9 tiles each
 @Serializable
-data class UltimateTicTacToeMove(val board: Int, val tile: Int, val symbol: String) : Move()
+data class UltimateTicTacToeMove(
+    @Serializable(with = UUIDSerializer::class)
+    val playerId: UUID, val board: Int,
+    val tile: Int, val symbol: String) : Move()
 
 // use String instead of Char since empty string isn't a Char and JS doesn't have Char
 private const val EMPTY = ""
@@ -43,7 +46,7 @@ class UltimateTicTacToe : GameStateManager<UltimateTicTacToeMove>() {
         return playerIds.containsKey(X) && playerIds.containsKey(O)
     }
 
-    override fun playMove(playerId: UUID, move: UltimateTicTacToeMove) {
+    override fun playMove(move: UltimateTicTacToeMove) {
         if (!canStart())
             throw InvalidMoveException("game is not ready to start")
         if (!(0 until 9).contains(move.board))
@@ -58,11 +61,11 @@ class UltimateTicTacToe : GameStateManager<UltimateTicTacToeMove>() {
             throw InvalidMoveException("$lastMove made a move last turn")
         if (status != TicTacToeStatus.PLAYING)
             throw InvalidMoveException("game is already over")
-        if (playerIds[move.symbol] != playerId)
+        if (playerIds[move.symbol] != move.playerId)
             throw InvalidMoveException("cannot move for other player")
 
         // check for tile selection validity is done in TicTacToe.playMove
-        board[move.board].playMove(playerId, TicTacToeMove(move.tile, move.symbol))
+        board[move.board].playMove(TicTacToeMove(move.playerId, move.tile, move.symbol))
         lastMove = move.symbol
 
         if (checkRow(move.tile) || checkCol(move.tile) || checkDiag(move.tile)) {

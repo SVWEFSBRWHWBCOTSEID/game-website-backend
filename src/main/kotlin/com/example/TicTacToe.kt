@@ -4,7 +4,7 @@ import com.example.plugins.SseEvent
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.util.UUID
+import java.util.*
 
 typealias Symbol = String
 
@@ -13,7 +13,10 @@ enum class TicTacToeStatus {
 }
 
 @Serializable
-data class TicTacToeMove(val tile: Int, val symbol: String) : Move()
+data class TicTacToeMove(
+    @Serializable(with = UUIDSerializer::class)
+    val playerId: UUID,
+    val tile: Int, val symbol: String) : Move()
 
 // use String instead of Char since empty string isn't a Char and JS doesn't have Char
 private const val EMPTY = ""
@@ -44,7 +47,7 @@ class TicTacToe(private val independentGame: Boolean = true) : GameStateManager<
         return !independentGame || (playerIds.containsKey(X) && playerIds.containsKey(O))
     }
 
-    override fun playMove(playerId: UUID, move: TicTacToeMove) {
+    override fun playMove(move: TicTacToeMove) {
         if (!canStart())
             throw InvalidMoveException("game is not ready to start")
         if (!(0 until 9).contains(move.tile))
@@ -57,7 +60,7 @@ class TicTacToe(private val independentGame: Boolean = true) : GameStateManager<
             throw InvalidMoveException("$lastMove made a move last turn")
         if (status != TicTacToeStatus.PLAYING)
             throw InvalidMoveException("game is already over")
-        if (independentGame && playerIds[move.symbol] != playerId)
+        if (independentGame && playerIds[move.symbol] != move.playerId)
             throw InvalidMoveException("cannot move for other player")
 
         board[move.tile] = move.symbol
