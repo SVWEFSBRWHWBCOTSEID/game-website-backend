@@ -17,81 +17,85 @@ fun Application.configureRouting() {
     val utttGameManager = GameManager { UltimateTicTacToe() }
     val gameManagers = mapOf("ttt" to tttGameManager, "uttt" to utttGameManager)
 
-    // create new game
+    /**
+     * Creates a new game. All required information is in the URL.
+     * Returns a GamePlayerInfo instance as a JSON upon success or a 400 status code upon error.
+     */
     routing {
         post("/api/new/{gameType}") {
-            val gameType = call.parameters["gameType"]
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "gameType is missing")
-            val gameManager = gameManagers[gameType]
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "gameType is invalid")
-
-            val game = gameManager.createGame()
-            val playerId = game.addPlayer()
-            val info = GamePlayerInfo(game.gameId.toString(), playerId.toString())
-            call.respond(HttpStatusCode.Accepted, info)
-        }
-    }
-    // join existing game
-    routing {
-        post("/api/join/{gameType}/{gameId}") {
-            val gameType = call.parameters["gameType"]
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "gameType is missing")
-            val gameIdStr = call.parameters["gameId"]
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "gameId is missing")
-            val gameId = try {
-                UUID.fromString(gameIdStr)
-            } catch (e: IllegalArgumentException) {
-                return@post call.respond(HttpStatusCode.BadRequest, "gameId is invalid")
-            }
-
-            val gameManager = gameManagers[gameType]
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "gameType is invalid")
-            val game = gameManager.getGame(gameId)
             try {
+                val gameType = call.getPathParameter("gameType")
+                val gameManager = gameManagers[gameType] ?: throw IllegalArgumentException("gameType is invalid")
+
+                val game = gameManager.createGame()
                 val playerId = game.addPlayer()
                 val info = GamePlayerInfo(game.gameId.toString(), playerId.toString())
                 call.respond(HttpStatusCode.Accepted, info)
-            } catch (e: GameFullException) {
-                call.respond(HttpStatusCode.BadRequest, "game is already full")
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, e.message ?: "invalid request")
             }
         }
     }
-    // fetch game state
+    /**
+     * Adds a player to an existing game. All required information is in the URL.
+     * Returns a GamePlayerInfo instance as a JSON upon success or a 400 status code upon error.
+     */
+    routing {
+        post("/api/join/{gameType}/{gameId}") {
+            try {
+                val gameType = call.getPathParameter("gameType")
+                val gameManager = gameManagers[gameType]
+                    ?: return@post call.respond(HttpStatusCode.BadRequest, "gameType is invalid")
+
+                val gameIdStr = call.getPathParameter("gameId")
+                val gameId = UUID.fromString(gameIdStr)
+
+                val game = gameManager.getGame(gameId)
+                val playerId = game.addPlayer()
+                val info = GamePlayerInfo(game.gameId.toString(), playerId.toString())
+                call.respond(HttpStatusCode.Accepted, info)
+            } catch (e: Exception) {
+                when (e) {
+                    is IllegalArgumentException -> call.respond(HttpStatusCode.BadRequest, e.message ?: "invalid request")
+                    is GameFullException -> call.respond(HttpStatusCode.BadRequest, "game is already full")
+                    else -> throw e
+                }
+            }
+        }
+    }
+    /**
+     * Opens an SSE connection for an existing game. All required information is in the URL.
+     */
     routing {
         get("/api/game/{gameType}/{gameId}") {
-            val gameType = call.parameters["gameType"]
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "gameType is missing")
-            val gameIdStr = call.parameters["gameId"]
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "gameId is missing")
-            val gameId = try {
-                UUID.fromString(gameIdStr)
-            } catch (e: IllegalArgumentException) {
-                return@get call.respond(HttpStatusCode.BadRequest, "gameId is invalid")
-            }
-            val gameManager = gameManagers[gameType]
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "gameType is invalid")
-
             try {
+                val gameType = call.getPathParameter("gameType")
+                val gameIdStr = call.getPathParameter("gameId")
+                val gameId = UUID.fromString(gameIdStr)
+                val gameManager = gameManagers[gameType] ?: throw IllegalArgumentException("gameType is invalid")
+
                 val game = gameManager.getGame(gameId)
                 call.sendSseEvents(game.getFlow())
-            } catch (e: GameDoesNotExistException) {
-                call.respond(HttpStatusCode.BadRequest, "gameId not found")
+            } catch (e: Exception) {
+                when (e) {
+                    is IllegalArgumentException -> call.respond(HttpStatusCode.BadRequest, e.message ?: "invalid request")
+                    is GameDoesNotExistException -> call.respond(HttpStatusCode.BadRequest, "game not found")
+                    else -> throw e
+                }
             }
         }
     }
-    // make move
+    /**
+     * Makes a move for the given playerId.
+     * gameType and gameId are provided in the URL; move information is provided in request body.
+     * Returns 200 with empty body upon success or 400 upon failure
+     */
     routing {
         post("/api/game/{gameType}/{gameId}") {
-            val gameType = call.parameters["gameType"]
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "gameType is missing")
-            val gameIdStr = call.parameters["gameId"]
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "gameId is missing")
-            val gameId = try {
-                UUID.fromString(gameIdStr)
-            } catch (e: IllegalArgumentException) {
-                return@post call.respond(HttpStatusCode.BadRequest, "gameId is invalid")
-            }
             try {
+                val gameType = call.getPathParameter("gameType")
+                val gameIdStr = call.getPathParameter("gameId")
+                val gameId = UUID.fromString(gameIdStr)
                 if (gameType == "ttt") {
                     val game = tttGameManager.getGame(gameId)
                     val move = call.receive<TicTacToeMove>()
@@ -102,11 +106,10 @@ fun Application.configureRouting() {
                     game.playMove(move)
                 }
             } catch (e: Exception) {
-                when (e) {  // apparently kotlin doesn't have multicatch: https://discuss.kotlinlang.org/t/does-kotlin-have-multi-catch/486/20
-                    is GameDoesNotExistException ->
-                        return@post call.respond(HttpStatusCode.BadRequest, "gameId not found")
-                    is InvalidMoveException, is IllegalArgumentException ->
-                        return@post call.respond(HttpStatusCode.BadRequest, "move is invalid")
+                when (e) {
+                    is InvalidMoveException -> call.respond(HttpStatusCode.BadRequest, e.message ?: "move is invalid")
+                    is IllegalArgumentException -> call.respond(HttpStatusCode.BadRequest, e.message ?: "invalid request")
+                    is GameDoesNotExistException -> call.respond(HttpStatusCode.BadRequest, "game not found")
                     else -> throw e
                 }
             }
@@ -116,12 +119,20 @@ fun Application.configureRouting() {
     }
 }
 
+/**
+ * Retrieves the specified parameter from the URL. Throws IllegalArgumentException if gameType is not found.
+ * This is meant to reduce duplicate code.
+ */
+fun ApplicationCall.getPathParameter(paramName: String): String {
+    return parameters[paramName] ?: throw IllegalArgumentException("$paramName is missing")
+}
+
 @Serializable
 data class GamePlayerInfo(val gameId: String, val playerId: String)
 
 // based on https://github.com/ktorio/ktor-samples/blob/main/sse/src/SseApplication.kt#L109-L137 but with StateFlow
 /**
- * The data class representing a SSE Event that will be sent to the client.
+ * Data class representing an SSE Event that will be sent to the client.
  */
 data class SseEvent(val data: String, val event: String? = null, val id: String? = null)
 
@@ -145,6 +156,3 @@ suspend fun ApplicationCall.sendSseEvents(flow: StateFlow<SseEvent>) {
         }
     }
 }
-
-// http POST localhost:3000/api/new/ttt
-// http --form POST localhost:3000/api/game/ttt/<gameId> playerId=<playerId> move='{"tile":0, "symbol":"✕"}'
