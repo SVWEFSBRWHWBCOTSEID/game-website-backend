@@ -11,8 +11,8 @@ import java.util.*
 @Serializable
 data class UltimateTicTacToeMove(
     @Serializable(with = UUIDSerializer::class)
-    val playerId: UUID, val board: Int,
-    val tile: Int, val symbol: String) : Move()
+    override val playerId: UUID,
+    val board: Int, val tile: Int, val symbol: String) : Move()
 
 // use String instead of Char since empty string isn't a Char and JS doesn't have Char
 private const val EMPTY = ""
@@ -68,6 +68,7 @@ class UltimateTicTacToe : GameStateManager<UltimateTicTacToeMove>() {
         board[move.board].playMove(TicTacToeMove(move.playerId, move.tile, move.symbol))
         lastMove = move.symbol
 
+        // if a row/col/diag is now filled, the player that just moved has won
         if (checkRow(move.tile) || checkCol(move.tile) || checkDiag(move.tile)) {
             status = if (move.symbol == X) TicTacToeStatus.X_VICTORY else TicTacToeStatus.O_VICTORY
         } else if (TicTacToeStatus.PLAYING !in board.map { it.status }) {

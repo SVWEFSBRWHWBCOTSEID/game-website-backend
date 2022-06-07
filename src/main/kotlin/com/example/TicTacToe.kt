@@ -15,7 +15,7 @@ enum class TicTacToeStatus {
 @Serializable
 data class TicTacToeMove(
     @Serializable(with = UUIDSerializer::class)
-    val playerId: UUID,
+    override val playerId: UUID,
     val tile: Int, val symbol: String) : Move()
 
 // use String instead of Char since empty string isn't a Char and JS doesn't have Char
@@ -86,9 +86,6 @@ class TicTacToe(private val independentGame: Boolean = true) : GameStateManager<
     }
 
     private fun checkDiag(tile: Int): Boolean {
-        // 0 1 2
-        // 3 4 5
-        // 6 7 8
         // main diagonal is all multiples of 4
         if (tile % 4 == 0 && check(board[0], board[4], board[8])) return true
 

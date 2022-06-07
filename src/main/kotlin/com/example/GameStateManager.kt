@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -21,12 +22,15 @@ object UUIDSerializer : KSerializer<UUID> {
     override fun deserialize(decoder: Decoder): UUID = UUID.fromString(decoder.decodeString())
 }
 
-abstract class Move
+@Serializable
+abstract class Move {
+    @Serializable(with = UUIDSerializer::class)
+    abstract val playerId: UUID  // all moves must have a playerId attached, regardless of the game
+}
 
-// TODO make sure the game has enough players before starting
 abstract class GameStateManager<out T : Move> {
     val gameId: UUID = UUID.randomUUID()
-    protected val flow = MutableStateFlow(SseEvent("game has not started"))  // TODO figure out better initial val
+    protected val flow = MutableStateFlow(SseEvent("game has not started"))  // TODO: figure out better initial val
 
     fun getFlow(): StateFlow<SseEvent> {
         return flow.asStateFlow()
