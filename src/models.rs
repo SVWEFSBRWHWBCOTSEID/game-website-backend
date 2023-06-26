@@ -58,7 +58,7 @@ pub struct GameState {
     moves: Vec<Move>,
     first_time: u32,
     second_time: u32,
-    status: String,
+    status: GameStatus,
 }
 
 // general move struct
@@ -73,5 +73,11 @@ pub enum Side {
     First,
     Second,
     Random,
+}
+
+// enum for game status
+#[derive(Deserialize, Serialize)]
+pub enum GameStatus {
+    Started,
 }
 
