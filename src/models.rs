@@ -11,6 +11,8 @@ pub struct Seek {
     pub side: Side,
     pub rating_min: u16,
     pub rating_max: u16,
+    pub player: Player,
+    pub start_pos: String,
 }
 
 // general full game struct
@@ -54,8 +56,8 @@ pub struct Player {
 #[derive(Deserialize, Serialize)]
 pub struct GameState {
     moves: Vec<Move>,
-    white_time: u32,
-    black_time: u32,
+    first_time: u32,
+    second_time: u32,
     status: String,
 }
 
