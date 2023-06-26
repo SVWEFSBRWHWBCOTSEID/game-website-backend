@@ -20,7 +20,7 @@ pub struct Game {
     rated: bool,
     game: GameType,
     clock: Clock,
-    created_at: u64,
+    created_at: i64,
     white: Player,
     black: Player,
     start_pos: String,
