@@ -40,7 +40,7 @@ impl Game {
             },
         }
 
-        let game = Game {
+        Game {
             id: Uuid::new_v4(),
             rated: seek.rated,
             game: game_type,
@@ -50,8 +50,7 @@ impl Game {
             second,
             start_pos: seek.start_pos,
             state,
-        };
-        return game;
+        }
     }
 }
 
