@@ -18,53 +18,53 @@ pub struct Seek {
 // general full game struct
 #[derive(Deserialize, Serialize)]
 pub struct Game {
-    id: Uuid,
-    rated: bool,
-    game: GameType,
-    clock: Clock,
-    created_at: i64,
-    first: Player,
-    second: Player,
-    start_pos: String,
-    state: GameState,
+    pub id: Uuid,
+    pub rated: bool,
+    pub game: GameType,
+    pub clock: Clock,
+    pub created_at: i64,
+    pub first: Player,
+    pub second: Player,
+    pub start_pos: String,
+    pub state: GameState,
 }
 
 // key and name of game
 #[derive(Deserialize, Serialize)]
 pub struct GameType {
-    key: String,
-    name: String,
+    pub key: String,
+    pub name: String,
 }
 
 // time control for game
 #[derive(Deserialize, Serialize)]
 pub struct Clock {
-    initial: u32,
-    increment: u32,
+    pub initial: u32,
+    pub increment: u32,
 }
 
 // player information for one game
 #[derive(Deserialize, Serialize)]
 pub struct Player {
-    id: Uuid,
-    name: String,
-    provisional: bool,
-    rating: u32,
+    pub id: Uuid,
+    pub name: String,
+    pub provisional: bool,
+    pub rating: u32,
 }
 
 // general game state for any game
 #[derive(Deserialize, Serialize)]
 pub struct GameState {
-    moves: Vec<Move>,
-    first_time: u32,
-    second_time: u32,
-    status: GameStatus,
+    pub moves: Vec<Move>,
+    pub first_time: u32,
+    pub second_time: u32,
+    pub status: GameStatus,
 }
 
 // general move struct
 #[derive(Deserialize, Serialize)]
 pub struct Move {
-    user_move: String,
+    pub user_move: String,
 }
 
 // enum for starting side choice
