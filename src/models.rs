@@ -2,10 +2,15 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 
-// general move struct
+// general game seek struct
 #[derive(Deserialize, Serialize)]
-pub struct Move {
-    user_move: String,
+pub struct Seek {
+    pub rated: bool,
+    pub time: u32,
+    pub increment: u32,
+    pub side: Side,
+    pub rating_min: u16,
+    pub rating_max: u16,
 }
 
 // general full game struct
@@ -52,5 +57,19 @@ pub struct GameState {
     white_time: u32,
     black_time: u32,
     status: String,
+}
+
+// general move struct
+#[derive(Deserialize, Serialize)]
+pub struct Move {
+    user_move: String,
+}
+
+// enum for starting side choice
+#[derive(Deserialize, Serialize)]
+pub enum Side {
+    First,
+    Second,
+    Random,
 }
 
