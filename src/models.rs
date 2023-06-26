@@ -21,8 +21,8 @@ pub struct Game {
     game: GameType,
     clock: Clock,
     created_at: i64,
-    white: Player,
-    black: Player,
+    first: Player,
+    second: Player,
     start_pos: String,
     state: GameState,
 }
