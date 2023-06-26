@@ -532,6 +532,7 @@ dependencies = [
  "env_logger",
  "log",
  "phf",
+ "rand",
  "serde",
  "uuid",
 ]
