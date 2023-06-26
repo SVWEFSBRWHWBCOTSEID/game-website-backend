@@ -8,9 +8,9 @@ pub struct Move {
     user_move: String,
 }
 
-// tic-tac-toe full game struct
+// general full game struct
 #[derive(Deserialize, Serialize)]
-pub struct TTTGame {
+pub struct Game {
     id: Uuid,
     rated: bool,
     game: GameType,
@@ -24,21 +24,21 @@ pub struct TTTGame {
 
 // key and name of game
 #[derive(Deserialize, Serialize)]
-struct GameType {
+pub struct GameType {
     key: String,
     name: String,
 }
 
 // time control for game
 #[derive(Deserialize, Serialize)]
-struct Clock {
+pub struct Clock {
     initial: u32,
     increment: u32,
 }
 
 // player information for one game
 #[derive(Deserialize, Serialize)]
-struct Player {
+pub struct Player {
     id: Uuid,
     name: String,
     provisional: bool,
@@ -47,7 +47,7 @@ struct Player {
 
 // general game state for any game
 #[derive(Deserialize, Serialize)]
-struct GameState {
+pub struct GameState {
     moves: Vec<Move>,
     white_time: u32,
     black_time: u32,

@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 
-#[derive(Deserialize, Serialize)]
-pub struct Move {
-    id: Option<i64>,
-    name: Option<String>,
-}
+const KEY_NAMES: HashMap<&str, &str> = HashMap::from([
+    ("ttt", "Tic-Tac-Toe"),
+    ("uttt", "Ultimate Tic-Tac-Toe"),
+    ("pc", "Pokemon Chess"),
+]);
 
