@@ -1,6 +1,7 @@
 pub mod app_config;
 pub mod models;
 pub mod handlers;
+pub mod prisma;
 
 use phf::phf_map;
 

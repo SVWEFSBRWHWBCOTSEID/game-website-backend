@@ -1,0 +1,42 @@
+datasource db {
+    provider = "postgresql"
+    url      = "postgres://kepler:gamingdb11@localhost:5432/game-db"
+}
+
+generator client {
+    provider = "cargo prisma"
+    output   = "../src/prisma.rs"
+}
+
+model Game {
+    id              String      @id @default(uuid())
+    createdAt       DateTime    @default(now())
+    rated           Boolean
+    gameKey         String
+    gameName        String
+    clockInitial    Int
+    clockIncrement  Int
+    first           Player?     @relation(fields: [firstId], references: [id], name: "First")
+    second          Player?     @relation(fields: [secondId], references: [id], name: "Second")
+    firstId         String      @unique
+    secondId        String      @unique
+    startPos        String
+    moves           String[]
+    firstTime       Int
+    secondTime      Int
+    status          GameStatus
+}
+
+model Player {
+    id          String  @id @default(uuid())
+    name        String
+    provisional Boolean
+    rating      Int
+    firstGame   Game?   @relation(name: "First")
+    secondGame  Game?   @relation(name: "Second")
+}
+
+enum GameStatus {
+    WAITING
+    STARTED
+}

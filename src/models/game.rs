@@ -22,7 +22,6 @@ pub struct Game {
     pub rated: bool,
     pub game: GameType,
     pub clock: Clock,
-    pub created_at: u64,
     pub first: Option<Player>,
     pub second: Option<Player>,
     pub start_pos: String,

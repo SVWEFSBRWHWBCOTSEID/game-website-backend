@@ -1,5 +1,4 @@
 use uuid::Uuid;
-use chrono::Utc;
 use rand::Rng;
 
 use crate::get_key_name;
@@ -44,7 +43,6 @@ impl Game {
             rated: seek.rated,
             game: game_type,
             clock,
-            created_at: Utc::now().timestamp_millis() as u64,
             first,
             second,
             start_pos: seek.start_pos,
