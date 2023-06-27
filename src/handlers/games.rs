@@ -1,6 +1,6 @@
 use actix_web::{web, Error, HttpRequest, HttpResponse, post};
 
-use crate::models::models::{Game, Seek};
+use crate::models::game::{Game, Seek};
 
 
 // route for creating a new game

@@ -2,8 +2,8 @@ use uuid::Uuid;
 use chrono::Utc;
 use rand::Rng;
 
-use crate::common::get_key_name;
-use crate::models::models::{Seek, Game, GameType, Clock, Player, GameState, GameStatus, Side};
+use crate::get_key_name;
+use crate::models::game::{Seek, Game, GameType, Clock, Player, GameState, GameStatus, Side};
 
 
 impl Game {
