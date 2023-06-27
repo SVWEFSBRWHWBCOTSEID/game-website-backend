@@ -11,4 +11,3 @@ pub async fn create_game(req: HttpRequest, data: web::Json<Seek>) -> Result<Http
 
     Ok(HttpResponse::Ok().json(Game::from_seek(seek, game_key)))
 }
-

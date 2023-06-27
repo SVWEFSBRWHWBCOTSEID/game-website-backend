@@ -9,4 +9,3 @@ pub async fn add_move(req: HttpRequest) -> Result<HttpResponse, Error> {
     let _user_move: String = req.match_info().query("move").parse().unwrap();
     Ok(HttpResponse::Ok().finish())
 }
-

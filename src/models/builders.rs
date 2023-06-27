@@ -9,7 +9,6 @@ use crate::models::models::{Seek, Game, GameType, Clock, Player, GameState, Game
 impl Game {
     // method to construct a Game from a Seek and game key
     pub fn from_seek(seek: Seek, game_key: String) -> Self {
-        
         let game_type = GameType {
             key: game_key.clone(),
             name: get_key_name(&game_key),
@@ -53,4 +52,3 @@ impl Game {
         }
     }
 }
-

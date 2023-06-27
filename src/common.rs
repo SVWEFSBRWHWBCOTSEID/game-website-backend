@@ -10,4 +10,3 @@ static KEY_NAMES: phf::Map<&'static str, &'static str> = phf_map! {
 pub fn get_key_name(key: &str) -> String {
     KEY_NAMES.get(key).unwrap().to_string()
 }
-

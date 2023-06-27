@@ -80,4 +80,3 @@ pub enum Side {
 pub enum GameStatus {
     Started,
 }
-
