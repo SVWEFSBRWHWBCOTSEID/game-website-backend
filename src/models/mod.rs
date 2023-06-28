@@ -1,2 +1,4 @@
-pub mod game;
-pub mod builders;
+pub mod general;
+pub mod req;
+pub mod res;
+pub mod helpers;

@@ -9,31 +9,24 @@ generator client {
 }
 
 model Game {
-    id              String      @id @default(uuid())
-    createdAt       DateTime    @default(now())
-    rated           Boolean
-    gameKey         String
-    gameName        String
-    clockInitial    Int
-    clockIncrement  Int
-    first           Player?     @relation(fields: [firstId], references: [id], name: "First")
-    second          Player?     @relation(fields: [secondId], references: [id], name: "Second")
-    firstId         String?     @unique
-    secondId        String?     @unique
-    startPos        String
-    moves           String[]
-    firstTime       Int
-    secondTime      Int
-    status          GameStatus
-}
-
-model Player {
-    id          String  @id @default(uuid())
-    name        String
-    provisional Boolean
-    rating      Int
-    firstGame   Game?   @relation(name: "First")
-    secondGame  Game?   @relation(name: "Second")
+    id                  String      @id @default(uuid())
+    createdAt           DateTime    @default(now())
+    rated               Boolean
+    gameKey             String
+    gameName            String
+    clockInitial        Int?
+    clockIncrement      Int?
+    firstName           String?
+    firstProvisional    Boolean?
+    firstRating         Int?
+    secondName          String?
+    secondProvisional   Boolean?
+    secondRating        Int?
+    startPos            String
+    moves               String
+    firstTime           Int?
+    secondTime          Int?
+    status              GameStatus
 }
 
 enum GameStatus {

@@ -1,7 +1,7 @@
 use actix_web::{web, Error, HttpRequest, HttpResponse, post};
 
 use crate::prisma::PrismaClient;
-use crate::models::game::{Game, Seek};
+use crate::models::req::CreateGameReq;
 
 
 // route for creating a new game
@@ -9,29 +9,13 @@ use crate::models::game::{Game, Seek};
 pub async fn create_game(
     req: HttpRequest,
     client: web::Data<PrismaClient>,
-    data: web::Json<Seek>
+    data: web::Json<CreateGameReq>
 ) -> Result<HttpResponse, Error> {
 
-    let seek: Seek = data.into_inner();
+    let create_game_req: CreateGameReq = data.into_inner();
     let game_key: String = req.match_info().get("game").unwrap().parse().unwrap();
 
-    let game = Game::from_seek(seek, game_key);
+    let game = create_game_req.create_game(client, &game_key).await;
 
-    client
-        .game()
-        .create(
-            game.rated,
-            game.game.key,
-            game.game.name,
-            game.clock.initial,
-            game.clock.increment,
-            game.start_pos,
-            game.state.first_time,
-            game.state.second_time,
-            game.state.status,
-            vec![],
-        ).exec()
-        .await;
-
-    Ok(HttpResponse::Ok().json(game))
+    Ok(HttpResponse::Ok().json(game.to_game_res()))
 }
