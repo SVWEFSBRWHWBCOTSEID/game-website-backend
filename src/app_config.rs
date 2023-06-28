@@ -1,10 +1,9 @@
 use actix_web::web;
 
-use crate::handlers::{games, moves};
+use crate::handlers::game;
 
 
 pub fn config_app(cfg: &mut web::ServiceConfig) {
     cfg
-        .service(games::create_game)
-        .service(moves::add_move);
+        .service(game::create_game);
 }

@@ -18,8 +18,8 @@ model Game {
     clockIncrement  Int
     first           Player?     @relation(fields: [firstId], references: [id], name: "First")
     second          Player?     @relation(fields: [secondId], references: [id], name: "Second")
-    firstId         String      @unique
-    secondId        String      @unique
+    firstId         String?     @unique
+    secondId        String?     @unique
     startPos        String
     moves           String[]
     firstTime       Int
@@ -39,4 +39,10 @@ model Player {
 enum GameStatus {
     WAITING
     STARTED
+}
+
+enum Side {
+    FIRST
+    SECOND
+    RANDOM
 }

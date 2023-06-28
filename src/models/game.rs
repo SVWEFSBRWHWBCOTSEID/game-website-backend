@@ -6,11 +6,11 @@ use uuid::Uuid;
 #[derive(Deserialize, Serialize)]
 pub struct Seek {
     pub rated: bool,
-    pub time: u32,
-    pub increment: u32,
-    pub side: Side,
-    pub rating_min: u16,
-    pub rating_max: u16,
+    pub time: i32,
+    pub increment: i32,
+    pub side: crate::prisma::Side,
+    pub rating_min: i32,
+    pub rating_max: i32,
     pub player: Player,
     pub start_pos: String,
 }
@@ -38,8 +38,8 @@ pub struct GameType {
 // time control for game
 #[derive(Deserialize, Serialize)]
 pub struct Clock {
-    pub initial: u32,
-    pub increment: u32,
+    pub initial: i32,
+    pub increment: i32,
 }
 
 // player information for one game
@@ -48,34 +48,20 @@ pub struct Player {
     pub id: Uuid,
     pub name: String,
     pub provisional: bool,
-    pub rating: u32,
+    pub rating: i32,
 }
 
 // general game state for any game
 #[derive(Deserialize, Serialize)]
 pub struct GameState {
     pub moves: Vec<Move>,
-    pub first_time: u32,
-    pub second_time: u32,
-    pub status: GameStatus,
+    pub first_time: i32,
+    pub second_time: i32,
+    pub status: crate::prisma::GameStatus,
 }
 
 // general move struct
 #[derive(Deserialize, Serialize)]
 pub struct Move {
     pub user_move: String,
-}
-
-// enum for starting side choice
-#[derive(Deserialize, Serialize)]
-pub enum Side {
-    First,
-    Second,
-    Random,
-}
-
-// enum for game status
-#[derive(Deserialize, Serialize)]
-pub enum GameStatus {
-    Started,
 }
