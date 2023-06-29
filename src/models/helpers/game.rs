@@ -16,7 +16,7 @@ impl CreateGameReq {
         self.player.rating < self.rating_max
     }
 
-    // method to construct a Game from a Seek and game key
+    // method to add a game to table from this game request
     pub async fn create_game(
         &self,
         client: web::Data<PrismaClient>,
@@ -140,7 +140,7 @@ impl CreateGameReq {
 }
 
 impl Data {
-    // method to construct a GameResponse from prisma result
+    // method to construct reponse from prisma game struct
     pub fn to_game_res(&self) -> GameResponse {
         
         let game = GameType {
