@@ -11,11 +11,15 @@ use phf::phf_map;
 static KEY_NAMES: phf::Map<&'static str, &'static str> = phf_map! {
     "ttt" => "Tic-Tac-Toe",
     "uttt" => "Ultimate Tic-Tac-Toe",
+    "c4" => "Connect 4",
     "pc" => "Pokemon Chess",
 };
 
-pub fn get_key_name(key: &str) -> String {
-    KEY_NAMES.get(key).unwrap().to_string()
+pub fn get_key_name(key: &str) -> Option<String> {
+    match KEY_NAMES.get(key) {
+        Some(s) => Some(s.to_string()),
+        None => None,
+    }
 }
 
 #[derive(Debug, Display, Error)]
