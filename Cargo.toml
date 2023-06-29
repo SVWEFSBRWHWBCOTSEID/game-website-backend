@@ -18,3 +18,4 @@ rand = "0.8.5"
 serde = { version = "1.0.164", features = ["derive"] }
 uuid = { version = "1.3.4", features = ["v4", "serde"] }
 prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust", default-features = false, features = ["postgresql"] }
+derive_more = "0.99.17"

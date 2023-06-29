@@ -1,6 +1,7 @@
-use actix_web::{web, Error, HttpRequest, HttpResponse, post};
+use actix_web::{web, HttpRequest, HttpResponse, post};
 use rand::Rng;
 
+use crate::CustomError;
 use crate::prisma::{PrismaClient, Side};
 use crate::models::req::CreateGameReq;
 
@@ -11,9 +12,13 @@ pub async fn create_game(
     req: HttpRequest,
     client: web::Data<PrismaClient>,
     data: web::Json<CreateGameReq>
-) -> Result<HttpResponse, Error> {
+) -> Result<HttpResponse, CustomError> {
 
     let create_game_req: CreateGameReq = data.into_inner();
+    if !create_game_req.validate() {
+        return Err(CustomError::BadRequest);
+    }
+
     let game_key: String = req.match_info().get("game").unwrap().parse().unwrap();
 
     let mut rng = rand::thread_rng();

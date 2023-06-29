@@ -9,6 +9,13 @@ use crate::models::res::{GameResponse};
 
 
 impl CreateGameReq {
+    // method to validate this game request
+    pub fn validate(&self) -> bool {
+        self.time.unwrap_or(1) != 0 &&
+        self.player.rating > self.rating_min &&
+        self.player.rating < self.rating_max
+    }
+
     // method to construct a Game from a Seek and game key
     pub async fn create_game(
         &self,
@@ -46,6 +53,8 @@ impl CreateGameReq {
                 self.rated,
                 game_key.to_string(),
                 get_key_name(game_key),
+                self.rating_min,
+                self.rating_max,
                 self.start_pos.clone(),
                 "".to_string(),
                 GameStatus::Waiting,
@@ -67,6 +76,7 @@ impl CreateGameReq {
             .unwrap()
     }
 
+    // method to match player with an existing game if criteria are met
     pub async fn match_if_possible(
         &self,
         client: web::Data<PrismaClient>,
@@ -97,7 +107,8 @@ impl CreateGameReq {
                 } else {
                     g.first_rating.unwrap()
                 };
-                rating_min < rating && rating_max > rating
+                rating_min < rating && rating_max > rating &&
+                g.rating_min < self.player.rating && g.rating_max > self.player.rating
             });
 
         if filtered_games.clone().count() == 0 {
