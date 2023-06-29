@@ -5,6 +5,7 @@ use super::general::Player;
 
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateGameReq {
     pub rated: bool,
     pub time: Option<i32>,

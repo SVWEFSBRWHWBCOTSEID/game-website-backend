@@ -4,6 +4,7 @@ use super::general::{GameType, Clock, Player, GameState};
 
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GameResponse {
     pub id: String,
     pub created_at: String,
