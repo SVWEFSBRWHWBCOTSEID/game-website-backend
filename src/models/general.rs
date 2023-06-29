@@ -39,3 +39,36 @@ pub struct GameState {
     pub second_time: Option<i32>,
     pub status: GameStatus,
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct Perfs {
+    pub ttt: GamePerf,
+    pub uttt: GamePerf,
+    pub c4: GamePerf,
+    pub pc: GamePerf,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct GamePerf {
+    pub games: i32,
+    pub rating: i32,
+    pub rd: i32,
+    pub prog: i32,
+    pub prov: bool,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct Profile {
+    pub country: Country,
+    pub location: String,
+    pub bio: String,
+    pub first_name: String,
+    pub last_name: String,
+}
+
+#[derive(Deserialize, Serialize)]
+pub enum Country {
+    US,
+    MN,
+    UK,
+}

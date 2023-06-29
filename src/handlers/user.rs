@@ -1,20 +1,20 @@
-use actix_web::{web, HttpRequest, HttpResponse, post};
-use rand::Rng;
+use actix_web::{web, HttpResponse, post};
 
 use crate::CustomError;
-use crate::prisma::{PrismaClient, Side};
+use crate::prisma::PrismaClient;
 use crate::models::req::CreateUserReq;
 
 
 // route for creating a new user
 #[post("/api/user/new")]
 pub async fn create_user(
-    req: HttpRequest,
     client: web::Data<PrismaClient>,
     data: web::Json<CreateUserReq>
 ) -> Result<HttpResponse, CustomError> {
 
     let create_user_req: CreateUserReq = data.into_inner();
 
-    Ok(HttpResponse::Ok().json(create_user_req.to_game_res()))
+    let user = create_user_req.create_user(client).await;
+
+    Ok(HttpResponse::Ok().json(user.to_user_res()))
 }
