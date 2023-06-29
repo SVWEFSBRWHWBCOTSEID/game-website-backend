@@ -13,6 +13,6 @@ pub struct GameResponse {
     pub clock: Clock,
     pub first_player: Option<Player>,
     pub second_player: Option<Player>,
-    pub start_pos: String,
+    pub start_pos: Option<String>,
     pub game_state: GameState,
 }

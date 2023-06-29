@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 
 use crate::prisma::Side;
-use super::general::Player;
 
 
 #[derive(Deserialize, Serialize)]
@@ -13,6 +12,12 @@ pub struct CreateGameReq {
     pub side: Side,
     pub rating_min: i32,
     pub rating_max: i32,
-    pub player: Player,
-    pub start_pos: String,
+    pub username: String,
+    pub start_pos: Option<String>,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateUserReq {
+    pub name: String,
 }

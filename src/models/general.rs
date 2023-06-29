@@ -3,6 +3,16 @@ use serde::{Deserialize, Serialize};
 use crate::prisma::GameStatus;
 
 
+// struct for temporary use for player matching
+pub struct MatchPlayer {
+    pub name: String,
+    pub provisional: bool,
+    pub rating: i32,
+    pub rating_min: i32,
+    pub rating_max: i32,
+    pub first: bool,
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct Player {
     pub name: String,

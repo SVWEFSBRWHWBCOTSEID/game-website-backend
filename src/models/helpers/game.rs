@@ -1,8 +1,8 @@
 use actix_web::web;
 
 use crate::get_key_name;
-use crate::models::general::{GameType, Clock, Player, GameState};
-use crate::prisma::game::{Data, self};
+use crate::models::general::{GameType, Clock, GameState, Player, MatchPlayer};
+use crate::prisma::game;
 use crate::prisma::{GameStatus, PrismaClient};
 use crate::models::req::{CreateGameReq};
 use crate::models::res::{GameResponse};
@@ -10,10 +10,10 @@ use crate::models::res::{GameResponse};
 
 impl CreateGameReq {
     // method to validate this game request
-    pub fn validate(&self) -> bool {
+    pub fn validate(&self, player: &MatchPlayer) -> bool {
         self.time.unwrap_or(1) != 0 &&
-        self.player.rating > self.rating_min &&
-        self.player.rating < self.rating_max
+        player.rating > self.rating_min &&
+        player.rating < self.rating_max
     }
 
     // method to add a game to table from this game request
@@ -21,8 +21,8 @@ impl CreateGameReq {
         &self,
         client: web::Data<PrismaClient>,
         game_key: &str,
-        playing_first: bool,
-    ) -> Data {
+        player: &MatchPlayer,
+    ) -> game::Data {
 
         let first_name: Option<String>;
         let first_provisional: Option<bool>;
@@ -31,10 +31,10 @@ impl CreateGameReq {
         let second_name: Option<String>;
         let second_rating: Option<i32>;
 
-        if playing_first {
-            first_name = Some(self.player.name.clone());
-            first_provisional = Some(self.player.provisional);
-            first_rating = Some(self.player.rating);
+        if player.first {
+            first_name = Some(player.name.clone());
+            first_provisional = Some(player.provisional);
+            first_rating = Some(player.rating);
             second_name = None;
             second_provisional = None;
             second_rating = None;
@@ -42,9 +42,9 @@ impl CreateGameReq {
             first_name = None;
             first_provisional = None;
             first_rating = None;
-            second_name = Some(self.player.name.clone());
-            second_provisional = Some(self.player.provisional);
-            second_rating = Some(self.player.rating);
+            second_name = Some(player.name.clone());
+            second_provisional = Some(player.provisional);
+            second_rating = Some(player.rating);
         }
 
         client
@@ -52,10 +52,9 @@ impl CreateGameReq {
             .create(
                 self.rated,
                 game_key.to_string(),
-                get_key_name(game_key),
+                get_key_name(game_key).unwrap(),
                 self.rating_min,
                 self.rating_max,
-                self.start_pos.clone(),
                 "".to_string(),
                 GameStatus::Waiting,
                 vec![
@@ -69,6 +68,7 @@ impl CreateGameReq {
                     game::second_name::set(second_name),
                     game::second_provisional::set(second_provisional),
                     game::second_rating::set(second_rating),
+                    game::start_pos::set(self.start_pos.clone()),
                 ],
             )
             .exec()
@@ -81,18 +81,16 @@ impl CreateGameReq {
         &self,
         client: web::Data<PrismaClient>,
         game_key: &str,
-        rating_min: i32,
-        rating_max: i32,
-        playing_first: bool,
-    ) -> Option<Data> {
+        player: &MatchPlayer,
+    ) -> Option<game::Data> {
 
-        let games: Vec<Data> = client
+        let games: Vec<game::Data> = client
             .game()
             .find_many(vec![
                 game::game_key::equals(game_key.to_string()),
                 game::clock_initial::equals(self.time),
                 game::clock_increment::equals(self.increment),
-                if playing_first { game::first_name::equals(None) }
+                if player.first { game::first_name::equals(None) }
                 else { game::second_name::equals(None) },
             ])
             .exec()
@@ -102,13 +100,13 @@ impl CreateGameReq {
         let filtered_games = games
             .iter()
             .filter(|g| {
-                let rating = if playing_first {
+                let rating = if player.first {
                     g.second_rating.unwrap()
                 } else {
                     g.first_rating.unwrap()
                 };
-                rating_min < rating && rating_max > rating &&
-                g.rating_min < self.player.rating && g.rating_max > self.player.rating
+                player.rating_min < rating && player.rating_max > rating &&
+                g.rating_min < player.rating && g.rating_max > player.rating
             });
 
         if filtered_games.clone().count() == 0 {
@@ -124,12 +122,12 @@ impl CreateGameReq {
             .update(
                 game::id::equals(game.id.clone()),
                 vec![
-                    if playing_first { game::first_name::set(Some(self.player.name.clone())) }
-                    else { game::second_name::set(Some(self.player.name.clone())) },
-                    if playing_first { game::first_provisional::set(Some(self.player.provisional.clone())) }
-                    else { game::second_provisional::set(Some(self.player.provisional.clone())) },
-                    if playing_first { game::first_rating::set(Some(self.player.rating.clone())) }
-                    else { game::second_rating::set(Some(self.player.rating.clone())) },
+                    if player.first { game::first_name::set(Some(player.name.clone())) }
+                    else { game::second_name::set(Some(player.name.clone())) },
+                    if player.first { game::first_provisional::set(Some(player.provisional.clone())) }
+                    else { game::second_provisional::set(Some(player.provisional.clone())) },
+                    if player.first { game::first_rating::set(Some(player.rating.clone())) }
+                    else { game::second_rating::set(Some(player.rating.clone())) },
                 ],
             )
             .exec()
@@ -139,7 +137,7 @@ impl CreateGameReq {
     }
 }
 
-impl Data {
+impl game::Data {
     // method to construct reponse from prisma game struct
     pub fn to_game_res(&self) -> GameResponse {
         
