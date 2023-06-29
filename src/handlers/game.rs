@@ -59,7 +59,7 @@ pub async fn create_game(
 
     // see if an open game fits criteria
     let game_option = create_game_req.match_if_possible(
-        client.clone(),
+        &client,
         &game_key,
         &match_player,
     ).await;
@@ -68,7 +68,7 @@ pub async fn create_game(
     let game = match game_option {
         Some(g) => g,
         None => create_game_req.create_game(
-            client,
+            &client,
             &game_key,
             &match_player,
         ).await,

@@ -6,8 +6,22 @@ use crate::prisma::{user, PrismaClient};
 use crate::models::req::CreateUserReq;
 
 impl CreateUserReq {
+    // method to check that this username does not already exist
+    pub async fn validate(&self, client: &web::Data<PrismaClient>) -> bool {
+        match client
+            .user()
+            .find_unique(user::name::equals(self.name.clone()))
+            .exec()
+            .await
+            .unwrap()
+        {
+            Some(_) => false,
+            None => true,
+        }
+    }
+
     // method to add a user to table from this user request
-    pub async fn create_user(&self, client: web::Data<PrismaClient>) -> user::Data {
+    pub async fn create_user(&self, client: &web::Data<PrismaClient>) -> user::Data {
         client
             .user()
             .create(

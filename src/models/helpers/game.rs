@@ -19,7 +19,7 @@ impl CreateGameReq {
     // method to add a game to table from this game request
     pub async fn create_game(
         &self,
-        client: web::Data<PrismaClient>,
+        client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
     ) -> game::Data {
@@ -79,7 +79,7 @@ impl CreateGameReq {
     // method to match player with an existing game if criteria are met
     pub async fn match_if_possible(
         &self,
-        client: web::Data<PrismaClient>,
+        client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
     ) -> Option<game::Data> {
