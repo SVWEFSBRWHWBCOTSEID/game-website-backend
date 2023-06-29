@@ -24,11 +24,23 @@ model Game {
     secondRating        Int?
     ratingMin           Int
     ratingMax           Int
-    startPos            String
+    startPos            String?
     moves               String
     firstTime           Int?
     secondTime          Int?
     status              GameStatus
+}
+
+model User {
+    name            String  @unique
+    tttRating       Int
+    tttProvisional  Boolean
+    utttRating       Int
+    utttProvisional  Boolean
+    c4Rating       Int
+    c4Provisional  Boolean
+    pcRating       Int
+    pcProvisional  Boolean
 }
 
 enum GameStatus {

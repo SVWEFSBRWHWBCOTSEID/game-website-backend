@@ -39,7 +39,7 @@ pub mod game {
         SecondRating(super::_prisma::read_filters::IntNullableFilter),
         RatingMin(super::_prisma::read_filters::IntFilter),
         RatingMax(super::_prisma::read_filters::IntFilter),
-        StartPos(super::_prisma::read_filters::StringFilter),
+        StartPos(super::_prisma::read_filters::StringNullableFilter),
         Moves(super::_prisma::read_filters::StringFilter),
         FirstTime(super::_prisma::read_filters::IntNullableFilter),
         SecondTime(super::_prisma::read_filters::IntNullableFilter),
@@ -202,7 +202,7 @@ pub mod game {
         SecondRating(super::_prisma::write_params::IntNullableParam),
         RatingMin(super::_prisma::write_params::IntParam),
         RatingMax(super::_prisma::write_params::IntParam),
-        StartPos(super::_prisma::write_params::StringParam),
+        StartPos(super::_prisma::write_params::StringNullableParam),
         Moves(super::_prisma::write_params::StringParam),
         FirstTime(super::_prisma::write_params::IntNullableParam),
         SecondTime(super::_prisma::write_params::IntNullableParam),
@@ -252,7 +252,7 @@ pub mod game {
         SecondRating(super::_prisma::write_params::IntNullableParam),
         RatingMin(super::_prisma::write_params::IntParam),
         RatingMax(super::_prisma::write_params::IntParam),
-        StartPos(super::_prisma::write_params::StringParam),
+        StartPos(super::_prisma::write_params::StringNullableParam),
         Moves(super::_prisma::write_params::StringParam),
         FirstTime(super::_prisma::write_params::IntNullableParam),
         SecondTime(super::_prisma::write_params::IntNullableParam),
@@ -337,7 +337,7 @@ pub mod game {
         }
     }
     #[macro_export]
-    macro_rules ! _include_game { ($ (($ ($ func_arg : ident : $ func_arg_ty : ty) , +) =>) ? $ module_name : ident { $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { # [allow (warnings)] pub mod $ module_name { crate :: prisma :: game :: include ! (@ definitions ; $ module_name ; $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) +) ; use super :: * ; pub struct Selection (Vec < :: prisma_client_rust :: Selection >) ; impl :: prisma_client_rust :: IncludeType for Selection { type Data = Data ; type ModelData = crate :: prisma :: game :: Data ; fn to_selections (self) -> Vec < :: prisma_client_rust :: Selection > { self . 0 } } pub fn include ($ ($ ($ func_arg : $ func_arg_ty) , +) ?) -> Selection { Selection ([crate :: prisma :: game :: include ! (@ selections_to_params ; : include { $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) + }) . into_iter () . map (| p | p . to_selection ()) . collect :: < Vec < _ >> () , < crate :: prisma :: game :: Types as :: prisma_client_rust :: ModelTypes > :: scalar_selections ()] . into_iter () . flatten () . collect :: < Vec < _ >> ()) } } } ; ({ $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { { crate :: prisma :: game :: include ! (@ definitions ; ; $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) +) ; pub struct Selection (Vec < :: prisma_client_rust :: Selection >) ; impl :: prisma_client_rust :: IncludeType for Selection { type Data = Data ; type ModelData = crate :: prisma :: game :: Data ; fn to_selections (self) -> Vec < :: prisma_client_rust :: Selection > { self . 0 } } Selection ([crate :: prisma :: game :: include ! (@ selections_to_params ; : include { $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) + }) . into_iter () . map (| p | p . to_selection ()) . collect :: < Vec < _ >> () , < crate :: prisma :: game :: Types as :: prisma_client_rust :: ModelTypes > :: scalar_selections ()] . into_iter () . flatten () . collect :: < Vec < _ >> ()) } } ; (@ definitions ; $ ($ module_name : ident) ? ; $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) +) => { # [allow (warnings)] enum Fields { } # [allow (warnings)] impl Fields { fn selections () { $ (let _ = Fields :: $ field ;) + } } # [allow (warnings)] # [derive (std :: fmt :: Debug , Clone)] pub struct Data { pub id : String , pub created_at : :: prisma_client_rust :: chrono :: DateTime < :: prisma_client_rust :: chrono :: FixedOffset , > , pub rated : bool , pub game_key : String , pub game_name : String , pub clock_initial : Option < i32 > , pub clock_increment : Option < i32 > , pub first_name : Option < String > , pub first_provisional : Option < bool > , pub first_rating : Option < i32 > , pub second_name : Option < String > , pub second_provisional : Option < bool > , pub second_rating : Option < i32 > , pub rating_min : i32 , pub rating_max : i32 , pub start_pos : String , pub moves : String , pub first_time : Option < i32 > , pub second_time : Option < i32 > , pub status : crate :: prisma GameStatus , $ (pub $ field : crate :: prisma :: game :: include ! (@ field_type ; $ field $ (: $ selection_mode { $ ($ selections) + }) ?) ,) + } impl :: serde :: Serialize for Data { fn serialize < S > (& self , serializer : S) -> std :: result :: Result < S :: Ok , S :: Error > where S : :: serde :: Serializer , { use :: serde :: ser :: SerializeStruct ; let mut state = serializer . serialize_struct ("Data" , [$ (stringify ! ($ field) ,) + stringify ! (id) , stringify ! (created_at) , stringify ! (rated) , stringify ! (game_key) , stringify ! (game_name) , stringify ! (clock_initial) , stringify ! (clock_increment) , stringify ! (first_name) , stringify ! (first_provisional) , stringify ! (first_rating) , stringify ! (second_name) , stringify ! (second_provisional) , stringify ! (second_rating) , stringify ! (rating_min) , stringify ! (rating_max) , stringify ! (start_pos) , stringify ! (moves) , stringify ! (first_time) , stringify ! (second_time) , stringify ! (status)] . len ()) ? ; $ (state . serialize_field (crate :: prisma :: game :: $ field :: NAME , & self . $ field) ? ;) * state . serialize_field (crate :: prisma :: game :: id :: NAME , & self . id) ? ; state . serialize_field (crate :: prisma :: game :: created_at :: NAME , & self . created_at) ? ; state . serialize_field (crate :: prisma :: game :: rated :: NAME , & self . rated) ? ; state . serialize_field (crate :: prisma :: game :: game_key :: NAME , & self . game_key) ? ; state . serialize_field (crate :: prisma :: game :: game_name :: NAME , & self . game_name) ? ; state . serialize_field (crate :: prisma :: game :: clock_initial :: NAME , & self . clock_initial) ? ; state . serialize_field (crate :: prisma :: game :: clock_increment :: NAME , & self . clock_increment) ? ; state . serialize_field (crate :: prisma :: game :: first_name :: NAME , & self . first_name) ? ; state . serialize_field (crate :: prisma :: game :: first_provisional :: NAME , & self . first_provisional) ? ; state . serialize_field (crate :: prisma :: game :: first_rating :: NAME , & self . first_rating) ? ; state . serialize_field (crate :: prisma :: game :: second_name :: NAME , & self . second_name) ? ; state . serialize_field (crate :: prisma :: game :: second_provisional :: NAME , & self . second_provisional) ? ; state . serialize_field (crate :: prisma :: game :: second_rating :: NAME , & self . second_rating) ? ; state . serialize_field (crate :: prisma :: game :: rating_min :: NAME , & self . rating_min) ? ; state . serialize_field (crate :: prisma :: game :: rating_max :: NAME , & self . rating_max) ? ; state . serialize_field (crate :: prisma :: game :: start_pos :: NAME , & self . start_pos) ? ; state . serialize_field (crate :: prisma :: game :: moves :: NAME , & self . moves) ? ; state . serialize_field (crate :: prisma :: game :: first_time :: NAME , & self . first_time) ? ; state . serialize_field (crate :: prisma :: game :: second_time :: NAME , & self . second_time) ? ; state . serialize_field (crate :: prisma :: game :: status :: NAME , & self . status) ? ; state . end () } } impl < 'de > :: serde :: Deserialize < 'de > for Data { fn deserialize < D > (deserializer : D) -> std :: result :: Result < Self , D :: Error > where D : :: serde :: Deserializer < 'de > , { # [allow (warnings)] enum Field { $ ($ field) , + , id , created_at , rated , game_key , game_name , clock_initial , clock_increment , first_name , first_provisional , first_rating , second_name , second_provisional , second_rating , rating_min , rating_max , start_pos , moves , first_time , second_time , status } impl < 'de > :: serde :: Deserialize < 'de > for Field { fn deserialize < D > (deserializer : D) -> std :: result :: Result < Field , D :: Error > where D : :: serde :: Deserializer < 'de > , { struct FieldVisitor ; impl < 'de > :: serde :: de :: Visitor < 'de > for FieldVisitor { type Value = Field ; fn expecting (& self , formatter : & mut :: std :: fmt :: Formatter) -> :: std :: fmt :: Result { formatter . write_str (& [$ (crate :: prisma :: game :: $ field :: NAME) , + , crate :: prisma :: game :: id :: NAME , crate :: prisma :: game :: created_at :: NAME , crate :: prisma :: game :: rated :: NAME , crate :: prisma :: game :: game_key :: NAME , crate :: prisma :: game :: game_name :: NAME , crate :: prisma :: game :: clock_initial :: NAME , crate :: prisma :: game :: clock_increment :: NAME , crate :: prisma :: game :: first_name :: NAME , crate :: prisma :: game :: first_provisional :: NAME , crate :: prisma :: game :: first_rating :: NAME , crate :: prisma :: game :: second_name :: NAME , crate :: prisma :: game :: second_provisional :: NAME , crate :: prisma :: game :: second_rating :: NAME , crate :: prisma :: game :: rating_min :: NAME , crate :: prisma :: game :: rating_max :: NAME , crate :: prisma :: game :: start_pos :: NAME , crate :: prisma :: game :: moves :: NAME , crate :: prisma :: game :: first_time :: NAME , crate :: prisma :: game :: second_time :: NAME , crate :: prisma :: game :: status :: NAME] . into_iter () . collect :: < Vec < _ >> () . join (", ")) } fn visit_str < E > (self , value : & str) -> std :: result :: Result < Field , E > where E : :: serde :: de :: Error , { match value { $ (crate :: prisma :: game :: $ field :: NAME => Ok (Field :: $ field)) , * , crate :: prisma :: game :: id :: NAME => Ok (Field :: id) , crate :: prisma :: game :: created_at :: NAME => Ok (Field :: created_at) , crate :: prisma :: game :: rated :: NAME => Ok (Field :: rated) , crate :: prisma :: game :: game_key :: NAME => Ok (Field :: game_key) , crate :: prisma :: game :: game_name :: NAME => Ok (Field :: game_name) , crate :: prisma :: game :: clock_initial :: NAME => Ok (Field :: clock_initial) , crate :: prisma :: game :: clock_increment :: NAME => Ok (Field :: clock_increment) , crate :: prisma :: game :: first_name :: NAME => Ok (Field :: first_name) , crate :: prisma :: game :: first_provisional :: NAME => Ok (Field :: first_provisional) , crate :: prisma :: game :: first_rating :: NAME => Ok (Field :: first_rating) , crate :: prisma :: game :: second_name :: NAME => Ok (Field :: second_name) , crate :: prisma :: game :: second_provisional :: NAME => Ok (Field :: second_provisional) , crate :: prisma :: game :: second_rating :: NAME => Ok (Field :: second_rating) , crate :: prisma :: game :: rating_min :: NAME => Ok (Field :: rating_min) , crate :: prisma :: game :: rating_max :: NAME => Ok (Field :: rating_max) , crate :: prisma :: game :: start_pos :: NAME => Ok (Field :: start_pos) , crate :: prisma :: game :: moves :: NAME => Ok (Field :: moves) , crate :: prisma :: game :: first_time :: NAME => Ok (Field :: first_time) , crate :: prisma :: game :: second_time :: NAME => Ok (Field :: second_time) , crate :: prisma :: game :: status :: NAME => Ok (Field :: status) , _ => Err (:: serde :: de :: Error :: unknown_field (value , FIELDS)) , } } } deserializer . deserialize_identifier (FieldVisitor) } } struct DataVisitor ; impl < 'de > :: serde :: de :: Visitor < 'de > for DataVisitor { type Value = Data ; fn expecting (& self , formatter : & mut std :: fmt :: Formatter) -> std :: fmt :: Result { formatter . write_str ("struct Data") } fn visit_map < V > (self , mut map : V) -> std :: result :: Result < Data , V :: Error > where V : :: serde :: de :: MapAccess < 'de > , { $ (let mut $ field = None ;) * let mut id = None ; let mut created_at = None ; let mut rated = None ; let mut game_key = None ; let mut game_name = None ; let mut clock_initial = None ; let mut clock_increment = None ; let mut first_name = None ; let mut first_provisional = None ; let mut first_rating = None ; let mut second_name = None ; let mut second_provisional = None ; let mut second_rating = None ; let mut rating_min = None ; let mut rating_max = None ; let mut start_pos = None ; let mut moves = None ; let mut first_time = None ; let mut second_time = None ; let mut status = None ; while let Some (key) = map . next_key () ? { match key { Field :: id => { if id . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: id :: NAME)) ; } id = Some (map . next_value () ?) ; } Field :: created_at => { if created_at . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: created_at :: NAME)) ; } created_at = Some (map . next_value () ?) ; } Field :: rated => { if rated . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: rated :: NAME)) ; } rated = Some (map . next_value () ?) ; } Field :: game_key => { if game_key . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: game_key :: NAME)) ; } game_key = Some (map . next_value () ?) ; } Field :: game_name => { if game_name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: game_name :: NAME)) ; } game_name = Some (map . next_value () ?) ; } Field :: clock_initial => { if clock_initial . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: clock_initial :: NAME)) ; } clock_initial = Some (map . next_value () ?) ; } Field :: clock_increment => { if clock_increment . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: clock_increment :: NAME)) ; } clock_increment = Some (map . next_value () ?) ; } Field :: first_name => { if first_name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: first_name :: NAME)) ; } first_name = Some (map . next_value () ?) ; } Field :: first_provisional => { if first_provisional . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: first_provisional :: NAME)) ; } first_provisional = Some (map . next_value () ?) ; } Field :: first_rating => { if first_rating . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: first_rating :: NAME)) ; } first_rating = Some (map . next_value () ?) ; } Field :: second_name => { if second_name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: second_name :: NAME)) ; } second_name = Some (map . next_value () ?) ; } Field :: second_provisional => { if second_provisional . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: second_provisional :: NAME)) ; } second_provisional = Some (map . next_value () ?) ; } Field :: second_rating => { if second_rating . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: second_rating :: NAME)) ; } second_rating = Some (map . next_value () ?) ; } Field :: rating_min => { if rating_min . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: rating_min :: NAME)) ; } rating_min = Some (map . next_value () ?) ; } Field :: rating_max => { if rating_max . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: rating_max :: NAME)) ; } rating_max = Some (map . next_value () ?) ; } Field :: start_pos => { if start_pos . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: start_pos :: NAME)) ; } start_pos = Some (map . next_value () ?) ; } Field :: moves => { if moves . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: moves :: NAME)) ; } moves = Some (map . next_value () ?) ; } Field :: first_time => { if first_time . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: first_time :: NAME)) ; } first_time = Some (map . next_value () ?) ; } Field :: second_time => { if second_time . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: second_time :: NAME)) ; } second_time = Some (map . next_value () ?) ; } Field :: status => { if status . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: status :: NAME)) ; } status = Some (map . next_value () ?) ; } $ (Field :: $ field => { if $ field . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: $ field :: NAME)) ; } $ field = Some (map . next_value () ?) ; }) * } } $ (let $ field = $ field . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: $ field :: NAME)) ? ;) * let id = id . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: id :: NAME)) ? ; let created_at = created_at . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: created_at :: NAME)) ? ; let rated = rated . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: rated :: NAME)) ? ; let game_key = game_key . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: game_key :: NAME)) ? ; let game_name = game_name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: game_name :: NAME)) ? ; let clock_initial = clock_initial . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: clock_initial :: NAME)) ? ; let clock_increment = clock_increment . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: clock_increment :: NAME)) ? ; let first_name = first_name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: first_name :: NAME)) ? ; let first_provisional = first_provisional . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: first_provisional :: NAME)) ? ; let first_rating = first_rating . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: first_rating :: NAME)) ? ; let second_name = second_name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: second_name :: NAME)) ? ; let second_provisional = second_provisional . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: second_provisional :: NAME)) ? ; let second_rating = second_rating . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: second_rating :: NAME)) ? ; let rating_min = rating_min . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: rating_min :: NAME)) ? ; let rating_max = rating_max . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: rating_max :: NAME)) ? ; let start_pos = start_pos . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: start_pos :: NAME)) ? ; let moves = moves . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: moves :: NAME)) ? ; let first_time = first_time . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: first_time :: NAME)) ? ; let second_time = second_time . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: second_time :: NAME)) ? ; let status = status . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: status :: NAME)) ? ; Ok (Data { id , created_at , rated , game_key , game_name , clock_initial , clock_increment , first_name , first_provisional , first_rating , second_name , second_provisional , second_rating , rating_min , rating_max , start_pos , moves , first_time , second_time , status , $ ($ field) , * }) } } const FIELDS : & 'static [& 'static str] = & ["id" , "createdAt" , "rated" , "gameKey" , "gameName" , "clockInitial" , "clockIncrement" , "firstName" , "firstProvisional" , "firstRating" , "secondName" , "secondProvisional" , "secondRating" , "ratingMin" , "ratingMax" , "startPos" , "moves" , "firstTime" , "secondTime" , "status"] ; deserializer . deserialize_struct ("Data" , FIELDS , DataVisitor) } } $ ($ (pub mod $ field { crate :: prisma :: game :: $ selection_mode ! (@ field_module ; $ field : $ selection_mode { $ ($ selections) + }) ; }) ?) + } ; (@ field_type ; $ field : ident) => { crate :: prisma :: game :: $ field :: Type } ; (@ field_type ; $ field : ident $ ($ tokens : tt) *) => { compile_error ! (stringify ! (Cannot include nonexistent relation $ field on model "Game" , available relations are "")) } ; (@ field_module ; $ ($ tokens : tt) *) => { } ; (@ selection_field_to_selection_param ; $ ($ tokens : tt) *) => { compile_error ! (stringify ! ($ ($ tokens) *)) } ; (@ selections_to_params ; : $ macro_name : ident { $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { [$ (crate :: prisma :: game :: $ macro_name ! (@ selection_field_to_selection_param ; $ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) ,) +] } ; (@ filters_to_args ;) => { vec ! [] } ; (@ filters_to_args ; $ ($ t : tt) *) => { $ ($ t) * } ; (@ field_serde_name ; id) => { "id" } ; (@ field_serde_name ; created_at) => { "createdAt" } ; (@ field_serde_name ; rated) => { "rated" } ; (@ field_serde_name ; game_key) => { "gameKey" } ; (@ field_serde_name ; game_name) => { "gameName" } ; (@ field_serde_name ; clock_initial) => { "clockInitial" } ; (@ field_serde_name ; clock_increment) => { "clockIncrement" } ; (@ field_serde_name ; first_name) => { "firstName" } ; (@ field_serde_name ; first_provisional) => { "firstProvisional" } ; (@ field_serde_name ; first_rating) => { "firstRating" } ; (@ field_serde_name ; second_name) => { "secondName" } ; (@ field_serde_name ; second_provisional) => { "secondProvisional" } ; (@ field_serde_name ; second_rating) => { "secondRating" } ; (@ field_serde_name ; rating_min) => { "ratingMin" } ; (@ field_serde_name ; rating_max) => { "ratingMax" } ; (@ field_serde_name ; start_pos) => { "startPos" } ; (@ field_serde_name ; moves) => { "moves" } ; (@ field_serde_name ; first_time) => { "firstTime" } ; (@ field_serde_name ; second_time) => { "secondTime" } ; (@ field_serde_name ; status) => { "status" } ; }
+    macro_rules ! _include_game { ($ (($ ($ func_arg : ident : $ func_arg_ty : ty) , +) =>) ? $ module_name : ident { $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { # [allow (warnings)] pub mod $ module_name { crate :: prisma :: game :: include ! (@ definitions ; $ module_name ; $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) +) ; use super :: * ; pub struct Selection (Vec < :: prisma_client_rust :: Selection >) ; impl :: prisma_client_rust :: IncludeType for Selection { type Data = Data ; type ModelData = crate :: prisma :: game :: Data ; fn to_selections (self) -> Vec < :: prisma_client_rust :: Selection > { self . 0 } } pub fn include ($ ($ ($ func_arg : $ func_arg_ty) , +) ?) -> Selection { Selection ([crate :: prisma :: game :: include ! (@ selections_to_params ; : include { $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) + }) . into_iter () . map (| p | p . to_selection ()) . collect :: < Vec < _ >> () , < crate :: prisma :: game :: Types as :: prisma_client_rust :: ModelTypes > :: scalar_selections ()] . into_iter () . flatten () . collect :: < Vec < _ >> ()) } } } ; ({ $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { { crate :: prisma :: game :: include ! (@ definitions ; ; $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) +) ; pub struct Selection (Vec < :: prisma_client_rust :: Selection >) ; impl :: prisma_client_rust :: IncludeType for Selection { type Data = Data ; type ModelData = crate :: prisma :: game :: Data ; fn to_selections (self) -> Vec < :: prisma_client_rust :: Selection > { self . 0 } } Selection ([crate :: prisma :: game :: include ! (@ selections_to_params ; : include { $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) + }) . into_iter () . map (| p | p . to_selection ()) . collect :: < Vec < _ >> () , < crate :: prisma :: game :: Types as :: prisma_client_rust :: ModelTypes > :: scalar_selections ()] . into_iter () . flatten () . collect :: < Vec < _ >> ()) } } ; (@ definitions ; $ ($ module_name : ident) ? ; $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) +) => { # [allow (warnings)] enum Fields { } # [allow (warnings)] impl Fields { fn selections () { $ (let _ = Fields :: $ field ;) + } } # [allow (warnings)] # [derive (std :: fmt :: Debug , Clone)] pub struct Data { pub id : String , pub created_at : :: prisma_client_rust :: chrono :: DateTime < :: prisma_client_rust :: chrono :: FixedOffset , > , pub rated : bool , pub game_key : String , pub game_name : String , pub clock_initial : Option < i32 > , pub clock_increment : Option < i32 > , pub first_name : Option < String > , pub first_provisional : Option < bool > , pub first_rating : Option < i32 > , pub second_name : Option < String > , pub second_provisional : Option < bool > , pub second_rating : Option < i32 > , pub rating_min : i32 , pub rating_max : i32 , pub start_pos : Option < String > , pub moves : String , pub first_time : Option < i32 > , pub second_time : Option < i32 > , pub status : crate :: prisma GameStatus , $ (pub $ field : crate :: prisma :: game :: include ! (@ field_type ; $ field $ (: $ selection_mode { $ ($ selections) + }) ?) ,) + } impl :: serde :: Serialize for Data { fn serialize < S > (& self , serializer : S) -> std :: result :: Result < S :: Ok , S :: Error > where S : :: serde :: Serializer , { use :: serde :: ser :: SerializeStruct ; let mut state = serializer . serialize_struct ("Data" , [$ (stringify ! ($ field) ,) + stringify ! (id) , stringify ! (created_at) , stringify ! (rated) , stringify ! (game_key) , stringify ! (game_name) , stringify ! (clock_initial) , stringify ! (clock_increment) , stringify ! (first_name) , stringify ! (first_provisional) , stringify ! (first_rating) , stringify ! (second_name) , stringify ! (second_provisional) , stringify ! (second_rating) , stringify ! (rating_min) , stringify ! (rating_max) , stringify ! (start_pos) , stringify ! (moves) , stringify ! (first_time) , stringify ! (second_time) , stringify ! (status)] . len ()) ? ; $ (state . serialize_field (crate :: prisma :: game :: $ field :: NAME , & self . $ field) ? ;) * state . serialize_field (crate :: prisma :: game :: id :: NAME , & self . id) ? ; state . serialize_field (crate :: prisma :: game :: created_at :: NAME , & self . created_at) ? ; state . serialize_field (crate :: prisma :: game :: rated :: NAME , & self . rated) ? ; state . serialize_field (crate :: prisma :: game :: game_key :: NAME , & self . game_key) ? ; state . serialize_field (crate :: prisma :: game :: game_name :: NAME , & self . game_name) ? ; state . serialize_field (crate :: prisma :: game :: clock_initial :: NAME , & self . clock_initial) ? ; state . serialize_field (crate :: prisma :: game :: clock_increment :: NAME , & self . clock_increment) ? ; state . serialize_field (crate :: prisma :: game :: first_name :: NAME , & self . first_name) ? ; state . serialize_field (crate :: prisma :: game :: first_provisional :: NAME , & self . first_provisional) ? ; state . serialize_field (crate :: prisma :: game :: first_rating :: NAME , & self . first_rating) ? ; state . serialize_field (crate :: prisma :: game :: second_name :: NAME , & self . second_name) ? ; state . serialize_field (crate :: prisma :: game :: second_provisional :: NAME , & self . second_provisional) ? ; state . serialize_field (crate :: prisma :: game :: second_rating :: NAME , & self . second_rating) ? ; state . serialize_field (crate :: prisma :: game :: rating_min :: NAME , & self . rating_min) ? ; state . serialize_field (crate :: prisma :: game :: rating_max :: NAME , & self . rating_max) ? ; state . serialize_field (crate :: prisma :: game :: start_pos :: NAME , & self . start_pos) ? ; state . serialize_field (crate :: prisma :: game :: moves :: NAME , & self . moves) ? ; state . serialize_field (crate :: prisma :: game :: first_time :: NAME , & self . first_time) ? ; state . serialize_field (crate :: prisma :: game :: second_time :: NAME , & self . second_time) ? ; state . serialize_field (crate :: prisma :: game :: status :: NAME , & self . status) ? ; state . end () } } impl < 'de > :: serde :: Deserialize < 'de > for Data { fn deserialize < D > (deserializer : D) -> std :: result :: Result < Self , D :: Error > where D : :: serde :: Deserializer < 'de > , { # [allow (warnings)] enum Field { $ ($ field) , + , id , created_at , rated , game_key , game_name , clock_initial , clock_increment , first_name , first_provisional , first_rating , second_name , second_provisional , second_rating , rating_min , rating_max , start_pos , moves , first_time , second_time , status } impl < 'de > :: serde :: Deserialize < 'de > for Field { fn deserialize < D > (deserializer : D) -> std :: result :: Result < Field , D :: Error > where D : :: serde :: Deserializer < 'de > , { struct FieldVisitor ; impl < 'de > :: serde :: de :: Visitor < 'de > for FieldVisitor { type Value = Field ; fn expecting (& self , formatter : & mut :: std :: fmt :: Formatter) -> :: std :: fmt :: Result { formatter . write_str (& [$ (crate :: prisma :: game :: $ field :: NAME) , + , crate :: prisma :: game :: id :: NAME , crate :: prisma :: game :: created_at :: NAME , crate :: prisma :: game :: rated :: NAME , crate :: prisma :: game :: game_key :: NAME , crate :: prisma :: game :: game_name :: NAME , crate :: prisma :: game :: clock_initial :: NAME , crate :: prisma :: game :: clock_increment :: NAME , crate :: prisma :: game :: first_name :: NAME , crate :: prisma :: game :: first_provisional :: NAME , crate :: prisma :: game :: first_rating :: NAME , crate :: prisma :: game :: second_name :: NAME , crate :: prisma :: game :: second_provisional :: NAME , crate :: prisma :: game :: second_rating :: NAME , crate :: prisma :: game :: rating_min :: NAME , crate :: prisma :: game :: rating_max :: NAME , crate :: prisma :: game :: start_pos :: NAME , crate :: prisma :: game :: moves :: NAME , crate :: prisma :: game :: first_time :: NAME , crate :: prisma :: game :: second_time :: NAME , crate :: prisma :: game :: status :: NAME] . into_iter () . collect :: < Vec < _ >> () . join (", ")) } fn visit_str < E > (self , value : & str) -> std :: result :: Result < Field , E > where E : :: serde :: de :: Error , { match value { $ (crate :: prisma :: game :: $ field :: NAME => Ok (Field :: $ field)) , * , crate :: prisma :: game :: id :: NAME => Ok (Field :: id) , crate :: prisma :: game :: created_at :: NAME => Ok (Field :: created_at) , crate :: prisma :: game :: rated :: NAME => Ok (Field :: rated) , crate :: prisma :: game :: game_key :: NAME => Ok (Field :: game_key) , crate :: prisma :: game :: game_name :: NAME => Ok (Field :: game_name) , crate :: prisma :: game :: clock_initial :: NAME => Ok (Field :: clock_initial) , crate :: prisma :: game :: clock_increment :: NAME => Ok (Field :: clock_increment) , crate :: prisma :: game :: first_name :: NAME => Ok (Field :: first_name) , crate :: prisma :: game :: first_provisional :: NAME => Ok (Field :: first_provisional) , crate :: prisma :: game :: first_rating :: NAME => Ok (Field :: first_rating) , crate :: prisma :: game :: second_name :: NAME => Ok (Field :: second_name) , crate :: prisma :: game :: second_provisional :: NAME => Ok (Field :: second_provisional) , crate :: prisma :: game :: second_rating :: NAME => Ok (Field :: second_rating) , crate :: prisma :: game :: rating_min :: NAME => Ok (Field :: rating_min) , crate :: prisma :: game :: rating_max :: NAME => Ok (Field :: rating_max) , crate :: prisma :: game :: start_pos :: NAME => Ok (Field :: start_pos) , crate :: prisma :: game :: moves :: NAME => Ok (Field :: moves) , crate :: prisma :: game :: first_time :: NAME => Ok (Field :: first_time) , crate :: prisma :: game :: second_time :: NAME => Ok (Field :: second_time) , crate :: prisma :: game :: status :: NAME => Ok (Field :: status) , _ => Err (:: serde :: de :: Error :: unknown_field (value , FIELDS)) , } } } deserializer . deserialize_identifier (FieldVisitor) } } struct DataVisitor ; impl < 'de > :: serde :: de :: Visitor < 'de > for DataVisitor { type Value = Data ; fn expecting (& self , formatter : & mut std :: fmt :: Formatter) -> std :: fmt :: Result { formatter . write_str ("struct Data") } fn visit_map < V > (self , mut map : V) -> std :: result :: Result < Data , V :: Error > where V : :: serde :: de :: MapAccess < 'de > , { $ (let mut $ field = None ;) * let mut id = None ; let mut created_at = None ; let mut rated = None ; let mut game_key = None ; let mut game_name = None ; let mut clock_initial = None ; let mut clock_increment = None ; let mut first_name = None ; let mut first_provisional = None ; let mut first_rating = None ; let mut second_name = None ; let mut second_provisional = None ; let mut second_rating = None ; let mut rating_min = None ; let mut rating_max = None ; let mut start_pos = None ; let mut moves = None ; let mut first_time = None ; let mut second_time = None ; let mut status = None ; while let Some (key) = map . next_key () ? { match key { Field :: id => { if id . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: id :: NAME)) ; } id = Some (map . next_value () ?) ; } Field :: created_at => { if created_at . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: created_at :: NAME)) ; } created_at = Some (map . next_value () ?) ; } Field :: rated => { if rated . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: rated :: NAME)) ; } rated = Some (map . next_value () ?) ; } Field :: game_key => { if game_key . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: game_key :: NAME)) ; } game_key = Some (map . next_value () ?) ; } Field :: game_name => { if game_name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: game_name :: NAME)) ; } game_name = Some (map . next_value () ?) ; } Field :: clock_initial => { if clock_initial . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: clock_initial :: NAME)) ; } clock_initial = Some (map . next_value () ?) ; } Field :: clock_increment => { if clock_increment . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: clock_increment :: NAME)) ; } clock_increment = Some (map . next_value () ?) ; } Field :: first_name => { if first_name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: first_name :: NAME)) ; } first_name = Some (map . next_value () ?) ; } Field :: first_provisional => { if first_provisional . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: first_provisional :: NAME)) ; } first_provisional = Some (map . next_value () ?) ; } Field :: first_rating => { if first_rating . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: first_rating :: NAME)) ; } first_rating = Some (map . next_value () ?) ; } Field :: second_name => { if second_name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: second_name :: NAME)) ; } second_name = Some (map . next_value () ?) ; } Field :: second_provisional => { if second_provisional . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: second_provisional :: NAME)) ; } second_provisional = Some (map . next_value () ?) ; } Field :: second_rating => { if second_rating . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: second_rating :: NAME)) ; } second_rating = Some (map . next_value () ?) ; } Field :: rating_min => { if rating_min . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: rating_min :: NAME)) ; } rating_min = Some (map . next_value () ?) ; } Field :: rating_max => { if rating_max . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: rating_max :: NAME)) ; } rating_max = Some (map . next_value () ?) ; } Field :: start_pos => { if start_pos . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: start_pos :: NAME)) ; } start_pos = Some (map . next_value () ?) ; } Field :: moves => { if moves . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: moves :: NAME)) ; } moves = Some (map . next_value () ?) ; } Field :: first_time => { if first_time . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: first_time :: NAME)) ; } first_time = Some (map . next_value () ?) ; } Field :: second_time => { if second_time . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: second_time :: NAME)) ; } second_time = Some (map . next_value () ?) ; } Field :: status => { if status . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: status :: NAME)) ; } status = Some (map . next_value () ?) ; } $ (Field :: $ field => { if $ field . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: game :: $ field :: NAME)) ; } $ field = Some (map . next_value () ?) ; }) * } } $ (let $ field = $ field . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: $ field :: NAME)) ? ;) * let id = id . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: id :: NAME)) ? ; let created_at = created_at . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: created_at :: NAME)) ? ; let rated = rated . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: rated :: NAME)) ? ; let game_key = game_key . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: game_key :: NAME)) ? ; let game_name = game_name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: game_name :: NAME)) ? ; let clock_initial = clock_initial . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: clock_initial :: NAME)) ? ; let clock_increment = clock_increment . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: clock_increment :: NAME)) ? ; let first_name = first_name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: first_name :: NAME)) ? ; let first_provisional = first_provisional . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: first_provisional :: NAME)) ? ; let first_rating = first_rating . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: first_rating :: NAME)) ? ; let second_name = second_name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: second_name :: NAME)) ? ; let second_provisional = second_provisional . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: second_provisional :: NAME)) ? ; let second_rating = second_rating . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: second_rating :: NAME)) ? ; let rating_min = rating_min . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: rating_min :: NAME)) ? ; let rating_max = rating_max . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: rating_max :: NAME)) ? ; let start_pos = start_pos . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: start_pos :: NAME)) ? ; let moves = moves . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: moves :: NAME)) ? ; let first_time = first_time . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: first_time :: NAME)) ? ; let second_time = second_time . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: second_time :: NAME)) ? ; let status = status . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: game :: status :: NAME)) ? ; Ok (Data { id , created_at , rated , game_key , game_name , clock_initial , clock_increment , first_name , first_provisional , first_rating , second_name , second_provisional , second_rating , rating_min , rating_max , start_pos , moves , first_time , second_time , status , $ ($ field) , * }) } } const FIELDS : & 'static [& 'static str] = & ["id" , "createdAt" , "rated" , "gameKey" , "gameName" , "clockInitial" , "clockIncrement" , "firstName" , "firstProvisional" , "firstRating" , "secondName" , "secondProvisional" , "secondRating" , "ratingMin" , "ratingMax" , "startPos" , "moves" , "firstTime" , "secondTime" , "status"] ; deserializer . deserialize_struct ("Data" , FIELDS , DataVisitor) } } $ ($ (pub mod $ field { crate :: prisma :: game :: $ selection_mode ! (@ field_module ; $ field : $ selection_mode { $ ($ selections) + }) ; }) ?) + } ; (@ field_type ; $ field : ident) => { crate :: prisma :: game :: $ field :: Type } ; (@ field_type ; $ field : ident $ ($ tokens : tt) *) => { compile_error ! (stringify ! (Cannot include nonexistent relation $ field on model "Game" , available relations are "")) } ; (@ field_module ; $ ($ tokens : tt) *) => { } ; (@ selection_field_to_selection_param ; $ ($ tokens : tt) *) => { compile_error ! (stringify ! ($ ($ tokens) *)) } ; (@ selections_to_params ; : $ macro_name : ident { $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { [$ (crate :: prisma :: game :: $ macro_name ! (@ selection_field_to_selection_param ; $ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) ,) +] } ; (@ filters_to_args ;) => { vec ! [] } ; (@ filters_to_args ; $ ($ t : tt) *) => { $ ($ t) * } ; (@ field_serde_name ; id) => { "id" } ; (@ field_serde_name ; created_at) => { "createdAt" } ; (@ field_serde_name ; rated) => { "rated" } ; (@ field_serde_name ; game_key) => { "gameKey" } ; (@ field_serde_name ; game_name) => { "gameName" } ; (@ field_serde_name ; clock_initial) => { "clockInitial" } ; (@ field_serde_name ; clock_increment) => { "clockIncrement" } ; (@ field_serde_name ; first_name) => { "firstName" } ; (@ field_serde_name ; first_provisional) => { "firstProvisional" } ; (@ field_serde_name ; first_rating) => { "firstRating" } ; (@ field_serde_name ; second_name) => { "secondName" } ; (@ field_serde_name ; second_provisional) => { "secondProvisional" } ; (@ field_serde_name ; second_rating) => { "secondRating" } ; (@ field_serde_name ; rating_min) => { "ratingMin" } ; (@ field_serde_name ; rating_max) => { "ratingMax" } ; (@ field_serde_name ; start_pos) => { "startPos" } ; (@ field_serde_name ; moves) => { "moves" } ; (@ field_serde_name ; first_time) => { "firstTime" } ; (@ field_serde_name ; second_time) => { "secondTime" } ; (@ field_serde_name ; status) => { "status" } ; }
     pub use _include_game as include;
     pub enum IncludeParam {
         Id(id::Include),
@@ -1958,13 +1958,13 @@ pub mod game {
         use super::super::{_prisma::*, *};
         use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
         pub const NAME: &str = "startPos";
-        pub type Type = String;
+        pub type Type = Option<String>;
         pub type RecursiveSafeType = Type;
-        pub fn equals(value: String) -> WhereParam {
-            WhereParam::StartPos(_prisma::read_filters::StringFilter::Equals(value))
+        pub fn equals(value: Option<String>) -> WhereParam {
+            WhereParam::StartPos(_prisma::read_filters::StringNullableFilter::Equals(value))
         }
         ::prisma_client_rust::scalar_where_param_fns!(
-            _prisma::read_filters::StringFilter,
+            _prisma::read_filters::StringNullableFilter,
             StartPos,
             {
                 fn in_vec(_: Vec<String>) -> InVec;
@@ -1977,7 +1977,7 @@ pub mod game {
                 fn starts_with(_: String) -> StartsWith;
                 fn ends_with(_: String) -> EndsWith;
                 fn mode(_: QueryMode) -> Mode;
-                fn not(_: String) -> Not;
+                fn not(_: Option<String>) -> Not;
             }
         );
         pub struct Order(SortOrder);
@@ -1989,7 +1989,7 @@ pub mod game {
                 Self::StartPos(v)
             }
         }
-        pub struct Set(pub String);
+        pub struct Set(pub Option<String>);
         impl From<UpdateOperation> for SetParam {
             fn from(UpdateOperation(v): UpdateOperation) -> Self {
                 Self::StartPos(v)
@@ -1997,16 +1997,16 @@ pub mod game {
         }
         impl From<Set> for SetParam {
             fn from(Set(v): Set) -> Self {
-                Self::StartPos(_prisma::write_params::StringParam::Set(v))
+                Self::StartPos(_prisma::write_params::StringNullableParam::Set(v))
             }
         }
-        pub fn set<T: From<Set>>(value: String) -> T {
+        pub fn set<T: From<Set>>(value: Option<String>) -> T {
             Set(value).into()
         }
-        pub struct UpdateOperation(pub _prisma::write_params::StringParam);
+        pub struct UpdateOperation(pub _prisma::write_params::StringNullableParam);
         impl From<Set> for UncheckedSetParam {
             fn from(Set(v): Set) -> Self {
-                Self::StartPos(_prisma::write_params::StringParam::Set(v))
+                Self::StartPos(_prisma::write_params::StringNullableParam::Set(v))
             }
         }
         impl From<UpdateOperation> for UncheckedSetParam {
@@ -2119,7 +2119,6 @@ pub mod game {
         pub game_name: String,
         pub rating_min: i32,
         pub rating_max: i32,
-        pub start_pos: String,
         pub moves: String,
         pub status: super::GameStatus,
         pub _params: Vec<SetParam>,
@@ -2132,7 +2131,6 @@ pub mod game {
                 self.game_name,
                 self.rating_min,
                 self.rating_max,
-                self.start_pos,
                 self.moves,
                 self.status,
                 self._params,
@@ -2145,7 +2143,6 @@ pub mod game {
                 game_name::set(self.game_name),
                 rating_min::set(self.rating_min),
                 rating_max::set(self.rating_max),
-                start_pos::set(self.start_pos),
                 moves::set(self.moves),
                 status::set(self.status),
             ]);
@@ -2158,7 +2155,6 @@ pub mod game {
         game_name: String,
         rating_min: i32,
         rating_max: i32,
-        start_pos: String,
         moves: String,
         status: super::GameStatus,
         _params: Vec<SetParam>,
@@ -2169,7 +2165,6 @@ pub mod game {
             game_name,
             rating_min,
             rating_max,
-            start_pos,
             moves,
             status,
             _params,
@@ -2182,7 +2177,6 @@ pub mod game {
         pub game_name: String,
         pub rating_min: i32,
         pub rating_max: i32,
-        pub start_pos: String,
         pub moves: String,
         pub status: super::GameStatus,
         pub _params: Vec<UncheckedSetParam>,
@@ -2195,7 +2189,6 @@ pub mod game {
                 self.game_name,
                 self.rating_min,
                 self.rating_max,
-                self.start_pos,
                 self.moves,
                 self.status,
                 self._params,
@@ -2208,7 +2201,6 @@ pub mod game {
                 game_name::set(self.game_name),
                 rating_min::set(self.rating_min),
                 rating_max::set(self.rating_max),
-                start_pos::set(self.start_pos),
                 moves::set(self.moves),
                 status::set(self.status),
             ]);
@@ -2221,7 +2213,6 @@ pub mod game {
         game_name: String,
         rating_min: i32,
         rating_max: i32,
-        start_pos: String,
         moves: String,
         status: super::GameStatus,
         _params: Vec<UncheckedSetParam>,
@@ -2232,7 +2223,6 @@ pub mod game {
             game_name,
             rating_min,
             rating_max,
-            start_pos,
             moves,
             status,
             _params,
@@ -2319,7 +2309,7 @@ pub mod game {
     }
     impl Data {}
     #[macro_export]
-    macro_rules ! _partial_unchecked_game { ($ struct_name : ident { $ ($ scalar_field : ident) + }) => { :: prisma_client_rust :: macros :: partial_unchecked ! { crate :: prisma :: game struct $ struct_name { # [serde (rename = "id")] pub id : String , # [serde (rename = "createdAt")] pub created_at : :: prisma_client_rust :: chrono :: DateTime < :: prisma_client_rust :: chrono :: FixedOffset , > , # [serde (rename = "rated")] pub rated : bool , # [serde (rename = "gameKey")] pub game_key : String , # [serde (rename = "gameName")] pub game_name : String , # [serde (rename = "clockInitial")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub clock_initial : Option < i32 > , # [serde (rename = "clockIncrement")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub clock_increment : Option < i32 > , # [serde (rename = "firstName")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub first_name : Option < String > , # [serde (rename = "firstProvisional")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub first_provisional : Option < bool > , # [serde (rename = "firstRating")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub first_rating : Option < i32 > , # [serde (rename = "secondName")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub second_name : Option < String > , # [serde (rename = "secondProvisional")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub second_provisional : Option < bool > , # [serde (rename = "secondRating")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub second_rating : Option < i32 > , # [serde (rename = "ratingMin")] pub rating_min : i32 , # [serde (rename = "ratingMax")] pub rating_max : i32 , # [serde (rename = "startPos")] pub start_pos : String , # [serde (rename = "moves")] pub moves : String , # [serde (rename = "firstTime")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub first_time : Option < i32 > , # [serde (rename = "secondTime")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub second_time : Option < i32 > , # [serde (rename = "status")] pub status : crate :: prisma GameStatus } [$ ($ scalar_field) , +] } } ; }
+    macro_rules ! _partial_unchecked_game { ($ struct_name : ident { $ ($ scalar_field : ident) + }) => { :: prisma_client_rust :: macros :: partial_unchecked ! { crate :: prisma :: game struct $ struct_name { # [serde (rename = "id")] pub id : String , # [serde (rename = "createdAt")] pub created_at : :: prisma_client_rust :: chrono :: DateTime < :: prisma_client_rust :: chrono :: FixedOffset , > , # [serde (rename = "rated")] pub rated : bool , # [serde (rename = "gameKey")] pub game_key : String , # [serde (rename = "gameName")] pub game_name : String , # [serde (rename = "clockInitial")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub clock_initial : Option < i32 > , # [serde (rename = "clockIncrement")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub clock_increment : Option < i32 > , # [serde (rename = "firstName")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub first_name : Option < String > , # [serde (rename = "firstProvisional")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub first_provisional : Option < bool > , # [serde (rename = "firstRating")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub first_rating : Option < i32 > , # [serde (rename = "secondName")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub second_name : Option < String > , # [serde (rename = "secondProvisional")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub second_provisional : Option < bool > , # [serde (rename = "secondRating")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub second_rating : Option < i32 > , # [serde (rename = "ratingMin")] pub rating_min : i32 , # [serde (rename = "ratingMax")] pub rating_max : i32 , # [serde (rename = "startPos")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub start_pos : Option < String > , # [serde (rename = "moves")] pub moves : String , # [serde (rename = "firstTime")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub first_time : Option < i32 > , # [serde (rename = "secondTime")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub second_time : Option < i32 > , # [serde (rename = "status")] pub status : crate :: prisma GameStatus } [$ ($ scalar_field) , +] } } ; }
     pub use _partial_unchecked_game as partial_unchecked;
     pub type UniqueArgs = ::prisma_client_rust::UniqueArgs<Types>;
     pub type ManyArgs = ::prisma_client_rust::ManyArgs<Types>;
@@ -2357,7 +2347,6 @@ pub mod game {
             game_name: String,
             rating_min: i32,
             rating_max: i32,
-            start_pos: String,
             moves: String,
             status: super::GameStatus,
             mut _params: Vec<SetParam>,
@@ -2368,7 +2357,6 @@ pub mod game {
                 game_name::set(game_name),
                 rating_min::set(rating_min),
                 rating_max::set(rating_max),
-                start_pos::set(start_pos),
                 moves::set(moves),
                 status::set(status),
             ]);
@@ -2381,7 +2369,6 @@ pub mod game {
             game_name: String,
             rating_min: i32,
             rating_max: i32,
-            start_pos: String,
             moves: String,
             status: super::GameStatus,
             mut _params: Vec<UncheckedSetParam>,
@@ -2392,9 +2379,1294 @@ pub mod game {
                 game_name::set(game_name),
                 rating_min::set(rating_min),
                 rating_max::set(rating_max),
-                start_pos::set(start_pos),
                 moves::set(moves),
                 status::set(status),
+            ]);
+            CreateUncheckedQuery::new(self.client, _params.into_iter().map(Into::into).collect())
+        }
+        pub fn create_many(self, data: Vec<CreateUnchecked>) -> CreateManyQuery<'a> {
+            let data = data.into_iter().map(CreateUnchecked::to_params).collect();
+            CreateManyQuery::new(self.client, data)
+        }
+        pub fn update(self, _where: UniqueWhereParam, _params: Vec<SetParam>) -> UpdateQuery<'a> {
+            UpdateQuery::new(self.client, _where.into(), _params, vec![])
+        }
+        pub fn update_unchecked(
+            self,
+            _where: UniqueWhereParam,
+            _params: Vec<UncheckedSetParam>,
+        ) -> UpdateUncheckedQuery<'a> {
+            UpdateUncheckedQuery::new(
+                self.client,
+                _where.into(),
+                _params.into_iter().map(Into::into).collect(),
+                vec![],
+            )
+        }
+        pub fn update_many(
+            self,
+            _where: Vec<WhereParam>,
+            _params: Vec<SetParam>,
+        ) -> UpdateManyQuery<'a> {
+            UpdateManyQuery::new(self.client, _where, _params)
+        }
+        pub fn upsert(
+            self,
+            _where: UniqueWhereParam,
+            _create: Create,
+            _update: Vec<SetParam>,
+        ) -> UpsertQuery<'a> {
+            UpsertQuery::new(self.client, _where.into(), _create.to_params(), _update)
+        }
+        pub fn delete(self, _where: UniqueWhereParam) -> DeleteQuery<'a> {
+            DeleteQuery::new(self.client, _where.into(), vec![])
+        }
+        pub fn delete_many(self, _where: Vec<WhereParam>) -> DeleteManyQuery<'a> {
+            DeleteManyQuery::new(self.client, _where)
+        }
+        pub fn count(self, _where: Vec<WhereParam>) -> CountQuery<'a> {
+            CountQuery::new(self.client, _where)
+        }
+    }
+}
+pub mod user {
+    use super::_prisma::*;
+    pub const NAME: &str = "User";
+    #[derive(Debug, Clone)]
+    pub enum WhereParam {
+        Not(Vec<WhereParam>),
+        Or(Vec<WhereParam>),
+        And(Vec<WhereParam>),
+        Name(super::_prisma::read_filters::StringFilter),
+        TttRating(super::_prisma::read_filters::IntFilter),
+        TttProvisional(super::_prisma::read_filters::BooleanFilter),
+        UtttRating(super::_prisma::read_filters::IntFilter),
+        UtttProvisional(super::_prisma::read_filters::BooleanFilter),
+        C4Rating(super::_prisma::read_filters::IntFilter),
+        C4Provisional(super::_prisma::read_filters::BooleanFilter),
+        PcRating(super::_prisma::read_filters::IntFilter),
+        PcProvisional(super::_prisma::read_filters::BooleanFilter),
+    }
+    impl ::prisma_client_rust::WhereInput for WhereParam {
+        fn serialize(self) -> ::prisma_client_rust::SerializedWhereInput {
+            let (name, value) = match self {
+                Self::Not(value) => (
+                    "NOT",
+                    ::prisma_client_rust::SerializedWhereValue::Object(
+                        ::prisma_client_rust::merge_fields(
+                            value
+                                .into_iter()
+                                .map(::prisma_client_rust::WhereInput::serialize)
+                                .map(Into::into)
+                                .collect(),
+                        ),
+                    ),
+                ),
+                Self::Or(value) => (
+                    "OR",
+                    ::prisma_client_rust::SerializedWhereValue::List(
+                        value
+                            .into_iter()
+                            .map(::prisma_client_rust::WhereInput::serialize)
+                            .map(|p| ::prisma_client_rust::PrismaValue::Object(vec![p.into()]))
+                            .collect(),
+                    ),
+                ),
+                Self::And(value) => (
+                    "AND",
+                    ::prisma_client_rust::SerializedWhereValue::Object(
+                        ::prisma_client_rust::merge_fields(
+                            value
+                                .into_iter()
+                                .map(::prisma_client_rust::WhereInput::serialize)
+                                .map(Into::into)
+                                .collect(),
+                        ),
+                    ),
+                ),
+                Self::Name(value) => (name::NAME, value.into()),
+                Self::TttRating(value) => (ttt_rating::NAME, value.into()),
+                Self::TttProvisional(value) => (ttt_provisional::NAME, value.into()),
+                Self::UtttRating(value) => (uttt_rating::NAME, value.into()),
+                Self::UtttProvisional(value) => (uttt_provisional::NAME, value.into()),
+                Self::C4Rating(value) => (c_4_rating::NAME, value.into()),
+                Self::C4Provisional(value) => (c_4_provisional::NAME, value.into()),
+                Self::PcRating(value) => (pc_rating::NAME, value.into()),
+                Self::PcProvisional(value) => (pc_provisional::NAME, value.into()),
+            };
+            ::prisma_client_rust::SerializedWhereInput::new(name.to_string(), value.into())
+        }
+    }
+    #[derive(Debug, Clone)]
+    pub enum UniqueWhereParam {
+        NameEquals(String),
+    }
+    impl From<UniqueWhereParam> for WhereParam {
+        fn from(value: UniqueWhereParam) -> Self {
+            match value {
+                UniqueWhereParam::NameEquals(value) => {
+                    Self::Name(super::_prisma::read_filters::StringFilter::Equals(value))
+                }
+            }
+        }
+    }
+    impl From<::prisma_client_rust::Operator<Self>> for WhereParam {
+        fn from(op: ::prisma_client_rust::Operator<Self>) -> Self {
+            match op {
+                ::prisma_client_rust::Operator::Not(value) => Self::Not(value),
+                ::prisma_client_rust::Operator::And(value) => Self::And(value),
+                ::prisma_client_rust::Operator::Or(value) => Self::Or(value),
+            }
+        }
+    }
+    #[derive(Debug, Clone)]
+    pub enum OrderByWithRelationParam {
+        Name(super::SortOrder),
+        TttRating(super::SortOrder),
+        TttProvisional(super::SortOrder),
+        UtttRating(super::SortOrder),
+        UtttProvisional(super::SortOrder),
+        C4Rating(super::SortOrder),
+        C4Provisional(super::SortOrder),
+        PcRating(super::SortOrder),
+        PcProvisional(super::SortOrder),
+    }
+    impl Into<(String, ::prisma_client_rust::PrismaValue)> for OrderByWithRelationParam {
+        fn into(self) -> (String, ::prisma_client_rust::PrismaValue) {
+            let (k, v) = match self {
+                Self::Name(param) => ("name", param.into()),
+                Self::TttRating(param) => ("tttRating", param.into()),
+                Self::TttProvisional(param) => ("tttProvisional", param.into()),
+                Self::UtttRating(param) => ("utttRating", param.into()),
+                Self::UtttProvisional(param) => ("utttProvisional", param.into()),
+                Self::C4Rating(param) => ("c4Rating", param.into()),
+                Self::C4Provisional(param) => ("c4Provisional", param.into()),
+                Self::PcRating(param) => ("pcRating", param.into()),
+                Self::PcProvisional(param) => ("pcProvisional", param.into()),
+            };
+            (k.to_string(), v)
+        }
+    }
+    #[derive(Debug, Clone)]
+    pub enum WithParam {}
+    impl Into<::prisma_client_rust::Selection> for WithParam {
+        fn into(self) -> ::prisma_client_rust::Selection {
+            match self {}
+        }
+    }
+    #[derive(Debug, Clone)]
+    pub enum SetParam {
+        Name(super::_prisma::write_params::StringParam),
+        TttRating(super::_prisma::write_params::IntParam),
+        TttProvisional(super::_prisma::write_params::BooleanParam),
+        UtttRating(super::_prisma::write_params::IntParam),
+        UtttProvisional(super::_prisma::write_params::BooleanParam),
+        C4Rating(super::_prisma::write_params::IntParam),
+        C4Provisional(super::_prisma::write_params::BooleanParam),
+        PcRating(super::_prisma::write_params::IntParam),
+        PcProvisional(super::_prisma::write_params::BooleanParam),
+    }
+    impl Into<(String, ::prisma_client_rust::PrismaValue)> for SetParam {
+        fn into(self) -> (String, ::prisma_client_rust::PrismaValue) {
+            let (k, v) = match self {
+                Self::Name(value) => (name::NAME, value.into()),
+                Self::TttRating(value) => (ttt_rating::NAME, value.into()),
+                Self::TttProvisional(value) => (ttt_provisional::NAME, value.into()),
+                Self::UtttRating(value) => (uttt_rating::NAME, value.into()),
+                Self::UtttProvisional(value) => (uttt_provisional::NAME, value.into()),
+                Self::C4Rating(value) => (c_4_rating::NAME, value.into()),
+                Self::C4Provisional(value) => (c_4_provisional::NAME, value.into()),
+                Self::PcRating(value) => (pc_rating::NAME, value.into()),
+                Self::PcProvisional(value) => (pc_provisional::NAME, value.into()),
+            };
+            (k.to_string(), v)
+        }
+    }
+    #[derive(Debug, Clone)]
+    pub enum UncheckedSetParam {
+        Name(super::_prisma::write_params::StringParam),
+        TttRating(super::_prisma::write_params::IntParam),
+        TttProvisional(super::_prisma::write_params::BooleanParam),
+        UtttRating(super::_prisma::write_params::IntParam),
+        UtttProvisional(super::_prisma::write_params::BooleanParam),
+        C4Rating(super::_prisma::write_params::IntParam),
+        C4Provisional(super::_prisma::write_params::BooleanParam),
+        PcRating(super::_prisma::write_params::IntParam),
+        PcProvisional(super::_prisma::write_params::BooleanParam),
+    }
+    impl Into<(String, ::prisma_client_rust::PrismaValue)> for UncheckedSetParam {
+        fn into(self) -> (String, ::prisma_client_rust::PrismaValue) {
+            let (k, v) = match self {
+                Self::Name(value) => ("name", value.into()),
+                Self::TttRating(value) => ("tttRating", value.into()),
+                Self::TttProvisional(value) => ("tttProvisional", value.into()),
+                Self::UtttRating(value) => ("utttRating", value.into()),
+                Self::UtttProvisional(value) => ("utttProvisional", value.into()),
+                Self::C4Rating(value) => ("c4Rating", value.into()),
+                Self::C4Provisional(value) => ("c4Provisional", value.into()),
+                Self::PcRating(value) => ("pcRating", value.into()),
+                Self::PcProvisional(value) => ("pcProvisional", value.into()),
+            };
+            (k.to_string(), v)
+        }
+    }
+    #[macro_export]
+    macro_rules ! _select_user { ($ (($ ($ func_arg : ident : $ func_arg_ty : ty) , +) =>) ? $ module_name : ident { $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { # [allow (warnings)] pub mod $ module_name { crate :: prisma :: user :: select ! (@ definitions ; $ module_name ; $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) +) ; use super :: * ; pub struct Selection (Vec < :: prisma_client_rust :: Selection >) ; impl :: prisma_client_rust :: SelectType for Selection { type Data = Data ; type ModelData = crate :: prisma :: user :: Data ; fn to_selections (self) -> Vec < :: prisma_client_rust :: Selection > { self . 0 } } pub fn select ($ ($ ($ func_arg : $ func_arg_ty) , +) ?) -> Selection { Selection ([crate :: prisma :: user :: select ! (@ selections_to_params ; : select { $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) + }) . into_iter () . map (| p | p . to_selection ()) . collect :: < Vec < _ >> () ,] . into_iter () . flatten () . collect :: < Vec < _ >> ()) } } } ; ({ $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { { crate :: prisma :: user :: select ! (@ definitions ; ; $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) +) ; pub struct Selection (Vec < :: prisma_client_rust :: Selection >) ; impl :: prisma_client_rust :: SelectType for Selection { type Data = Data ; type ModelData = crate :: prisma :: user :: Data ; fn to_selections (self) -> Vec < :: prisma_client_rust :: Selection > { self . 0 } } Selection ([crate :: prisma :: user :: select ! (@ selections_to_params ; : select { $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) + }) . into_iter () . map (| p | p . to_selection ()) . collect :: < Vec < _ >> () ,] . into_iter () . flatten () . collect :: < Vec < _ >> ()) } } ; (@ definitions ; $ ($ module_name : ident) ? ; $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) +) => { # [allow (warnings)] enum Fields { name , ttt_rating , ttt_provisional , uttt_rating , uttt_provisional , c_4_rating , c_4_provisional , pc_rating , pc_provisional } # [allow (warnings)] impl Fields { fn selections () { $ (let _ = Fields :: $ field ;) + } } # [allow (warnings)] # [derive (std :: fmt :: Debug , Clone)] pub struct Data { $ (pub $ field : crate :: prisma :: user :: select ! (@ field_type ; $ field $ (: $ selection_mode { $ ($ selections) + }) ?) ,) + } impl :: serde :: Serialize for Data { fn serialize < S > (& self , serializer : S) -> std :: result :: Result < S :: Ok , S :: Error > where S : :: serde :: Serializer , { use :: serde :: ser :: SerializeStruct ; let mut state = serializer . serialize_struct ("Data" , [$ (stringify ! ($ field) ,) +] . len ()) ? ; $ (state . serialize_field (crate :: prisma :: user :: $ field :: NAME , & self . $ field) ? ;) * state . end () } } impl < 'de > :: serde :: Deserialize < 'de > for Data { fn deserialize < D > (deserializer : D) -> std :: result :: Result < Self , D :: Error > where D : :: serde :: Deserializer < 'de > , { # [allow (warnings)] enum Field { $ ($ field) , + , } impl < 'de > :: serde :: Deserialize < 'de > for Field { fn deserialize < D > (deserializer : D) -> std :: result :: Result < Field , D :: Error > where D : :: serde :: Deserializer < 'de > , { struct FieldVisitor ; impl < 'de > :: serde :: de :: Visitor < 'de > for FieldVisitor { type Value = Field ; fn expecting (& self , formatter : & mut :: std :: fmt :: Formatter) -> :: std :: fmt :: Result { formatter . write_str (& [$ (crate :: prisma :: user :: $ field :: NAME) , + ,] . into_iter () . collect :: < Vec < _ >> () . join (", ")) } fn visit_str < E > (self , value : & str) -> std :: result :: Result < Field , E > where E : :: serde :: de :: Error , { match value { $ (crate :: prisma :: user :: $ field :: NAME => Ok (Field :: $ field)) , * , _ => Err (:: serde :: de :: Error :: unknown_field (value , FIELDS)) , } } } deserializer . deserialize_identifier (FieldVisitor) } } struct DataVisitor ; impl < 'de > :: serde :: de :: Visitor < 'de > for DataVisitor { type Value = Data ; fn expecting (& self , formatter : & mut std :: fmt :: Formatter) -> std :: fmt :: Result { formatter . write_str ("struct Data") } fn visit_map < V > (self , mut map : V) -> std :: result :: Result < Data , V :: Error > where V : :: serde :: de :: MapAccess < 'de > , { $ (let mut $ field = None ;) * while let Some (key) = map . next_key () ? { match key { $ (Field :: $ field => { if $ field . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: $ field :: NAME)) ; } $ field = Some (map . next_value () ?) ; }) * } } $ (let $ field = $ field . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: $ field :: NAME)) ? ;) * Ok (Data { $ ($ field) , * }) } } const FIELDS : & 'static [& 'static str] = & ["name" , "tttRating" , "tttProvisional" , "utttRating" , "utttProvisional" , "c4Rating" , "c4Provisional" , "pcRating" , "pcProvisional"] ; deserializer . deserialize_struct ("Data" , FIELDS , DataVisitor) } } $ ($ (pub mod $ field { crate :: prisma :: user :: $ selection_mode ! (@ field_module ; $ field : $ selection_mode { $ ($ selections) + }) ; }) ?) + } ; (@ field_type ; $ field : ident) => { crate :: prisma :: user :: $ field :: Type } ; (@ field_type ; $ field : ident $ ($ tokens : tt) *) => { compile_error ! (stringify ! (Cannot include nonexistent relation $ field on model "User" , available relations are "name, ttt_rating, ttt_provisional, uttt_rating, uttt_provisional, c_4_rating, c_4_provisional, pc_rating, pc_provisional")) } ; (@ field_module ; $ ($ tokens : tt) *) => { } ; (@ selection_field_to_selection_param ; name) => { Into :: < crate :: prisma :: user :: SelectParam > :: into (crate :: prisma :: user :: name :: Select) } ; (@ selection_field_to_selection_param ; ttt_rating) => { Into :: < crate :: prisma :: user :: SelectParam > :: into (crate :: prisma :: user :: ttt_rating :: Select) } ; (@ selection_field_to_selection_param ; ttt_provisional) => { Into :: < crate :: prisma :: user :: SelectParam > :: into (crate :: prisma :: user :: ttt_provisional :: Select) } ; (@ selection_field_to_selection_param ; uttt_rating) => { Into :: < crate :: prisma :: user :: SelectParam > :: into (crate :: prisma :: user :: uttt_rating :: Select) } ; (@ selection_field_to_selection_param ; uttt_provisional) => { Into :: < crate :: prisma :: user :: SelectParam > :: into (crate :: prisma :: user :: uttt_provisional :: Select) } ; (@ selection_field_to_selection_param ; c_4_rating) => { Into :: < crate :: prisma :: user :: SelectParam > :: into (crate :: prisma :: user :: c_4_rating :: Select) } ; (@ selection_field_to_selection_param ; c_4_provisional) => { Into :: < crate :: prisma :: user :: SelectParam > :: into (crate :: prisma :: user :: c_4_provisional :: Select) } ; (@ selection_field_to_selection_param ; pc_rating) => { Into :: < crate :: prisma :: user :: SelectParam > :: into (crate :: prisma :: user :: pc_rating :: Select) } ; (@ selection_field_to_selection_param ; pc_provisional) => { Into :: < crate :: prisma :: user :: SelectParam > :: into (crate :: prisma :: user :: pc_provisional :: Select) } ; (@ selection_field_to_selection_param ; $ ($ tokens : tt) *) => { compile_error ! (stringify ! ($ ($ tokens) *)) } ; (@ selections_to_params ; : $ macro_name : ident { $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { [$ (crate :: prisma :: user :: $ macro_name ! (@ selection_field_to_selection_param ; $ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) ,) +] } ; (@ filters_to_args ;) => { vec ! [] } ; (@ filters_to_args ; $ ($ t : tt) *) => { $ ($ t) * } ; (@ field_serde_name ; name) => { "name" } ; (@ field_serde_name ; ttt_rating) => { "tttRating" } ; (@ field_serde_name ; ttt_provisional) => { "tttProvisional" } ; (@ field_serde_name ; uttt_rating) => { "utttRating" } ; (@ field_serde_name ; uttt_provisional) => { "utttProvisional" } ; (@ field_serde_name ; c_4_rating) => { "c4Rating" } ; (@ field_serde_name ; c_4_provisional) => { "c4Provisional" } ; (@ field_serde_name ; pc_rating) => { "pcRating" } ; (@ field_serde_name ; pc_provisional) => { "pcProvisional" } ; }
+    pub use _select_user as select;
+    pub enum SelectParam {
+        Name(name::Select),
+        TttRating(ttt_rating::Select),
+        TttProvisional(ttt_provisional::Select),
+        UtttRating(uttt_rating::Select),
+        UtttProvisional(uttt_provisional::Select),
+        C4Rating(c_4_rating::Select),
+        C4Provisional(c_4_provisional::Select),
+        PcRating(pc_rating::Select),
+        PcProvisional(pc_provisional::Select),
+    }
+    impl SelectParam {
+        pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+            match self {
+                Self::Name(data) => data.to_selection(),
+                Self::TttRating(data) => data.to_selection(),
+                Self::TttProvisional(data) => data.to_selection(),
+                Self::UtttRating(data) => data.to_selection(),
+                Self::UtttProvisional(data) => data.to_selection(),
+                Self::C4Rating(data) => data.to_selection(),
+                Self::C4Provisional(data) => data.to_selection(),
+                Self::PcRating(data) => data.to_selection(),
+                Self::PcProvisional(data) => data.to_selection(),
+            }
+        }
+    }
+    #[macro_export]
+    macro_rules ! _include_user { ($ (($ ($ func_arg : ident : $ func_arg_ty : ty) , +) =>) ? $ module_name : ident { $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { # [allow (warnings)] pub mod $ module_name { crate :: prisma :: user :: include ! (@ definitions ; $ module_name ; $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) +) ; use super :: * ; pub struct Selection (Vec < :: prisma_client_rust :: Selection >) ; impl :: prisma_client_rust :: IncludeType for Selection { type Data = Data ; type ModelData = crate :: prisma :: user :: Data ; fn to_selections (self) -> Vec < :: prisma_client_rust :: Selection > { self . 0 } } pub fn include ($ ($ ($ func_arg : $ func_arg_ty) , +) ?) -> Selection { Selection ([crate :: prisma :: user :: include ! (@ selections_to_params ; : include { $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) + }) . into_iter () . map (| p | p . to_selection ()) . collect :: < Vec < _ >> () , < crate :: prisma :: user :: Types as :: prisma_client_rust :: ModelTypes > :: scalar_selections ()] . into_iter () . flatten () . collect :: < Vec < _ >> ()) } } } ; ({ $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { { crate :: prisma :: user :: include ! (@ definitions ; ; $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) +) ; pub struct Selection (Vec < :: prisma_client_rust :: Selection >) ; impl :: prisma_client_rust :: IncludeType for Selection { type Data = Data ; type ModelData = crate :: prisma :: user :: Data ; fn to_selections (self) -> Vec < :: prisma_client_rust :: Selection > { self . 0 } } Selection ([crate :: prisma :: user :: include ! (@ selections_to_params ; : include { $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) + }) . into_iter () . map (| p | p . to_selection ()) . collect :: < Vec < _ >> () , < crate :: prisma :: user :: Types as :: prisma_client_rust :: ModelTypes > :: scalar_selections ()] . into_iter () . flatten () . collect :: < Vec < _ >> ()) } } ; (@ definitions ; $ ($ module_name : ident) ? ; $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) +) => { # [allow (warnings)] enum Fields { } # [allow (warnings)] impl Fields { fn selections () { $ (let _ = Fields :: $ field ;) + } } # [allow (warnings)] # [derive (std :: fmt :: Debug , Clone)] pub struct Data { pub name : String , pub ttt_rating : i32 , pub ttt_provisional : bool , pub uttt_rating : i32 , pub uttt_provisional : bool , pub c_4_rating : i32 , pub c_4_provisional : bool , pub pc_rating : i32 , pub pc_provisional : bool , $ (pub $ field : crate :: prisma :: user :: include ! (@ field_type ; $ field $ (: $ selection_mode { $ ($ selections) + }) ?) ,) + } impl :: serde :: Serialize for Data { fn serialize < S > (& self , serializer : S) -> std :: result :: Result < S :: Ok , S :: Error > where S : :: serde :: Serializer , { use :: serde :: ser :: SerializeStruct ; let mut state = serializer . serialize_struct ("Data" , [$ (stringify ! ($ field) ,) + stringify ! (name) , stringify ! (ttt_rating) , stringify ! (ttt_provisional) , stringify ! (uttt_rating) , stringify ! (uttt_provisional) , stringify ! (c_4_rating) , stringify ! (c_4_provisional) , stringify ! (pc_rating) , stringify ! (pc_provisional)] . len ()) ? ; $ (state . serialize_field (crate :: prisma :: user :: $ field :: NAME , & self . $ field) ? ;) * state . serialize_field (crate :: prisma :: user :: name :: NAME , & self . name) ? ; state . serialize_field (crate :: prisma :: user :: ttt_rating :: NAME , & self . ttt_rating) ? ; state . serialize_field (crate :: prisma :: user :: ttt_provisional :: NAME , & self . ttt_provisional) ? ; state . serialize_field (crate :: prisma :: user :: uttt_rating :: NAME , & self . uttt_rating) ? ; state . serialize_field (crate :: prisma :: user :: uttt_provisional :: NAME , & self . uttt_provisional) ? ; state . serialize_field (crate :: prisma :: user :: c_4_rating :: NAME , & self . c_4_rating) ? ; state . serialize_field (crate :: prisma :: user :: c_4_provisional :: NAME , & self . c_4_provisional) ? ; state . serialize_field (crate :: prisma :: user :: pc_rating :: NAME , & self . pc_rating) ? ; state . serialize_field (crate :: prisma :: user :: pc_provisional :: NAME , & self . pc_provisional) ? ; state . end () } } impl < 'de > :: serde :: Deserialize < 'de > for Data { fn deserialize < D > (deserializer : D) -> std :: result :: Result < Self , D :: Error > where D : :: serde :: Deserializer < 'de > , { # [allow (warnings)] enum Field { $ ($ field) , + , name , ttt_rating , ttt_provisional , uttt_rating , uttt_provisional , c_4_rating , c_4_provisional , pc_rating , pc_provisional } impl < 'de > :: serde :: Deserialize < 'de > for Field { fn deserialize < D > (deserializer : D) -> std :: result :: Result < Field , D :: Error > where D : :: serde :: Deserializer < 'de > , { struct FieldVisitor ; impl < 'de > :: serde :: de :: Visitor < 'de > for FieldVisitor { type Value = Field ; fn expecting (& self , formatter : & mut :: std :: fmt :: Formatter) -> :: std :: fmt :: Result { formatter . write_str (& [$ (crate :: prisma :: user :: $ field :: NAME) , + , crate :: prisma :: user :: name :: NAME , crate :: prisma :: user :: ttt_rating :: NAME , crate :: prisma :: user :: ttt_provisional :: NAME , crate :: prisma :: user :: uttt_rating :: NAME , crate :: prisma :: user :: uttt_provisional :: NAME , crate :: prisma :: user :: c_4_rating :: NAME , crate :: prisma :: user :: c_4_provisional :: NAME , crate :: prisma :: user :: pc_rating :: NAME , crate :: prisma :: user :: pc_provisional :: NAME] . into_iter () . collect :: < Vec < _ >> () . join (", ")) } fn visit_str < E > (self , value : & str) -> std :: result :: Result < Field , E > where E : :: serde :: de :: Error , { match value { $ (crate :: prisma :: user :: $ field :: NAME => Ok (Field :: $ field)) , * , crate :: prisma :: user :: name :: NAME => Ok (Field :: name) , crate :: prisma :: user :: ttt_rating :: NAME => Ok (Field :: ttt_rating) , crate :: prisma :: user :: ttt_provisional :: NAME => Ok (Field :: ttt_provisional) , crate :: prisma :: user :: uttt_rating :: NAME => Ok (Field :: uttt_rating) , crate :: prisma :: user :: uttt_provisional :: NAME => Ok (Field :: uttt_provisional) , crate :: prisma :: user :: c_4_rating :: NAME => Ok (Field :: c_4_rating) , crate :: prisma :: user :: c_4_provisional :: NAME => Ok (Field :: c_4_provisional) , crate :: prisma :: user :: pc_rating :: NAME => Ok (Field :: pc_rating) , crate :: prisma :: user :: pc_provisional :: NAME => Ok (Field :: pc_provisional) , _ => Err (:: serde :: de :: Error :: unknown_field (value , FIELDS)) , } } } deserializer . deserialize_identifier (FieldVisitor) } } struct DataVisitor ; impl < 'de > :: serde :: de :: Visitor < 'de > for DataVisitor { type Value = Data ; fn expecting (& self , formatter : & mut std :: fmt :: Formatter) -> std :: fmt :: Result { formatter . write_str ("struct Data") } fn visit_map < V > (self , mut map : V) -> std :: result :: Result < Data , V :: Error > where V : :: serde :: de :: MapAccess < 'de > , { $ (let mut $ field = None ;) * let mut name = None ; let mut ttt_rating = None ; let mut ttt_provisional = None ; let mut uttt_rating = None ; let mut uttt_provisional = None ; let mut c_4_rating = None ; let mut c_4_provisional = None ; let mut pc_rating = None ; let mut pc_provisional = None ; while let Some (key) = map . next_key () ? { match key { Field :: name => { if name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: name :: NAME)) ; } name = Some (map . next_value () ?) ; } Field :: ttt_rating => { if ttt_rating . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: ttt_rating :: NAME)) ; } ttt_rating = Some (map . next_value () ?) ; } Field :: ttt_provisional => { if ttt_provisional . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: ttt_provisional :: NAME)) ; } ttt_provisional = Some (map . next_value () ?) ; } Field :: uttt_rating => { if uttt_rating . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: uttt_rating :: NAME)) ; } uttt_rating = Some (map . next_value () ?) ; } Field :: uttt_provisional => { if uttt_provisional . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: uttt_provisional :: NAME)) ; } uttt_provisional = Some (map . next_value () ?) ; } Field :: c_4_rating => { if c_4_rating . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: c_4_rating :: NAME)) ; } c_4_rating = Some (map . next_value () ?) ; } Field :: c_4_provisional => { if c_4_provisional . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: c_4_provisional :: NAME)) ; } c_4_provisional = Some (map . next_value () ?) ; } Field :: pc_rating => { if pc_rating . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: pc_rating :: NAME)) ; } pc_rating = Some (map . next_value () ?) ; } Field :: pc_provisional => { if pc_provisional . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: pc_provisional :: NAME)) ; } pc_provisional = Some (map . next_value () ?) ; } $ (Field :: $ field => { if $ field . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: $ field :: NAME)) ; } $ field = Some (map . next_value () ?) ; }) * } } $ (let $ field = $ field . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: $ field :: NAME)) ? ;) * let name = name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: name :: NAME)) ? ; let ttt_rating = ttt_rating . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: ttt_rating :: NAME)) ? ; let ttt_provisional = ttt_provisional . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: ttt_provisional :: NAME)) ? ; let uttt_rating = uttt_rating . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: uttt_rating :: NAME)) ? ; let uttt_provisional = uttt_provisional . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: uttt_provisional :: NAME)) ? ; let c_4_rating = c_4_rating . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: c_4_rating :: NAME)) ? ; let c_4_provisional = c_4_provisional . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: c_4_provisional :: NAME)) ? ; let pc_rating = pc_rating . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: pc_rating :: NAME)) ? ; let pc_provisional = pc_provisional . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: pc_provisional :: NAME)) ? ; Ok (Data { name , ttt_rating , ttt_provisional , uttt_rating , uttt_provisional , c_4_rating , c_4_provisional , pc_rating , pc_provisional , $ ($ field) , * }) } } const FIELDS : & 'static [& 'static str] = & ["name" , "tttRating" , "tttProvisional" , "utttRating" , "utttProvisional" , "c4Rating" , "c4Provisional" , "pcRating" , "pcProvisional"] ; deserializer . deserialize_struct ("Data" , FIELDS , DataVisitor) } } $ ($ (pub mod $ field { crate :: prisma :: user :: $ selection_mode ! (@ field_module ; $ field : $ selection_mode { $ ($ selections) + }) ; }) ?) + } ; (@ field_type ; $ field : ident) => { crate :: prisma :: user :: $ field :: Type } ; (@ field_type ; $ field : ident $ ($ tokens : tt) *) => { compile_error ! (stringify ! (Cannot include nonexistent relation $ field on model "User" , available relations are "")) } ; (@ field_module ; $ ($ tokens : tt) *) => { } ; (@ selection_field_to_selection_param ; $ ($ tokens : tt) *) => { compile_error ! (stringify ! ($ ($ tokens) *)) } ; (@ selections_to_params ; : $ macro_name : ident { $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { [$ (crate :: prisma :: user :: $ macro_name ! (@ selection_field_to_selection_param ; $ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) ,) +] } ; (@ filters_to_args ;) => { vec ! [] } ; (@ filters_to_args ; $ ($ t : tt) *) => { $ ($ t) * } ; (@ field_serde_name ; name) => { "name" } ; (@ field_serde_name ; ttt_rating) => { "tttRating" } ; (@ field_serde_name ; ttt_provisional) => { "tttProvisional" } ; (@ field_serde_name ; uttt_rating) => { "utttRating" } ; (@ field_serde_name ; uttt_provisional) => { "utttProvisional" } ; (@ field_serde_name ; c_4_rating) => { "c4Rating" } ; (@ field_serde_name ; c_4_provisional) => { "c4Provisional" } ; (@ field_serde_name ; pc_rating) => { "pcRating" } ; (@ field_serde_name ; pc_provisional) => { "pcProvisional" } ; }
+    pub use _include_user as include;
+    pub enum IncludeParam {
+        Name(name::Include),
+        TttRating(ttt_rating::Include),
+        TttProvisional(ttt_provisional::Include),
+        UtttRating(uttt_rating::Include),
+        UtttProvisional(uttt_provisional::Include),
+        C4Rating(c_4_rating::Include),
+        C4Provisional(c_4_provisional::Include),
+        PcRating(pc_rating::Include),
+        PcProvisional(pc_provisional::Include),
+    }
+    impl IncludeParam {
+        pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+            match self {
+                Self::Name(data) => data.to_selection(),
+                Self::TttRating(data) => data.to_selection(),
+                Self::TttProvisional(data) => data.to_selection(),
+                Self::UtttRating(data) => data.to_selection(),
+                Self::UtttProvisional(data) => data.to_selection(),
+                Self::C4Rating(data) => data.to_selection(),
+                Self::C4Provisional(data) => data.to_selection(),
+                Self::PcRating(data) => data.to_selection(),
+                Self::PcProvisional(data) => data.to_selection(),
+            }
+        }
+    }
+    pub mod c_4_provisional {
+        use super::super::{_prisma::*, *};
+        use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
+        pub const NAME: &str = "c4Provisional";
+        pub type Type = bool;
+        pub type RecursiveSafeType = Type;
+        pub fn equals(value: bool) -> WhereParam {
+            WhereParam::C4Provisional(_prisma::read_filters::BooleanFilter::Equals(value))
+        }
+        ::prisma_client_rust::scalar_where_param_fns!(
+            _prisma::read_filters::BooleanFilter,
+            C4Provisional,
+            {
+                fn not(_: bool) -> Not;
+            }
+        );
+        pub struct Order(SortOrder);
+        pub fn order<T: From<Order>>(v: SortOrder) -> T {
+            Order(v).into()
+        }
+        impl From<Order> for super::OrderByWithRelationParam {
+            fn from(Order(v): Order) -> Self {
+                Self::C4Provisional(v)
+            }
+        }
+        pub struct Set(pub bool);
+        impl From<UpdateOperation> for SetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::C4Provisional(v)
+            }
+        }
+        impl From<Set> for SetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::C4Provisional(_prisma::write_params::BooleanParam::Set(v))
+            }
+        }
+        pub fn set<T: From<Set>>(value: bool) -> T {
+            Set(value).into()
+        }
+        pub struct UpdateOperation(pub _prisma::write_params::BooleanParam);
+        impl From<Set> for UncheckedSetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::C4Provisional(_prisma::write_params::BooleanParam::Set(v))
+            }
+        }
+        impl From<UpdateOperation> for UncheckedSetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::C4Provisional(v)
+            }
+        }
+        pub struct Select;
+        impl Into<super::SelectParam> for Select {
+            fn into(self) -> super::SelectParam {
+                super::SelectParam::C4Provisional(self)
+            }
+        }
+        impl Select {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+        pub struct Include;
+        impl Into<super::IncludeParam> for Include {
+            fn into(self) -> super::IncludeParam {
+                super::IncludeParam::C4Provisional(self)
+            }
+        }
+        impl Include {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+    }
+    pub mod c_4_rating {
+        use super::super::{_prisma::*, *};
+        use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
+        pub const NAME: &str = "c4Rating";
+        pub type Type = i32;
+        pub type RecursiveSafeType = Type;
+        pub fn equals(value: i32) -> WhereParam {
+            WhereParam::C4Rating(_prisma::read_filters::IntFilter::Equals(value))
+        }
+        ::prisma_client_rust::scalar_where_param_fns!(
+            _prisma::read_filters::IntFilter,
+            C4Rating,
+            {
+                fn in_vec(_: Vec<i32>) -> InVec;
+                fn not_in_vec(_: Vec<i32>) -> NotInVec;
+                fn lt(_: i32) -> Lt;
+                fn lte(_: i32) -> Lte;
+                fn gt(_: i32) -> Gt;
+                fn gte(_: i32) -> Gte;
+                fn not(_: i32) -> Not;
+            }
+        );
+        pub struct Order(SortOrder);
+        pub fn order<T: From<Order>>(v: SortOrder) -> T {
+            Order(v).into()
+        }
+        impl From<Order> for super::OrderByWithRelationParam {
+            fn from(Order(v): Order) -> Self {
+                Self::C4Rating(v)
+            }
+        }
+        pub struct Set(pub i32);
+        impl From<UpdateOperation> for SetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::C4Rating(v)
+            }
+        }
+        impl From<Set> for SetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::C4Rating(_prisma::write_params::IntParam::Set(v))
+            }
+        }
+        pub fn set<T: From<Set>>(value: i32) -> T {
+            Set(value).into()
+        }
+        pub struct UpdateOperation(pub _prisma::write_params::IntParam);
+        pub fn increment<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Increment(value)).into()
+        }
+        pub fn decrement<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Decrement(value)).into()
+        }
+        pub fn multiply<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Multiply(value)).into()
+        }
+        pub fn divide<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Divide(value)).into()
+        }
+        impl From<Set> for UncheckedSetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::C4Rating(_prisma::write_params::IntParam::Set(v))
+            }
+        }
+        impl From<UpdateOperation> for UncheckedSetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::C4Rating(v)
+            }
+        }
+        pub struct Select;
+        impl Into<super::SelectParam> for Select {
+            fn into(self) -> super::SelectParam {
+                super::SelectParam::C4Rating(self)
+            }
+        }
+        impl Select {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+        pub struct Include;
+        impl Into<super::IncludeParam> for Include {
+            fn into(self) -> super::IncludeParam {
+                super::IncludeParam::C4Rating(self)
+            }
+        }
+        impl Include {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+    }
+    pub mod name {
+        use super::super::{_prisma::*, *};
+        use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
+        pub const NAME: &str = "name";
+        pub type Type = String;
+        pub type RecursiveSafeType = Type;
+        pub fn equals<T: From<UniqueWhereParam>>(value: String) -> T {
+            UniqueWhereParam::NameEquals(value).into()
+        }
+        ::prisma_client_rust::scalar_where_param_fns!(_prisma::read_filters::StringFilter, Name, {
+            fn in_vec(_: Vec<String>) -> InVec;
+            fn not_in_vec(_: Vec<String>) -> NotInVec;
+            fn lt(_: String) -> Lt;
+            fn lte(_: String) -> Lte;
+            fn gt(_: String) -> Gt;
+            fn gte(_: String) -> Gte;
+            fn contains(_: String) -> Contains;
+            fn starts_with(_: String) -> StartsWith;
+            fn ends_with(_: String) -> EndsWith;
+            fn mode(_: QueryMode) -> Mode;
+            fn not(_: String) -> Not;
+        });
+        pub struct Order(SortOrder);
+        pub fn order<T: From<Order>>(v: SortOrder) -> T {
+            Order(v).into()
+        }
+        impl From<Order> for super::OrderByWithRelationParam {
+            fn from(Order(v): Order) -> Self {
+                Self::Name(v)
+            }
+        }
+        pub struct Set(pub String);
+        impl From<UpdateOperation> for SetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::Name(v)
+            }
+        }
+        impl From<Set> for SetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::Name(_prisma::write_params::StringParam::Set(v))
+            }
+        }
+        pub fn set<T: From<Set>>(value: String) -> T {
+            Set(value).into()
+        }
+        pub struct UpdateOperation(pub _prisma::write_params::StringParam);
+        impl From<Set> for UncheckedSetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::Name(_prisma::write_params::StringParam::Set(v))
+            }
+        }
+        impl From<UpdateOperation> for UncheckedSetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::Name(v)
+            }
+        }
+        pub struct Select;
+        impl Into<super::SelectParam> for Select {
+            fn into(self) -> super::SelectParam {
+                super::SelectParam::Name(self)
+            }
+        }
+        impl Select {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+        pub struct Include;
+        impl Into<super::IncludeParam> for Include {
+            fn into(self) -> super::IncludeParam {
+                super::IncludeParam::Name(self)
+            }
+        }
+        impl Include {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+    }
+    pub mod pc_provisional {
+        use super::super::{_prisma::*, *};
+        use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
+        pub const NAME: &str = "pcProvisional";
+        pub type Type = bool;
+        pub type RecursiveSafeType = Type;
+        pub fn equals(value: bool) -> WhereParam {
+            WhereParam::PcProvisional(_prisma::read_filters::BooleanFilter::Equals(value))
+        }
+        ::prisma_client_rust::scalar_where_param_fns!(
+            _prisma::read_filters::BooleanFilter,
+            PcProvisional,
+            {
+                fn not(_: bool) -> Not;
+            }
+        );
+        pub struct Order(SortOrder);
+        pub fn order<T: From<Order>>(v: SortOrder) -> T {
+            Order(v).into()
+        }
+        impl From<Order> for super::OrderByWithRelationParam {
+            fn from(Order(v): Order) -> Self {
+                Self::PcProvisional(v)
+            }
+        }
+        pub struct Set(pub bool);
+        impl From<UpdateOperation> for SetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::PcProvisional(v)
+            }
+        }
+        impl From<Set> for SetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::PcProvisional(_prisma::write_params::BooleanParam::Set(v))
+            }
+        }
+        pub fn set<T: From<Set>>(value: bool) -> T {
+            Set(value).into()
+        }
+        pub struct UpdateOperation(pub _prisma::write_params::BooleanParam);
+        impl From<Set> for UncheckedSetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::PcProvisional(_prisma::write_params::BooleanParam::Set(v))
+            }
+        }
+        impl From<UpdateOperation> for UncheckedSetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::PcProvisional(v)
+            }
+        }
+        pub struct Select;
+        impl Into<super::SelectParam> for Select {
+            fn into(self) -> super::SelectParam {
+                super::SelectParam::PcProvisional(self)
+            }
+        }
+        impl Select {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+        pub struct Include;
+        impl Into<super::IncludeParam> for Include {
+            fn into(self) -> super::IncludeParam {
+                super::IncludeParam::PcProvisional(self)
+            }
+        }
+        impl Include {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+    }
+    pub mod pc_rating {
+        use super::super::{_prisma::*, *};
+        use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
+        pub const NAME: &str = "pcRating";
+        pub type Type = i32;
+        pub type RecursiveSafeType = Type;
+        pub fn equals(value: i32) -> WhereParam {
+            WhereParam::PcRating(_prisma::read_filters::IntFilter::Equals(value))
+        }
+        ::prisma_client_rust::scalar_where_param_fns!(
+            _prisma::read_filters::IntFilter,
+            PcRating,
+            {
+                fn in_vec(_: Vec<i32>) -> InVec;
+                fn not_in_vec(_: Vec<i32>) -> NotInVec;
+                fn lt(_: i32) -> Lt;
+                fn lte(_: i32) -> Lte;
+                fn gt(_: i32) -> Gt;
+                fn gte(_: i32) -> Gte;
+                fn not(_: i32) -> Not;
+            }
+        );
+        pub struct Order(SortOrder);
+        pub fn order<T: From<Order>>(v: SortOrder) -> T {
+            Order(v).into()
+        }
+        impl From<Order> for super::OrderByWithRelationParam {
+            fn from(Order(v): Order) -> Self {
+                Self::PcRating(v)
+            }
+        }
+        pub struct Set(pub i32);
+        impl From<UpdateOperation> for SetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::PcRating(v)
+            }
+        }
+        impl From<Set> for SetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::PcRating(_prisma::write_params::IntParam::Set(v))
+            }
+        }
+        pub fn set<T: From<Set>>(value: i32) -> T {
+            Set(value).into()
+        }
+        pub struct UpdateOperation(pub _prisma::write_params::IntParam);
+        pub fn increment<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Increment(value)).into()
+        }
+        pub fn decrement<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Decrement(value)).into()
+        }
+        pub fn multiply<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Multiply(value)).into()
+        }
+        pub fn divide<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Divide(value)).into()
+        }
+        impl From<Set> for UncheckedSetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::PcRating(_prisma::write_params::IntParam::Set(v))
+            }
+        }
+        impl From<UpdateOperation> for UncheckedSetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::PcRating(v)
+            }
+        }
+        pub struct Select;
+        impl Into<super::SelectParam> for Select {
+            fn into(self) -> super::SelectParam {
+                super::SelectParam::PcRating(self)
+            }
+        }
+        impl Select {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+        pub struct Include;
+        impl Into<super::IncludeParam> for Include {
+            fn into(self) -> super::IncludeParam {
+                super::IncludeParam::PcRating(self)
+            }
+        }
+        impl Include {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+    }
+    pub mod ttt_provisional {
+        use super::super::{_prisma::*, *};
+        use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
+        pub const NAME: &str = "tttProvisional";
+        pub type Type = bool;
+        pub type RecursiveSafeType = Type;
+        pub fn equals(value: bool) -> WhereParam {
+            WhereParam::TttProvisional(_prisma::read_filters::BooleanFilter::Equals(value))
+        }
+        ::prisma_client_rust::scalar_where_param_fns!(
+            _prisma::read_filters::BooleanFilter,
+            TttProvisional,
+            {
+                fn not(_: bool) -> Not;
+            }
+        );
+        pub struct Order(SortOrder);
+        pub fn order<T: From<Order>>(v: SortOrder) -> T {
+            Order(v).into()
+        }
+        impl From<Order> for super::OrderByWithRelationParam {
+            fn from(Order(v): Order) -> Self {
+                Self::TttProvisional(v)
+            }
+        }
+        pub struct Set(pub bool);
+        impl From<UpdateOperation> for SetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::TttProvisional(v)
+            }
+        }
+        impl From<Set> for SetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::TttProvisional(_prisma::write_params::BooleanParam::Set(v))
+            }
+        }
+        pub fn set<T: From<Set>>(value: bool) -> T {
+            Set(value).into()
+        }
+        pub struct UpdateOperation(pub _prisma::write_params::BooleanParam);
+        impl From<Set> for UncheckedSetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::TttProvisional(_prisma::write_params::BooleanParam::Set(v))
+            }
+        }
+        impl From<UpdateOperation> for UncheckedSetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::TttProvisional(v)
+            }
+        }
+        pub struct Select;
+        impl Into<super::SelectParam> for Select {
+            fn into(self) -> super::SelectParam {
+                super::SelectParam::TttProvisional(self)
+            }
+        }
+        impl Select {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+        pub struct Include;
+        impl Into<super::IncludeParam> for Include {
+            fn into(self) -> super::IncludeParam {
+                super::IncludeParam::TttProvisional(self)
+            }
+        }
+        impl Include {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+    }
+    pub mod ttt_rating {
+        use super::super::{_prisma::*, *};
+        use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
+        pub const NAME: &str = "tttRating";
+        pub type Type = i32;
+        pub type RecursiveSafeType = Type;
+        pub fn equals(value: i32) -> WhereParam {
+            WhereParam::TttRating(_prisma::read_filters::IntFilter::Equals(value))
+        }
+        ::prisma_client_rust::scalar_where_param_fns!(
+            _prisma::read_filters::IntFilter,
+            TttRating,
+            {
+                fn in_vec(_: Vec<i32>) -> InVec;
+                fn not_in_vec(_: Vec<i32>) -> NotInVec;
+                fn lt(_: i32) -> Lt;
+                fn lte(_: i32) -> Lte;
+                fn gt(_: i32) -> Gt;
+                fn gte(_: i32) -> Gte;
+                fn not(_: i32) -> Not;
+            }
+        );
+        pub struct Order(SortOrder);
+        pub fn order<T: From<Order>>(v: SortOrder) -> T {
+            Order(v).into()
+        }
+        impl From<Order> for super::OrderByWithRelationParam {
+            fn from(Order(v): Order) -> Self {
+                Self::TttRating(v)
+            }
+        }
+        pub struct Set(pub i32);
+        impl From<UpdateOperation> for SetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::TttRating(v)
+            }
+        }
+        impl From<Set> for SetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::TttRating(_prisma::write_params::IntParam::Set(v))
+            }
+        }
+        pub fn set<T: From<Set>>(value: i32) -> T {
+            Set(value).into()
+        }
+        pub struct UpdateOperation(pub _prisma::write_params::IntParam);
+        pub fn increment<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Increment(value)).into()
+        }
+        pub fn decrement<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Decrement(value)).into()
+        }
+        pub fn multiply<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Multiply(value)).into()
+        }
+        pub fn divide<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Divide(value)).into()
+        }
+        impl From<Set> for UncheckedSetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::TttRating(_prisma::write_params::IntParam::Set(v))
+            }
+        }
+        impl From<UpdateOperation> for UncheckedSetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::TttRating(v)
+            }
+        }
+        pub struct Select;
+        impl Into<super::SelectParam> for Select {
+            fn into(self) -> super::SelectParam {
+                super::SelectParam::TttRating(self)
+            }
+        }
+        impl Select {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+        pub struct Include;
+        impl Into<super::IncludeParam> for Include {
+            fn into(self) -> super::IncludeParam {
+                super::IncludeParam::TttRating(self)
+            }
+        }
+        impl Include {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+    }
+    pub mod uttt_provisional {
+        use super::super::{_prisma::*, *};
+        use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
+        pub const NAME: &str = "utttProvisional";
+        pub type Type = bool;
+        pub type RecursiveSafeType = Type;
+        pub fn equals(value: bool) -> WhereParam {
+            WhereParam::UtttProvisional(_prisma::read_filters::BooleanFilter::Equals(value))
+        }
+        ::prisma_client_rust::scalar_where_param_fns!(
+            _prisma::read_filters::BooleanFilter,
+            UtttProvisional,
+            {
+                fn not(_: bool) -> Not;
+            }
+        );
+        pub struct Order(SortOrder);
+        pub fn order<T: From<Order>>(v: SortOrder) -> T {
+            Order(v).into()
+        }
+        impl From<Order> for super::OrderByWithRelationParam {
+            fn from(Order(v): Order) -> Self {
+                Self::UtttProvisional(v)
+            }
+        }
+        pub struct Set(pub bool);
+        impl From<UpdateOperation> for SetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::UtttProvisional(v)
+            }
+        }
+        impl From<Set> for SetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::UtttProvisional(_prisma::write_params::BooleanParam::Set(v))
+            }
+        }
+        pub fn set<T: From<Set>>(value: bool) -> T {
+            Set(value).into()
+        }
+        pub struct UpdateOperation(pub _prisma::write_params::BooleanParam);
+        impl From<Set> for UncheckedSetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::UtttProvisional(_prisma::write_params::BooleanParam::Set(v))
+            }
+        }
+        impl From<UpdateOperation> for UncheckedSetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::UtttProvisional(v)
+            }
+        }
+        pub struct Select;
+        impl Into<super::SelectParam> for Select {
+            fn into(self) -> super::SelectParam {
+                super::SelectParam::UtttProvisional(self)
+            }
+        }
+        impl Select {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+        pub struct Include;
+        impl Into<super::IncludeParam> for Include {
+            fn into(self) -> super::IncludeParam {
+                super::IncludeParam::UtttProvisional(self)
+            }
+        }
+        impl Include {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+    }
+    pub mod uttt_rating {
+        use super::super::{_prisma::*, *};
+        use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
+        pub const NAME: &str = "utttRating";
+        pub type Type = i32;
+        pub type RecursiveSafeType = Type;
+        pub fn equals(value: i32) -> WhereParam {
+            WhereParam::UtttRating(_prisma::read_filters::IntFilter::Equals(value))
+        }
+        ::prisma_client_rust::scalar_where_param_fns!(
+            _prisma::read_filters::IntFilter,
+            UtttRating,
+            {
+                fn in_vec(_: Vec<i32>) -> InVec;
+                fn not_in_vec(_: Vec<i32>) -> NotInVec;
+                fn lt(_: i32) -> Lt;
+                fn lte(_: i32) -> Lte;
+                fn gt(_: i32) -> Gt;
+                fn gte(_: i32) -> Gte;
+                fn not(_: i32) -> Not;
+            }
+        );
+        pub struct Order(SortOrder);
+        pub fn order<T: From<Order>>(v: SortOrder) -> T {
+            Order(v).into()
+        }
+        impl From<Order> for super::OrderByWithRelationParam {
+            fn from(Order(v): Order) -> Self {
+                Self::UtttRating(v)
+            }
+        }
+        pub struct Set(pub i32);
+        impl From<UpdateOperation> for SetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::UtttRating(v)
+            }
+        }
+        impl From<Set> for SetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::UtttRating(_prisma::write_params::IntParam::Set(v))
+            }
+        }
+        pub fn set<T: From<Set>>(value: i32) -> T {
+            Set(value).into()
+        }
+        pub struct UpdateOperation(pub _prisma::write_params::IntParam);
+        pub fn increment<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Increment(value)).into()
+        }
+        pub fn decrement<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Decrement(value)).into()
+        }
+        pub fn multiply<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Multiply(value)).into()
+        }
+        pub fn divide<T: From<UpdateOperation>>(value: i32) -> T {
+            UpdateOperation(_prisma::write_params::IntParam::Divide(value)).into()
+        }
+        impl From<Set> for UncheckedSetParam {
+            fn from(Set(v): Set) -> Self {
+                Self::UtttRating(_prisma::write_params::IntParam::Set(v))
+            }
+        }
+        impl From<UpdateOperation> for UncheckedSetParam {
+            fn from(UpdateOperation(v): UpdateOperation) -> Self {
+                Self::UtttRating(v)
+            }
+        }
+        pub struct Select;
+        impl Into<super::SelectParam> for Select {
+            fn into(self) -> super::SelectParam {
+                super::SelectParam::UtttRating(self)
+            }
+        }
+        impl Select {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+        pub struct Include;
+        impl Into<super::IncludeParam> for Include {
+            fn into(self) -> super::IncludeParam {
+                super::IncludeParam::UtttRating(self)
+            }
+        }
+        impl Include {
+            pub fn to_selection(self) -> ::prisma_client_rust::Selection {
+                ::prisma_client_rust::sel(NAME)
+            }
+        }
+    }
+    #[derive(Debug, Clone)]
+    pub struct Create {
+        pub name: String,
+        pub ttt_rating: i32,
+        pub ttt_provisional: bool,
+        pub uttt_rating: i32,
+        pub uttt_provisional: bool,
+        pub c_4_rating: i32,
+        pub c_4_provisional: bool,
+        pub pc_rating: i32,
+        pub pc_provisional: bool,
+        pub _params: Vec<SetParam>,
+    }
+    impl Create {
+        pub fn to_query<'a>(self, client: &'a PrismaClient) -> CreateQuery<'a> {
+            client.user().create(
+                self.name,
+                self.ttt_rating,
+                self.ttt_provisional,
+                self.uttt_rating,
+                self.uttt_provisional,
+                self.c_4_rating,
+                self.c_4_provisional,
+                self.pc_rating,
+                self.pc_provisional,
+                self._params,
+            )
+        }
+        pub fn to_params(mut self) -> Vec<SetParam> {
+            self._params.extend([
+                name::set(self.name),
+                ttt_rating::set(self.ttt_rating),
+                ttt_provisional::set(self.ttt_provisional),
+                uttt_rating::set(self.uttt_rating),
+                uttt_provisional::set(self.uttt_provisional),
+                c_4_rating::set(self.c_4_rating),
+                c_4_provisional::set(self.c_4_provisional),
+                pc_rating::set(self.pc_rating),
+                pc_provisional::set(self.pc_provisional),
+            ]);
+            self._params
+        }
+    }
+    pub fn create(
+        name: String,
+        ttt_rating: i32,
+        ttt_provisional: bool,
+        uttt_rating: i32,
+        uttt_provisional: bool,
+        c_4_rating: i32,
+        c_4_provisional: bool,
+        pc_rating: i32,
+        pc_provisional: bool,
+        _params: Vec<SetParam>,
+    ) -> Create {
+        Create {
+            name,
+            ttt_rating,
+            ttt_provisional,
+            uttt_rating,
+            uttt_provisional,
+            c_4_rating,
+            c_4_provisional,
+            pc_rating,
+            pc_provisional,
+            _params,
+        }
+    }
+    #[derive(Debug, Clone)]
+    pub struct CreateUnchecked {
+        pub name: String,
+        pub ttt_rating: i32,
+        pub ttt_provisional: bool,
+        pub uttt_rating: i32,
+        pub uttt_provisional: bool,
+        pub c_4_rating: i32,
+        pub c_4_provisional: bool,
+        pub pc_rating: i32,
+        pub pc_provisional: bool,
+        pub _params: Vec<UncheckedSetParam>,
+    }
+    impl CreateUnchecked {
+        pub fn to_query<'a>(self, client: &'a PrismaClient) -> CreateUncheckedQuery<'a> {
+            client.user().create_unchecked(
+                self.name,
+                self.ttt_rating,
+                self.ttt_provisional,
+                self.uttt_rating,
+                self.uttt_provisional,
+                self.c_4_rating,
+                self.c_4_provisional,
+                self.pc_rating,
+                self.pc_provisional,
+                self._params,
+            )
+        }
+        pub fn to_params(mut self) -> Vec<UncheckedSetParam> {
+            self._params.extend([
+                name::set(self.name),
+                ttt_rating::set(self.ttt_rating),
+                ttt_provisional::set(self.ttt_provisional),
+                uttt_rating::set(self.uttt_rating),
+                uttt_provisional::set(self.uttt_provisional),
+                c_4_rating::set(self.c_4_rating),
+                c_4_provisional::set(self.c_4_provisional),
+                pc_rating::set(self.pc_rating),
+                pc_provisional::set(self.pc_provisional),
+            ]);
+            self._params
+        }
+    }
+    pub fn create_unchecked(
+        name: String,
+        ttt_rating: i32,
+        ttt_provisional: bool,
+        uttt_rating: i32,
+        uttt_provisional: bool,
+        c_4_rating: i32,
+        c_4_provisional: bool,
+        pc_rating: i32,
+        pc_provisional: bool,
+        _params: Vec<UncheckedSetParam>,
+    ) -> CreateUnchecked {
+        CreateUnchecked {
+            name,
+            ttt_rating,
+            ttt_provisional,
+            uttt_rating,
+            uttt_provisional,
+            c_4_rating,
+            c_4_provisional,
+            pc_rating,
+            pc_provisional,
+            _params,
+        }
+    }
+    #[derive(Debug, Clone)]
+    pub struct Types;
+    impl ::prisma_client_rust::ModelTypes for Types {
+        type Data = Data;
+        type Where = WhereParam;
+        type UncheckedSet = UncheckedSetParam;
+        type Set = SetParam;
+        type With = WithParam;
+        type OrderBy = OrderByWithRelationParam;
+        type Cursor = UniqueWhereParam;
+        const MODEL: &'static str = NAME;
+        fn scalar_selections() -> Vec<::prisma_client_rust::Selection> {
+            vec![
+                ::prisma_client_rust::sel(name::NAME),
+                ::prisma_client_rust::sel(ttt_rating::NAME),
+                ::prisma_client_rust::sel(ttt_provisional::NAME),
+                ::prisma_client_rust::sel(uttt_rating::NAME),
+                ::prisma_client_rust::sel(uttt_provisional::NAME),
+                ::prisma_client_rust::sel(c_4_rating::NAME),
+                ::prisma_client_rust::sel(c_4_provisional::NAME),
+                ::prisma_client_rust::sel(pc_rating::NAME),
+                ::prisma_client_rust::sel(pc_provisional::NAME),
+            ]
+        }
+    }
+    #[derive(Debug, Clone, :: serde :: Serialize, :: serde :: Deserialize)]
+    pub struct Data {
+        #[serde(rename = "name")]
+        pub name: name::Type,
+        #[serde(rename = "tttRating")]
+        pub ttt_rating: ttt_rating::Type,
+        #[serde(rename = "tttProvisional")]
+        pub ttt_provisional: ttt_provisional::Type,
+        #[serde(rename = "utttRating")]
+        pub uttt_rating: uttt_rating::Type,
+        #[serde(rename = "utttProvisional")]
+        pub uttt_provisional: uttt_provisional::Type,
+        #[serde(rename = "c4Rating")]
+        pub c_4_rating: c_4_rating::Type,
+        #[serde(rename = "c4Provisional")]
+        pub c_4_provisional: c_4_provisional::Type,
+        #[serde(rename = "pcRating")]
+        pub pc_rating: pc_rating::Type,
+        #[serde(rename = "pcProvisional")]
+        pub pc_provisional: pc_provisional::Type,
+    }
+    impl Data {}
+    #[macro_export]
+    macro_rules ! _partial_unchecked_user { ($ struct_name : ident { $ ($ scalar_field : ident) + }) => { :: prisma_client_rust :: macros :: partial_unchecked ! { crate :: prisma :: user struct $ struct_name { # [serde (rename = "name")] pub name : String , # [serde (rename = "tttRating")] pub ttt_rating : i32 , # [serde (rename = "tttProvisional")] pub ttt_provisional : bool , # [serde (rename = "utttRating")] pub uttt_rating : i32 , # [serde (rename = "utttProvisional")] pub uttt_provisional : bool , # [serde (rename = "c4Rating")] pub c_4_rating : i32 , # [serde (rename = "c4Provisional")] pub c_4_provisional : bool , # [serde (rename = "pcRating")] pub pc_rating : i32 , # [serde (rename = "pcProvisional")] pub pc_provisional : bool } [$ ($ scalar_field) , +] } } ; }
+    pub use _partial_unchecked_user as partial_unchecked;
+    pub type UniqueArgs = ::prisma_client_rust::UniqueArgs<Types>;
+    pub type ManyArgs = ::prisma_client_rust::ManyArgs<Types>;
+    pub type CountQuery<'a> = ::prisma_client_rust::Count<'a, Types>;
+    pub type CreateQuery<'a> = ::prisma_client_rust::Create<'a, Types>;
+    pub type CreateUncheckedQuery<'a> = ::prisma_client_rust::CreateUnchecked<'a, Types>;
+    pub type CreateManyQuery<'a> = ::prisma_client_rust::CreateMany<'a, Types>;
+    pub type FindUniqueQuery<'a> = ::prisma_client_rust::FindUnique<'a, Types>;
+    pub type FindManyQuery<'a> = ::prisma_client_rust::FindMany<'a, Types>;
+    pub type FindFirstQuery<'a> = ::prisma_client_rust::FindFirst<'a, Types>;
+    pub type UpdateQuery<'a> = ::prisma_client_rust::Update<'a, Types>;
+    pub type UpdateUncheckedQuery<'a> = ::prisma_client_rust::UpdateUnchecked<'a, Types>;
+    pub type UpdateManyQuery<'a> = ::prisma_client_rust::UpdateMany<'a, Types>;
+    pub type UpsertQuery<'a> = ::prisma_client_rust::Upsert<'a, Types>;
+    pub type DeleteQuery<'a> = ::prisma_client_rust::Delete<'a, Types>;
+    pub type DeleteManyQuery<'a> = ::prisma_client_rust::DeleteMany<'a, Types>;
+    #[derive(Clone)]
+    pub struct Actions<'a> {
+        pub client: &'a ::prisma_client_rust::PrismaClientInternals,
+    }
+    impl<'a> Actions<'a> {
+        pub fn find_unique(self, _where: UniqueWhereParam) -> FindUniqueQuery<'a> {
+            FindUniqueQuery::new(self.client, _where.into())
+        }
+        pub fn find_first(self, _where: Vec<WhereParam>) -> FindFirstQuery<'a> {
+            FindFirstQuery::new(self.client, _where)
+        }
+        pub fn find_many(self, _where: Vec<WhereParam>) -> FindManyQuery<'a> {
+            FindManyQuery::new(self.client, _where)
+        }
+        pub fn create(
+            self,
+            name: String,
+            ttt_rating: i32,
+            ttt_provisional: bool,
+            uttt_rating: i32,
+            uttt_provisional: bool,
+            c_4_rating: i32,
+            c_4_provisional: bool,
+            pc_rating: i32,
+            pc_provisional: bool,
+            mut _params: Vec<SetParam>,
+        ) -> CreateQuery<'a> {
+            _params.extend([
+                name::set(name),
+                ttt_rating::set(ttt_rating),
+                ttt_provisional::set(ttt_provisional),
+                uttt_rating::set(uttt_rating),
+                uttt_provisional::set(uttt_provisional),
+                c_4_rating::set(c_4_rating),
+                c_4_provisional::set(c_4_provisional),
+                pc_rating::set(pc_rating),
+                pc_provisional::set(pc_provisional),
+            ]);
+            CreateQuery::new(self.client, _params)
+        }
+        pub fn create_unchecked(
+            self,
+            name: String,
+            ttt_rating: i32,
+            ttt_provisional: bool,
+            uttt_rating: i32,
+            uttt_provisional: bool,
+            c_4_rating: i32,
+            c_4_provisional: bool,
+            pc_rating: i32,
+            pc_provisional: bool,
+            mut _params: Vec<UncheckedSetParam>,
+        ) -> CreateUncheckedQuery<'a> {
+            _params.extend([
+                name::set(name),
+                ttt_rating::set(ttt_rating),
+                ttt_provisional::set(ttt_provisional),
+                uttt_rating::set(uttt_rating),
+                uttt_provisional::set(uttt_provisional),
+                c_4_rating::set(c_4_rating),
+                c_4_provisional::set(c_4_provisional),
+                pc_rating::set(pc_rating),
+                pc_provisional::set(pc_provisional),
             ]);
             CreateUncheckedQuery::new(self.client, _params.into_iter().map(Into::into).collect())
         }
@@ -2508,6 +3780,9 @@ pub mod _prisma {
         }
         pub fn game(&self) -> super::game::Actions {
             super::game::Actions { client: &self.0 }
+        }
+        pub fn user(&self) -> super::user::Actions {
+            super::user::Actions { client: &self.0 }
         }
     }
     impl ::prisma_client_rust::PrismaClient for PrismaClient {
@@ -2642,6 +3917,42 @@ pub mod _prisma {
         }
     }
     impl ::prisma_client_rust::TransactionIsolationLevel for TransactionIsolationLevel {}
+    #[derive(Debug, Clone, Copy, :: serde :: Serialize, :: serde :: Deserialize, PartialEq, Eq)]
+    pub enum UserScalarFieldEnum {
+        #[serde(rename = "name")]
+        Name,
+        #[serde(rename = "tttRating")]
+        TttRating,
+        #[serde(rename = "tttProvisional")]
+        TttProvisional,
+        #[serde(rename = "utttRating")]
+        UtttRating,
+        #[serde(rename = "utttProvisional")]
+        UtttProvisional,
+        #[serde(rename = "c4Rating")]
+        C4Rating,
+        #[serde(rename = "c4Provisional")]
+        C4Provisional,
+        #[serde(rename = "pcRating")]
+        PcRating,
+        #[serde(rename = "pcProvisional")]
+        PcProvisional,
+    }
+    impl ToString for UserScalarFieldEnum {
+        fn to_string(&self) -> String {
+            match self {
+                Self::Name => "name".to_string(),
+                Self::TttRating => "tttRating".to_string(),
+                Self::TttProvisional => "tttProvisional".to_string(),
+                Self::UtttRating => "utttRating".to_string(),
+                Self::UtttProvisional => "utttProvisional".to_string(),
+                Self::C4Rating => "c4Rating".to_string(),
+                Self::C4Provisional => "c4Provisional".to_string(),
+                Self::PcRating => "pcRating".to_string(),
+                Self::PcProvisional => "pcProvisional".to_string(),
+            }
+        }
+    }
     impl Into<::prisma_client_rust::PrismaValue> for SortOrder {
         fn into(self) -> ::prisma_client_rust::PrismaValue {
             match self {
