@@ -2,7 +2,7 @@ use actix_web::{web, HttpRequest, HttpResponse, get, post};
 
 use crate::CustomError;
 use crate::prisma::{PrismaClient, user};
-use crate::models::req::CreateUserReq;
+use crate::models::req::{CreateUserReq, LoginReq};
 
 
 // route for creating a new user
@@ -40,6 +40,35 @@ pub async fn get_user(
         {
             Some(u) => Some(u.to_user_res()),
             None => None,
+        }
+    ))
+}
+
+// route for logging in user
+#[post("api/login")]
+pub async fn login(
+    client: web::Data<PrismaClient>,
+    data: web::Json<LoginReq>,
+) -> Result<HttpResponse, CustomError> {
+
+    let login_req: LoginReq = data.into_inner();
+
+    let user = match client
+        .user()
+        .find_unique(user::name::equals(login_req.name))
+        .exec()
+        .await
+        .unwrap()
+    {
+        Some(u) => u,
+        None => return Err(CustomError::BadRequest),
+    };
+
+    Ok(HttpResponse::Ok().json(
+        if login_req.password == user.password {
+            Some(user.to_user_res())
+        } else {
+            None
         }
     ))
 }

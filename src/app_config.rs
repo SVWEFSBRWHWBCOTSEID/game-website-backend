@@ -7,5 +7,6 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
     cfg
         .service(game::create_game)
         .service(user::create_user)
-        .service(user::get_user);
+        .service(user::get_user)
+        .service(user::login);
 }
