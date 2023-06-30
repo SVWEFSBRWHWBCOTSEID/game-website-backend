@@ -2441,11 +2441,11 @@ pub mod user {
         CreatedAt(super::_prisma::read_filters::DateTimeFilter),
         Password(super::_prisma::read_filters::StringFilter),
         Perfs(super::_prisma::read_filters::StringFilter),
-        Country(super::_prisma::read_filters::CountryFilter),
-        Location(super::_prisma::read_filters::StringFilter),
-        Bio(super::_prisma::read_filters::StringFilter),
-        FirstName(super::_prisma::read_filters::StringFilter),
-        LastName(super::_prisma::read_filters::StringFilter),
+        Country(super::_prisma::read_filters::CountryNullableFilter),
+        Location(super::_prisma::read_filters::StringNullableFilter),
+        Bio(super::_prisma::read_filters::StringNullableFilter),
+        FirstName(super::_prisma::read_filters::StringNullableFilter),
+        LastName(super::_prisma::read_filters::StringNullableFilter),
         Url(super::_prisma::read_filters::StringFilter),
         Playing(super::_prisma::read_filters::StringNullableFilter),
     }
@@ -2568,11 +2568,11 @@ pub mod user {
         CreatedAt(super::_prisma::write_params::DateTimeParam),
         Password(super::_prisma::write_params::StringParam),
         Perfs(super::_prisma::write_params::StringParam),
-        Country(super::_prisma::write_params::CountryParam),
-        Location(super::_prisma::write_params::StringParam),
-        Bio(super::_prisma::write_params::StringParam),
-        FirstName(super::_prisma::write_params::StringParam),
-        LastName(super::_prisma::write_params::StringParam),
+        Country(super::_prisma::write_params::CountryNullableParam),
+        Location(super::_prisma::write_params::StringNullableParam),
+        Bio(super::_prisma::write_params::StringNullableParam),
+        FirstName(super::_prisma::write_params::StringNullableParam),
+        LastName(super::_prisma::write_params::StringNullableParam),
         Url(super::_prisma::write_params::StringParam),
         Playing(super::_prisma::write_params::StringNullableParam),
     }
@@ -2600,11 +2600,11 @@ pub mod user {
         CreatedAt(super::_prisma::write_params::DateTimeParam),
         Password(super::_prisma::write_params::StringParam),
         Perfs(super::_prisma::write_params::StringParam),
-        Country(super::_prisma::write_params::CountryParam),
-        Location(super::_prisma::write_params::StringParam),
-        Bio(super::_prisma::write_params::StringParam),
-        FirstName(super::_prisma::write_params::StringParam),
-        LastName(super::_prisma::write_params::StringParam),
+        Country(super::_prisma::write_params::CountryNullableParam),
+        Location(super::_prisma::write_params::StringNullableParam),
+        Bio(super::_prisma::write_params::StringNullableParam),
+        FirstName(super::_prisma::write_params::StringNullableParam),
+        LastName(super::_prisma::write_params::StringNullableParam),
         Url(super::_prisma::write_params::StringParam),
         Playing(super::_prisma::write_params::StringNullableParam),
     }
@@ -2660,7 +2660,7 @@ pub mod user {
         }
     }
     #[macro_export]
-    macro_rules ! _include_user { ($ (($ ($ func_arg : ident : $ func_arg_ty : ty) , +) =>) ? $ module_name : ident { $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { # [allow (warnings)] pub mod $ module_name { crate :: prisma :: user :: include ! (@ definitions ; $ module_name ; $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) +) ; use super :: * ; pub struct Selection (Vec < :: prisma_client_rust :: Selection >) ; impl :: prisma_client_rust :: IncludeType for Selection { type Data = Data ; type ModelData = crate :: prisma :: user :: Data ; fn to_selections (self) -> Vec < :: prisma_client_rust :: Selection > { self . 0 } } pub fn include ($ ($ ($ func_arg : $ func_arg_ty) , +) ?) -> Selection { Selection ([crate :: prisma :: user :: include ! (@ selections_to_params ; : include { $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) + }) . into_iter () . map (| p | p . to_selection ()) . collect :: < Vec < _ >> () , < crate :: prisma :: user :: Types as :: prisma_client_rust :: ModelTypes > :: scalar_selections ()] . into_iter () . flatten () . collect :: < Vec < _ >> ()) } } } ; ({ $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { { crate :: prisma :: user :: include ! (@ definitions ; ; $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) +) ; pub struct Selection (Vec < :: prisma_client_rust :: Selection >) ; impl :: prisma_client_rust :: IncludeType for Selection { type Data = Data ; type ModelData = crate :: prisma :: user :: Data ; fn to_selections (self) -> Vec < :: prisma_client_rust :: Selection > { self . 0 } } Selection ([crate :: prisma :: user :: include ! (@ selections_to_params ; : include { $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) + }) . into_iter () . map (| p | p . to_selection ()) . collect :: < Vec < _ >> () , < crate :: prisma :: user :: Types as :: prisma_client_rust :: ModelTypes > :: scalar_selections ()] . into_iter () . flatten () . collect :: < Vec < _ >> ()) } } ; (@ definitions ; $ ($ module_name : ident) ? ; $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) +) => { # [allow (warnings)] enum Fields { } # [allow (warnings)] impl Fields { fn selections () { $ (let _ = Fields :: $ field ;) + } } # [allow (warnings)] # [derive (std :: fmt :: Debug , Clone)] pub struct Data { pub name : String , pub created_at : :: prisma_client_rust :: chrono :: DateTime < :: prisma_client_rust :: chrono :: FixedOffset , > , pub password : String , pub perfs : String , pub country : crate :: prisma Country , pub location : String , pub bio : String , pub first_name : String , pub last_name : String , pub url : String , pub playing : Option < String > , $ (pub $ field : crate :: prisma :: user :: include ! (@ field_type ; $ field $ (: $ selection_mode { $ ($ selections) + }) ?) ,) + } impl :: serde :: Serialize for Data { fn serialize < S > (& self , serializer : S) -> std :: result :: Result < S :: Ok , S :: Error > where S : :: serde :: Serializer , { use :: serde :: ser :: SerializeStruct ; let mut state = serializer . serialize_struct ("Data" , [$ (stringify ! ($ field) ,) + stringify ! (name) , stringify ! (created_at) , stringify ! (password) , stringify ! (perfs) , stringify ! (country) , stringify ! (location) , stringify ! (bio) , stringify ! (first_name) , stringify ! (last_name) , stringify ! (url) , stringify ! (playing)] . len ()) ? ; $ (state . serialize_field (crate :: prisma :: user :: $ field :: NAME , & self . $ field) ? ;) * state . serialize_field (crate :: prisma :: user :: name :: NAME , & self . name) ? ; state . serialize_field (crate :: prisma :: user :: created_at :: NAME , & self . created_at) ? ; state . serialize_field (crate :: prisma :: user :: password :: NAME , & self . password) ? ; state . serialize_field (crate :: prisma :: user :: perfs :: NAME , & self . perfs) ? ; state . serialize_field (crate :: prisma :: user :: country :: NAME , & self . country) ? ; state . serialize_field (crate :: prisma :: user :: location :: NAME , & self . location) ? ; state . serialize_field (crate :: prisma :: user :: bio :: NAME , & self . bio) ? ; state . serialize_field (crate :: prisma :: user :: first_name :: NAME , & self . first_name) ? ; state . serialize_field (crate :: prisma :: user :: last_name :: NAME , & self . last_name) ? ; state . serialize_field (crate :: prisma :: user :: url :: NAME , & self . url) ? ; state . serialize_field (crate :: prisma :: user :: playing :: NAME , & self . playing) ? ; state . end () } } impl < 'de > :: serde :: Deserialize < 'de > for Data { fn deserialize < D > (deserializer : D) -> std :: result :: Result < Self , D :: Error > where D : :: serde :: Deserializer < 'de > , { # [allow (warnings)] enum Field { $ ($ field) , + , name , created_at , password , perfs , country , location , bio , first_name , last_name , url , playing } impl < 'de > :: serde :: Deserialize < 'de > for Field { fn deserialize < D > (deserializer : D) -> std :: result :: Result < Field , D :: Error > where D : :: serde :: Deserializer < 'de > , { struct FieldVisitor ; impl < 'de > :: serde :: de :: Visitor < 'de > for FieldVisitor { type Value = Field ; fn expecting (& self , formatter : & mut :: std :: fmt :: Formatter) -> :: std :: fmt :: Result { formatter . write_str (& [$ (crate :: prisma :: user :: $ field :: NAME) , + , crate :: prisma :: user :: name :: NAME , crate :: prisma :: user :: created_at :: NAME , crate :: prisma :: user :: password :: NAME , crate :: prisma :: user :: perfs :: NAME , crate :: prisma :: user :: country :: NAME , crate :: prisma :: user :: location :: NAME , crate :: prisma :: user :: bio :: NAME , crate :: prisma :: user :: first_name :: NAME , crate :: prisma :: user :: last_name :: NAME , crate :: prisma :: user :: url :: NAME , crate :: prisma :: user :: playing :: NAME] . into_iter () . collect :: < Vec < _ >> () . join (", ")) } fn visit_str < E > (self , value : & str) -> std :: result :: Result < Field , E > where E : :: serde :: de :: Error , { match value { $ (crate :: prisma :: user :: $ field :: NAME => Ok (Field :: $ field)) , * , crate :: prisma :: user :: name :: NAME => Ok (Field :: name) , crate :: prisma :: user :: created_at :: NAME => Ok (Field :: created_at) , crate :: prisma :: user :: password :: NAME => Ok (Field :: password) , crate :: prisma :: user :: perfs :: NAME => Ok (Field :: perfs) , crate :: prisma :: user :: country :: NAME => Ok (Field :: country) , crate :: prisma :: user :: location :: NAME => Ok (Field :: location) , crate :: prisma :: user :: bio :: NAME => Ok (Field :: bio) , crate :: prisma :: user :: first_name :: NAME => Ok (Field :: first_name) , crate :: prisma :: user :: last_name :: NAME => Ok (Field :: last_name) , crate :: prisma :: user :: url :: NAME => Ok (Field :: url) , crate :: prisma :: user :: playing :: NAME => Ok (Field :: playing) , _ => Err (:: serde :: de :: Error :: unknown_field (value , FIELDS)) , } } } deserializer . deserialize_identifier (FieldVisitor) } } struct DataVisitor ; impl < 'de > :: serde :: de :: Visitor < 'de > for DataVisitor { type Value = Data ; fn expecting (& self , formatter : & mut std :: fmt :: Formatter) -> std :: fmt :: Result { formatter . write_str ("struct Data") } fn visit_map < V > (self , mut map : V) -> std :: result :: Result < Data , V :: Error > where V : :: serde :: de :: MapAccess < 'de > , { $ (let mut $ field = None ;) * let mut name = None ; let mut created_at = None ; let mut password = None ; let mut perfs = None ; let mut country = None ; let mut location = None ; let mut bio = None ; let mut first_name = None ; let mut last_name = None ; let mut url = None ; let mut playing = None ; while let Some (key) = map . next_key () ? { match key { Field :: name => { if name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: name :: NAME)) ; } name = Some (map . next_value () ?) ; } Field :: created_at => { if created_at . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: created_at :: NAME)) ; } created_at = Some (map . next_value () ?) ; } Field :: password => { if password . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: password :: NAME)) ; } password = Some (map . next_value () ?) ; } Field :: perfs => { if perfs . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: perfs :: NAME)) ; } perfs = Some (map . next_value () ?) ; } Field :: country => { if country . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: country :: NAME)) ; } country = Some (map . next_value () ?) ; } Field :: location => { if location . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: location :: NAME)) ; } location = Some (map . next_value () ?) ; } Field :: bio => { if bio . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: bio :: NAME)) ; } bio = Some (map . next_value () ?) ; } Field :: first_name => { if first_name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: first_name :: NAME)) ; } first_name = Some (map . next_value () ?) ; } Field :: last_name => { if last_name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: last_name :: NAME)) ; } last_name = Some (map . next_value () ?) ; } Field :: url => { if url . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: url :: NAME)) ; } url = Some (map . next_value () ?) ; } Field :: playing => { if playing . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: playing :: NAME)) ; } playing = Some (map . next_value () ?) ; } $ (Field :: $ field => { if $ field . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: $ field :: NAME)) ; } $ field = Some (map . next_value () ?) ; }) * } } $ (let $ field = $ field . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: $ field :: NAME)) ? ;) * let name = name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: name :: NAME)) ? ; let created_at = created_at . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: created_at :: NAME)) ? ; let password = password . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: password :: NAME)) ? ; let perfs = perfs . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: perfs :: NAME)) ? ; let country = country . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: country :: NAME)) ? ; let location = location . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: location :: NAME)) ? ; let bio = bio . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: bio :: NAME)) ? ; let first_name = first_name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: first_name :: NAME)) ? ; let last_name = last_name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: last_name :: NAME)) ? ; let url = url . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: url :: NAME)) ? ; let playing = playing . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: playing :: NAME)) ? ; Ok (Data { name , created_at , password , perfs , country , location , bio , first_name , last_name , url , playing , $ ($ field) , * }) } } const FIELDS : & 'static [& 'static str] = & ["name" , "createdAt" , "password" , "perfs" , "country" , "location" , "bio" , "firstName" , "lastName" , "url" , "playing"] ; deserializer . deserialize_struct ("Data" , FIELDS , DataVisitor) } } $ ($ (pub mod $ field { crate :: prisma :: user :: $ selection_mode ! (@ field_module ; $ field : $ selection_mode { $ ($ selections) + }) ; }) ?) + } ; (@ field_type ; $ field : ident) => { crate :: prisma :: user :: $ field :: Type } ; (@ field_type ; $ field : ident $ ($ tokens : tt) *) => { compile_error ! (stringify ! (Cannot include nonexistent relation $ field on model "User" , available relations are "")) } ; (@ field_module ; $ ($ tokens : tt) *) => { } ; (@ selection_field_to_selection_param ; $ ($ tokens : tt) *) => { compile_error ! (stringify ! ($ ($ tokens) *)) } ; (@ selections_to_params ; : $ macro_name : ident { $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { [$ (crate :: prisma :: user :: $ macro_name ! (@ selection_field_to_selection_param ; $ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) ,) +] } ; (@ filters_to_args ;) => { vec ! [] } ; (@ filters_to_args ; $ ($ t : tt) *) => { $ ($ t) * } ; (@ field_serde_name ; name) => { "name" } ; (@ field_serde_name ; created_at) => { "createdAt" } ; (@ field_serde_name ; password) => { "password" } ; (@ field_serde_name ; perfs) => { "perfs" } ; (@ field_serde_name ; country) => { "country" } ; (@ field_serde_name ; location) => { "location" } ; (@ field_serde_name ; bio) => { "bio" } ; (@ field_serde_name ; first_name) => { "firstName" } ; (@ field_serde_name ; last_name) => { "lastName" } ; (@ field_serde_name ; url) => { "url" } ; (@ field_serde_name ; playing) => { "playing" } ; }
+    macro_rules ! _include_user { ($ (($ ($ func_arg : ident : $ func_arg_ty : ty) , +) =>) ? $ module_name : ident { $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { # [allow (warnings)] pub mod $ module_name { crate :: prisma :: user :: include ! (@ definitions ; $ module_name ; $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) +) ; use super :: * ; pub struct Selection (Vec < :: prisma_client_rust :: Selection >) ; impl :: prisma_client_rust :: IncludeType for Selection { type Data = Data ; type ModelData = crate :: prisma :: user :: Data ; fn to_selections (self) -> Vec < :: prisma_client_rust :: Selection > { self . 0 } } pub fn include ($ ($ ($ func_arg : $ func_arg_ty) , +) ?) -> Selection { Selection ([crate :: prisma :: user :: include ! (@ selections_to_params ; : include { $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) + }) . into_iter () . map (| p | p . to_selection ()) . collect :: < Vec < _ >> () , < crate :: prisma :: user :: Types as :: prisma_client_rust :: ModelTypes > :: scalar_selections ()] . into_iter () . flatten () . collect :: < Vec < _ >> ()) } } } ; ({ $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { { crate :: prisma :: user :: include ! (@ definitions ; ; $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) +) ; pub struct Selection (Vec < :: prisma_client_rust :: Selection >) ; impl :: prisma_client_rust :: IncludeType for Selection { type Data = Data ; type ModelData = crate :: prisma :: user :: Data ; fn to_selections (self) -> Vec < :: prisma_client_rust :: Selection > { self . 0 } } Selection ([crate :: prisma :: user :: include ! (@ selections_to_params ; : include { $ ($ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) + }) . into_iter () . map (| p | p . to_selection ()) . collect :: < Vec < _ >> () , < crate :: prisma :: user :: Types as :: prisma_client_rust :: ModelTypes > :: scalar_selections ()] . into_iter () . flatten () . collect :: < Vec < _ >> ()) } } ; (@ definitions ; $ ($ module_name : ident) ? ; $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) +) => { # [allow (warnings)] enum Fields { } # [allow (warnings)] impl Fields { fn selections () { $ (let _ = Fields :: $ field ;) + } } # [allow (warnings)] # [derive (std :: fmt :: Debug , Clone)] pub struct Data { pub name : String , pub created_at : :: prisma_client_rust :: chrono :: DateTime < :: prisma_client_rust :: chrono :: FixedOffset , > , pub password : String , pub perfs : String , pub country : Option < crate :: prisma Country > , pub location : Option < String > , pub bio : Option < String > , pub first_name : Option < String > , pub last_name : Option < String > , pub url : String , pub playing : Option < String > , $ (pub $ field : crate :: prisma :: user :: include ! (@ field_type ; $ field $ (: $ selection_mode { $ ($ selections) + }) ?) ,) + } impl :: serde :: Serialize for Data { fn serialize < S > (& self , serializer : S) -> std :: result :: Result < S :: Ok , S :: Error > where S : :: serde :: Serializer , { use :: serde :: ser :: SerializeStruct ; let mut state = serializer . serialize_struct ("Data" , [$ (stringify ! ($ field) ,) + stringify ! (name) , stringify ! (created_at) , stringify ! (password) , stringify ! (perfs) , stringify ! (country) , stringify ! (location) , stringify ! (bio) , stringify ! (first_name) , stringify ! (last_name) , stringify ! (url) , stringify ! (playing)] . len ()) ? ; $ (state . serialize_field (crate :: prisma :: user :: $ field :: NAME , & self . $ field) ? ;) * state . serialize_field (crate :: prisma :: user :: name :: NAME , & self . name) ? ; state . serialize_field (crate :: prisma :: user :: created_at :: NAME , & self . created_at) ? ; state . serialize_field (crate :: prisma :: user :: password :: NAME , & self . password) ? ; state . serialize_field (crate :: prisma :: user :: perfs :: NAME , & self . perfs) ? ; state . serialize_field (crate :: prisma :: user :: country :: NAME , & self . country) ? ; state . serialize_field (crate :: prisma :: user :: location :: NAME , & self . location) ? ; state . serialize_field (crate :: prisma :: user :: bio :: NAME , & self . bio) ? ; state . serialize_field (crate :: prisma :: user :: first_name :: NAME , & self . first_name) ? ; state . serialize_field (crate :: prisma :: user :: last_name :: NAME , & self . last_name) ? ; state . serialize_field (crate :: prisma :: user :: url :: NAME , & self . url) ? ; state . serialize_field (crate :: prisma :: user :: playing :: NAME , & self . playing) ? ; state . end () } } impl < 'de > :: serde :: Deserialize < 'de > for Data { fn deserialize < D > (deserializer : D) -> std :: result :: Result < Self , D :: Error > where D : :: serde :: Deserializer < 'de > , { # [allow (warnings)] enum Field { $ ($ field) , + , name , created_at , password , perfs , country , location , bio , first_name , last_name , url , playing } impl < 'de > :: serde :: Deserialize < 'de > for Field { fn deserialize < D > (deserializer : D) -> std :: result :: Result < Field , D :: Error > where D : :: serde :: Deserializer < 'de > , { struct FieldVisitor ; impl < 'de > :: serde :: de :: Visitor < 'de > for FieldVisitor { type Value = Field ; fn expecting (& self , formatter : & mut :: std :: fmt :: Formatter) -> :: std :: fmt :: Result { formatter . write_str (& [$ (crate :: prisma :: user :: $ field :: NAME) , + , crate :: prisma :: user :: name :: NAME , crate :: prisma :: user :: created_at :: NAME , crate :: prisma :: user :: password :: NAME , crate :: prisma :: user :: perfs :: NAME , crate :: prisma :: user :: country :: NAME , crate :: prisma :: user :: location :: NAME , crate :: prisma :: user :: bio :: NAME , crate :: prisma :: user :: first_name :: NAME , crate :: prisma :: user :: last_name :: NAME , crate :: prisma :: user :: url :: NAME , crate :: prisma :: user :: playing :: NAME] . into_iter () . collect :: < Vec < _ >> () . join (", ")) } fn visit_str < E > (self , value : & str) -> std :: result :: Result < Field , E > where E : :: serde :: de :: Error , { match value { $ (crate :: prisma :: user :: $ field :: NAME => Ok (Field :: $ field)) , * , crate :: prisma :: user :: name :: NAME => Ok (Field :: name) , crate :: prisma :: user :: created_at :: NAME => Ok (Field :: created_at) , crate :: prisma :: user :: password :: NAME => Ok (Field :: password) , crate :: prisma :: user :: perfs :: NAME => Ok (Field :: perfs) , crate :: prisma :: user :: country :: NAME => Ok (Field :: country) , crate :: prisma :: user :: location :: NAME => Ok (Field :: location) , crate :: prisma :: user :: bio :: NAME => Ok (Field :: bio) , crate :: prisma :: user :: first_name :: NAME => Ok (Field :: first_name) , crate :: prisma :: user :: last_name :: NAME => Ok (Field :: last_name) , crate :: prisma :: user :: url :: NAME => Ok (Field :: url) , crate :: prisma :: user :: playing :: NAME => Ok (Field :: playing) , _ => Err (:: serde :: de :: Error :: unknown_field (value , FIELDS)) , } } } deserializer . deserialize_identifier (FieldVisitor) } } struct DataVisitor ; impl < 'de > :: serde :: de :: Visitor < 'de > for DataVisitor { type Value = Data ; fn expecting (& self , formatter : & mut std :: fmt :: Formatter) -> std :: fmt :: Result { formatter . write_str ("struct Data") } fn visit_map < V > (self , mut map : V) -> std :: result :: Result < Data , V :: Error > where V : :: serde :: de :: MapAccess < 'de > , { $ (let mut $ field = None ;) * let mut name = None ; let mut created_at = None ; let mut password = None ; let mut perfs = None ; let mut country = None ; let mut location = None ; let mut bio = None ; let mut first_name = None ; let mut last_name = None ; let mut url = None ; let mut playing = None ; while let Some (key) = map . next_key () ? { match key { Field :: name => { if name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: name :: NAME)) ; } name = Some (map . next_value () ?) ; } Field :: created_at => { if created_at . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: created_at :: NAME)) ; } created_at = Some (map . next_value () ?) ; } Field :: password => { if password . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: password :: NAME)) ; } password = Some (map . next_value () ?) ; } Field :: perfs => { if perfs . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: perfs :: NAME)) ; } perfs = Some (map . next_value () ?) ; } Field :: country => { if country . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: country :: NAME)) ; } country = Some (map . next_value () ?) ; } Field :: location => { if location . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: location :: NAME)) ; } location = Some (map . next_value () ?) ; } Field :: bio => { if bio . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: bio :: NAME)) ; } bio = Some (map . next_value () ?) ; } Field :: first_name => { if first_name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: first_name :: NAME)) ; } first_name = Some (map . next_value () ?) ; } Field :: last_name => { if last_name . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: last_name :: NAME)) ; } last_name = Some (map . next_value () ?) ; } Field :: url => { if url . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: url :: NAME)) ; } url = Some (map . next_value () ?) ; } Field :: playing => { if playing . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: playing :: NAME)) ; } playing = Some (map . next_value () ?) ; } $ (Field :: $ field => { if $ field . is_some () { return Err (:: serde :: de :: Error :: duplicate_field (crate :: prisma :: user :: $ field :: NAME)) ; } $ field = Some (map . next_value () ?) ; }) * } } $ (let $ field = $ field . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: $ field :: NAME)) ? ;) * let name = name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: name :: NAME)) ? ; let created_at = created_at . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: created_at :: NAME)) ? ; let password = password . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: password :: NAME)) ? ; let perfs = perfs . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: perfs :: NAME)) ? ; let country = country . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: country :: NAME)) ? ; let location = location . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: location :: NAME)) ? ; let bio = bio . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: bio :: NAME)) ? ; let first_name = first_name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: first_name :: NAME)) ? ; let last_name = last_name . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: last_name :: NAME)) ? ; let url = url . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: url :: NAME)) ? ; let playing = playing . ok_or_else (|| serde :: de :: Error :: missing_field (crate :: prisma :: user :: playing :: NAME)) ? ; Ok (Data { name , created_at , password , perfs , country , location , bio , first_name , last_name , url , playing , $ ($ field) , * }) } } const FIELDS : & 'static [& 'static str] = & ["name" , "createdAt" , "password" , "perfs" , "country" , "location" , "bio" , "firstName" , "lastName" , "url" , "playing"] ; deserializer . deserialize_struct ("Data" , FIELDS , DataVisitor) } } $ ($ (pub mod $ field { crate :: prisma :: user :: $ selection_mode ! (@ field_module ; $ field : $ selection_mode { $ ($ selections) + }) ; }) ?) + } ; (@ field_type ; $ field : ident) => { crate :: prisma :: user :: $ field :: Type } ; (@ field_type ; $ field : ident $ ($ tokens : tt) *) => { compile_error ! (stringify ! (Cannot include nonexistent relation $ field on model "User" , available relations are "")) } ; (@ field_module ; $ ($ tokens : tt) *) => { } ; (@ selection_field_to_selection_param ; $ ($ tokens : tt) *) => { compile_error ! (stringify ! ($ ($ tokens) *)) } ; (@ selections_to_params ; : $ macro_name : ident { $ ($ field : ident $ (($ ($ filters : tt) +) $ (. $ arg : ident ($ ($ arg_params : tt) *)) *) ? $ (: $ selection_mode : ident { $ ($ selections : tt) + }) ?) + }) => { [$ (crate :: prisma :: user :: $ macro_name ! (@ selection_field_to_selection_param ; $ field $ (($ ($ filters) +) $ (. $ arg ($ ($ arg_params) *)) *) ? $ (: $ selection_mode { $ ($ selections) + }) ?) ,) +] } ; (@ filters_to_args ;) => { vec ! [] } ; (@ filters_to_args ; $ ($ t : tt) *) => { $ ($ t) * } ; (@ field_serde_name ; name) => { "name" } ; (@ field_serde_name ; created_at) => { "createdAt" } ; (@ field_serde_name ; password) => { "password" } ; (@ field_serde_name ; perfs) => { "perfs" } ; (@ field_serde_name ; country) => { "country" } ; (@ field_serde_name ; location) => { "location" } ; (@ field_serde_name ; bio) => { "bio" } ; (@ field_serde_name ; first_name) => { "firstName" } ; (@ field_serde_name ; last_name) => { "lastName" } ; (@ field_serde_name ; url) => { "url" } ; (@ field_serde_name ; playing) => { "playing" } ; }
     pub use _include_user as include;
     pub enum IncludeParam {
         Name(name::Include),
@@ -2696,24 +2696,28 @@ pub mod user {
         use super::super::{_prisma::*, *};
         use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
         pub const NAME: &str = "bio";
-        pub type Type = String;
+        pub type Type = Option<String>;
         pub type RecursiveSafeType = Type;
-        pub fn equals(value: String) -> WhereParam {
-            WhereParam::Bio(_prisma::read_filters::StringFilter::Equals(value))
+        pub fn equals(value: Option<String>) -> WhereParam {
+            WhereParam::Bio(_prisma::read_filters::StringNullableFilter::Equals(value))
         }
-        ::prisma_client_rust::scalar_where_param_fns!(_prisma::read_filters::StringFilter, Bio, {
-            fn in_vec(_: Vec<String>) -> InVec;
-            fn not_in_vec(_: Vec<String>) -> NotInVec;
-            fn lt(_: String) -> Lt;
-            fn lte(_: String) -> Lte;
-            fn gt(_: String) -> Gt;
-            fn gte(_: String) -> Gte;
-            fn contains(_: String) -> Contains;
-            fn starts_with(_: String) -> StartsWith;
-            fn ends_with(_: String) -> EndsWith;
-            fn mode(_: QueryMode) -> Mode;
-            fn not(_: String) -> Not;
-        });
+        ::prisma_client_rust::scalar_where_param_fns!(
+            _prisma::read_filters::StringNullableFilter,
+            Bio,
+            {
+                fn in_vec(_: Vec<String>) -> InVec;
+                fn not_in_vec(_: Vec<String>) -> NotInVec;
+                fn lt(_: String) -> Lt;
+                fn lte(_: String) -> Lte;
+                fn gt(_: String) -> Gt;
+                fn gte(_: String) -> Gte;
+                fn contains(_: String) -> Contains;
+                fn starts_with(_: String) -> StartsWith;
+                fn ends_with(_: String) -> EndsWith;
+                fn mode(_: QueryMode) -> Mode;
+                fn not(_: Option<String>) -> Not;
+            }
+        );
         pub struct Order(SortOrder);
         pub fn order<T: From<Order>>(v: SortOrder) -> T {
             Order(v).into()
@@ -2723,7 +2727,7 @@ pub mod user {
                 Self::Bio(v)
             }
         }
-        pub struct Set(pub String);
+        pub struct Set(pub Option<String>);
         impl From<UpdateOperation> for SetParam {
             fn from(UpdateOperation(v): UpdateOperation) -> Self {
                 Self::Bio(v)
@@ -2731,16 +2735,16 @@ pub mod user {
         }
         impl From<Set> for SetParam {
             fn from(Set(v): Set) -> Self {
-                Self::Bio(_prisma::write_params::StringParam::Set(v))
+                Self::Bio(_prisma::write_params::StringNullableParam::Set(v))
             }
         }
-        pub fn set<T: From<Set>>(value: String) -> T {
+        pub fn set<T: From<Set>>(value: Option<String>) -> T {
             Set(value).into()
         }
-        pub struct UpdateOperation(pub _prisma::write_params::StringParam);
+        pub struct UpdateOperation(pub _prisma::write_params::StringNullableParam);
         impl From<Set> for UncheckedSetParam {
             fn from(Set(v): Set) -> Self {
-                Self::Bio(_prisma::write_params::StringParam::Set(v))
+                Self::Bio(_prisma::write_params::StringNullableParam::Set(v))
             }
         }
         impl From<UpdateOperation> for UncheckedSetParam {
@@ -2775,18 +2779,18 @@ pub mod user {
         use super::super::{_prisma::*, *};
         use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
         pub const NAME: &str = "country";
-        pub type Type = super::super::Country;
+        pub type Type = Option<super::super::Country>;
         pub type RecursiveSafeType = Type;
-        pub fn equals(value: Country) -> WhereParam {
-            WhereParam::Country(_prisma::read_filters::CountryFilter::Equals(value))
+        pub fn equals(value: Option<Country>) -> WhereParam {
+            WhereParam::Country(_prisma::read_filters::CountryNullableFilter::Equals(value))
         }
         ::prisma_client_rust::scalar_where_param_fns!(
-            _prisma::read_filters::CountryFilter,
+            _prisma::read_filters::CountryNullableFilter,
             Country,
             {
                 fn in_vec(_: Vec<Country>) -> InVec;
                 fn not_in_vec(_: Vec<Country>) -> NotInVec;
-                fn not(_: Country) -> Not;
+                fn not(_: Option<Country>) -> Not;
             }
         );
         pub struct Order(SortOrder);
@@ -2798,7 +2802,7 @@ pub mod user {
                 Self::Country(v)
             }
         }
-        pub struct Set(pub Country);
+        pub struct Set(pub Option<Country>);
         impl From<UpdateOperation> for SetParam {
             fn from(UpdateOperation(v): UpdateOperation) -> Self {
                 Self::Country(v)
@@ -2806,16 +2810,16 @@ pub mod user {
         }
         impl From<Set> for SetParam {
             fn from(Set(v): Set) -> Self {
-                Self::Country(_prisma::write_params::CountryParam::Set(v))
+                Self::Country(_prisma::write_params::CountryNullableParam::Set(v))
             }
         }
-        pub fn set<T: From<Set>>(value: Country) -> T {
+        pub fn set<T: From<Set>>(value: Option<Country>) -> T {
             Set(value).into()
         }
-        pub struct UpdateOperation(pub _prisma::write_params::CountryParam);
+        pub struct UpdateOperation(pub _prisma::write_params::CountryNullableParam);
         impl From<Set> for UncheckedSetParam {
             fn from(Set(v): Set) -> Self {
-                Self::Country(_prisma::write_params::CountryParam::Set(v))
+                Self::Country(_prisma::write_params::CountryNullableParam::Set(v))
             }
         }
         impl From<UpdateOperation> for UncheckedSetParam {
@@ -2972,13 +2976,13 @@ pub mod user {
         use super::super::{_prisma::*, *};
         use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
         pub const NAME: &str = "firstName";
-        pub type Type = String;
+        pub type Type = Option<String>;
         pub type RecursiveSafeType = Type;
-        pub fn equals(value: String) -> WhereParam {
-            WhereParam::FirstName(_prisma::read_filters::StringFilter::Equals(value))
+        pub fn equals(value: Option<String>) -> WhereParam {
+            WhereParam::FirstName(_prisma::read_filters::StringNullableFilter::Equals(value))
         }
         ::prisma_client_rust::scalar_where_param_fns!(
-            _prisma::read_filters::StringFilter,
+            _prisma::read_filters::StringNullableFilter,
             FirstName,
             {
                 fn in_vec(_: Vec<String>) -> InVec;
@@ -2991,7 +2995,7 @@ pub mod user {
                 fn starts_with(_: String) -> StartsWith;
                 fn ends_with(_: String) -> EndsWith;
                 fn mode(_: QueryMode) -> Mode;
-                fn not(_: String) -> Not;
+                fn not(_: Option<String>) -> Not;
             }
         );
         pub struct Order(SortOrder);
@@ -3003,7 +3007,7 @@ pub mod user {
                 Self::FirstName(v)
             }
         }
-        pub struct Set(pub String);
+        pub struct Set(pub Option<String>);
         impl From<UpdateOperation> for SetParam {
             fn from(UpdateOperation(v): UpdateOperation) -> Self {
                 Self::FirstName(v)
@@ -3011,16 +3015,16 @@ pub mod user {
         }
         impl From<Set> for SetParam {
             fn from(Set(v): Set) -> Self {
-                Self::FirstName(_prisma::write_params::StringParam::Set(v))
+                Self::FirstName(_prisma::write_params::StringNullableParam::Set(v))
             }
         }
-        pub fn set<T: From<Set>>(value: String) -> T {
+        pub fn set<T: From<Set>>(value: Option<String>) -> T {
             Set(value).into()
         }
-        pub struct UpdateOperation(pub _prisma::write_params::StringParam);
+        pub struct UpdateOperation(pub _prisma::write_params::StringNullableParam);
         impl From<Set> for UncheckedSetParam {
             fn from(Set(v): Set) -> Self {
-                Self::FirstName(_prisma::write_params::StringParam::Set(v))
+                Self::FirstName(_prisma::write_params::StringNullableParam::Set(v))
             }
         }
         impl From<UpdateOperation> for UncheckedSetParam {
@@ -3055,13 +3059,13 @@ pub mod user {
         use super::super::{_prisma::*, *};
         use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
         pub const NAME: &str = "lastName";
-        pub type Type = String;
+        pub type Type = Option<String>;
         pub type RecursiveSafeType = Type;
-        pub fn equals(value: String) -> WhereParam {
-            WhereParam::LastName(_prisma::read_filters::StringFilter::Equals(value))
+        pub fn equals(value: Option<String>) -> WhereParam {
+            WhereParam::LastName(_prisma::read_filters::StringNullableFilter::Equals(value))
         }
         ::prisma_client_rust::scalar_where_param_fns!(
-            _prisma::read_filters::StringFilter,
+            _prisma::read_filters::StringNullableFilter,
             LastName,
             {
                 fn in_vec(_: Vec<String>) -> InVec;
@@ -3074,7 +3078,7 @@ pub mod user {
                 fn starts_with(_: String) -> StartsWith;
                 fn ends_with(_: String) -> EndsWith;
                 fn mode(_: QueryMode) -> Mode;
-                fn not(_: String) -> Not;
+                fn not(_: Option<String>) -> Not;
             }
         );
         pub struct Order(SortOrder);
@@ -3086,7 +3090,7 @@ pub mod user {
                 Self::LastName(v)
             }
         }
-        pub struct Set(pub String);
+        pub struct Set(pub Option<String>);
         impl From<UpdateOperation> for SetParam {
             fn from(UpdateOperation(v): UpdateOperation) -> Self {
                 Self::LastName(v)
@@ -3094,16 +3098,16 @@ pub mod user {
         }
         impl From<Set> for SetParam {
             fn from(Set(v): Set) -> Self {
-                Self::LastName(_prisma::write_params::StringParam::Set(v))
+                Self::LastName(_prisma::write_params::StringNullableParam::Set(v))
             }
         }
-        pub fn set<T: From<Set>>(value: String) -> T {
+        pub fn set<T: From<Set>>(value: Option<String>) -> T {
             Set(value).into()
         }
-        pub struct UpdateOperation(pub _prisma::write_params::StringParam);
+        pub struct UpdateOperation(pub _prisma::write_params::StringNullableParam);
         impl From<Set> for UncheckedSetParam {
             fn from(Set(v): Set) -> Self {
-                Self::LastName(_prisma::write_params::StringParam::Set(v))
+                Self::LastName(_prisma::write_params::StringNullableParam::Set(v))
             }
         }
         impl From<UpdateOperation> for UncheckedSetParam {
@@ -3138,13 +3142,13 @@ pub mod user {
         use super::super::{_prisma::*, *};
         use super::{SetParam, UncheckedSetParam, UniqueWhereParam, WhereParam, WithParam};
         pub const NAME: &str = "location";
-        pub type Type = String;
+        pub type Type = Option<String>;
         pub type RecursiveSafeType = Type;
-        pub fn equals(value: String) -> WhereParam {
-            WhereParam::Location(_prisma::read_filters::StringFilter::Equals(value))
+        pub fn equals(value: Option<String>) -> WhereParam {
+            WhereParam::Location(_prisma::read_filters::StringNullableFilter::Equals(value))
         }
         ::prisma_client_rust::scalar_where_param_fns!(
-            _prisma::read_filters::StringFilter,
+            _prisma::read_filters::StringNullableFilter,
             Location,
             {
                 fn in_vec(_: Vec<String>) -> InVec;
@@ -3157,7 +3161,7 @@ pub mod user {
                 fn starts_with(_: String) -> StartsWith;
                 fn ends_with(_: String) -> EndsWith;
                 fn mode(_: QueryMode) -> Mode;
-                fn not(_: String) -> Not;
+                fn not(_: Option<String>) -> Not;
             }
         );
         pub struct Order(SortOrder);
@@ -3169,7 +3173,7 @@ pub mod user {
                 Self::Location(v)
             }
         }
-        pub struct Set(pub String);
+        pub struct Set(pub Option<String>);
         impl From<UpdateOperation> for SetParam {
             fn from(UpdateOperation(v): UpdateOperation) -> Self {
                 Self::Location(v)
@@ -3177,16 +3181,16 @@ pub mod user {
         }
         impl From<Set> for SetParam {
             fn from(Set(v): Set) -> Self {
-                Self::Location(_prisma::write_params::StringParam::Set(v))
+                Self::Location(_prisma::write_params::StringNullableParam::Set(v))
             }
         }
-        pub fn set<T: From<Set>>(value: String) -> T {
+        pub fn set<T: From<Set>>(value: Option<String>) -> T {
             Set(value).into()
         }
-        pub struct UpdateOperation(pub _prisma::write_params::StringParam);
+        pub struct UpdateOperation(pub _prisma::write_params::StringNullableParam);
         impl From<Set> for UncheckedSetParam {
             fn from(Set(v): Set) -> Self {
-                Self::Location(_prisma::write_params::StringParam::Set(v))
+                Self::Location(_prisma::write_params::StringNullableParam::Set(v))
             }
         }
         impl From<UpdateOperation> for UncheckedSetParam {
@@ -3629,39 +3633,20 @@ pub mod user {
         pub name: String,
         pub password: String,
         pub perfs: String,
-        pub country: super::Country,
-        pub location: String,
-        pub bio: String,
-        pub first_name: String,
-        pub last_name: String,
         pub url: String,
         pub _params: Vec<SetParam>,
     }
     impl Create {
         pub fn to_query<'a>(self, client: &'a PrismaClient) -> CreateQuery<'a> {
-            client.user().create(
-                self.name,
-                self.password,
-                self.perfs,
-                self.country,
-                self.location,
-                self.bio,
-                self.first_name,
-                self.last_name,
-                self.url,
-                self._params,
-            )
+            client
+                .user()
+                .create(self.name, self.password, self.perfs, self.url, self._params)
         }
         pub fn to_params(mut self) -> Vec<SetParam> {
             self._params.extend([
                 name::set(self.name),
                 password::set(self.password),
                 perfs::set(self.perfs),
-                country::set(self.country),
-                location::set(self.location),
-                bio::set(self.bio),
-                first_name::set(self.first_name),
-                last_name::set(self.last_name),
                 url::set(self.url),
             ]);
             self._params
@@ -3671,11 +3656,6 @@ pub mod user {
         name: String,
         password: String,
         perfs: String,
-        country: super::Country,
-        location: String,
-        bio: String,
-        first_name: String,
-        last_name: String,
         url: String,
         _params: Vec<SetParam>,
     ) -> Create {
@@ -3683,11 +3663,6 @@ pub mod user {
             name,
             password,
             perfs,
-            country,
-            location,
-            bio,
-            first_name,
-            last_name,
             url,
             _params,
         }
@@ -3697,11 +3672,6 @@ pub mod user {
         pub name: String,
         pub password: String,
         pub perfs: String,
-        pub country: super::Country,
-        pub location: String,
-        pub bio: String,
-        pub first_name: String,
-        pub last_name: String,
         pub url: String,
         pub _params: Vec<UncheckedSetParam>,
     }
@@ -3711,11 +3681,6 @@ pub mod user {
                 self.name,
                 self.password,
                 self.perfs,
-                self.country,
-                self.location,
-                self.bio,
-                self.first_name,
-                self.last_name,
                 self.url,
                 self._params,
             )
@@ -3725,11 +3690,6 @@ pub mod user {
                 name::set(self.name),
                 password::set(self.password),
                 perfs::set(self.perfs),
-                country::set(self.country),
-                location::set(self.location),
-                bio::set(self.bio),
-                first_name::set(self.first_name),
-                last_name::set(self.last_name),
                 url::set(self.url),
             ]);
             self._params
@@ -3739,11 +3699,6 @@ pub mod user {
         name: String,
         password: String,
         perfs: String,
-        country: super::Country,
-        location: String,
-        bio: String,
-        first_name: String,
-        last_name: String,
         url: String,
         _params: Vec<UncheckedSetParam>,
     ) -> CreateUnchecked {
@@ -3751,11 +3706,6 @@ pub mod user {
             name,
             password,
             perfs,
-            country,
-            location,
-            bio,
-            first_name,
-            last_name,
             url,
             _params,
         }
@@ -3814,7 +3764,7 @@ pub mod user {
     }
     impl Data {}
     #[macro_export]
-    macro_rules ! _partial_unchecked_user { ($ struct_name : ident { $ ($ scalar_field : ident) + }) => { :: prisma_client_rust :: macros :: partial_unchecked ! { crate :: prisma :: user struct $ struct_name { # [serde (rename = "name")] pub name : String , # [serde (rename = "createdAt")] pub created_at : :: prisma_client_rust :: chrono :: DateTime < :: prisma_client_rust :: chrono :: FixedOffset , > , # [serde (rename = "password")] pub password : String , # [serde (rename = "perfs")] pub perfs : String , # [serde (rename = "country")] pub country : crate :: prisma Country , # [serde (rename = "location")] pub location : String , # [serde (rename = "bio")] pub bio : String , # [serde (rename = "firstName")] pub first_name : String , # [serde (rename = "lastName")] pub last_name : String , # [serde (rename = "url")] pub url : String , # [serde (rename = "playing")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub playing : Option < String > } [$ ($ scalar_field) , +] } } ; }
+    macro_rules ! _partial_unchecked_user { ($ struct_name : ident { $ ($ scalar_field : ident) + }) => { :: prisma_client_rust :: macros :: partial_unchecked ! { crate :: prisma :: user struct $ struct_name { # [serde (rename = "name")] pub name : String , # [serde (rename = "createdAt")] pub created_at : :: prisma_client_rust :: chrono :: DateTime < :: prisma_client_rust :: chrono :: FixedOffset , > , # [serde (rename = "password")] pub password : String , # [serde (rename = "perfs")] pub perfs : String , # [serde (rename = "country")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub country : Option < crate :: prisma Country > , # [serde (rename = "location")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub location : Option < String > , # [serde (rename = "bio")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub bio : Option < String > , # [serde (rename = "firstName")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub first_name : Option < String > , # [serde (rename = "lastName")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub last_name : Option < String > , # [serde (rename = "url")] pub url : String , # [serde (rename = "playing")] # [serde (default , with = "::prisma_client_rust::serde::double_option")] pub playing : Option < String > } [$ ($ scalar_field) , +] } } ; }
     pub use _partial_unchecked_user as partial_unchecked;
     pub type UniqueArgs = ::prisma_client_rust::UniqueArgs<Types>;
     pub type ManyArgs = ::prisma_client_rust::ManyArgs<Types>;
@@ -3850,11 +3800,6 @@ pub mod user {
             name: String,
             password: String,
             perfs: String,
-            country: super::Country,
-            location: String,
-            bio: String,
-            first_name: String,
-            last_name: String,
             url: String,
             mut _params: Vec<SetParam>,
         ) -> CreateQuery<'a> {
@@ -3862,11 +3807,6 @@ pub mod user {
                 name::set(name),
                 password::set(password),
                 perfs::set(perfs),
-                country::set(country),
-                location::set(location),
-                bio::set(bio),
-                first_name::set(first_name),
-                last_name::set(last_name),
                 url::set(url),
             ]);
             CreateQuery::new(self.client, _params)
@@ -3876,11 +3816,6 @@ pub mod user {
             name: String,
             password: String,
             perfs: String,
-            country: super::Country,
-            location: String,
-            bio: String,
-            first_name: String,
-            last_name: String,
             url: String,
             mut _params: Vec<UncheckedSetParam>,
         ) -> CreateUncheckedQuery<'a> {
@@ -3888,11 +3823,6 @@ pub mod user {
                 name::set(name),
                 password::set(password),
                 perfs::set(perfs),
-                country::set(country),
-                location::set(location),
-                bio::set(bio),
-                first_name::set(first_name),
-                last_name::set(last_name),
                 url::set(url),
             ]);
             CreateUncheckedQuery::new(self.client, _params.into_iter().map(Into::into).collect())
@@ -4195,52 +4125,6 @@ pub mod _prisma {
         }
     }
     pub mod read_filters {
-        #[derive(Debug, Clone)]
-        pub enum BooleanFilter {
-            Equals(bool),
-            Not(bool),
-        }
-        impl Into<::prisma_client_rust::SerializedWhereValue> for BooleanFilter {
-            fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
-                match self {
-                    Self::Equals(value) => {
-                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                            "equals".to_string(),
-                            ::prisma_client_rust::PrismaValue::Boolean(value),
-                        )])
-                    }
-                    Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "not".to_string(),
-                        ::prisma_client_rust::PrismaValue::Boolean(value),
-                    )]),
-                }
-            }
-        }
-        #[derive(Debug, Clone)]
-        pub enum BooleanNullableFilter {
-            Equals(Option<bool>),
-            Not(Option<bool>),
-        }
-        impl Into<::prisma_client_rust::SerializedWhereValue> for BooleanNullableFilter {
-            fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
-                match self {
-                    Self::Equals(value) => {
-                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                            "equals".to_string(),
-                            value
-                                .map(|value| ::prisma_client_rust::PrismaValue::Boolean(value))
-                                .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
-                        )])
-                    }
-                    Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "not".to_string(),
-                        value
-                            .map(|value| ::prisma_client_rust::PrismaValue::Boolean(value))
-                            .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
-                    )]),
-                }
-            }
-        }
         #[derive(Debug, Clone)]
         pub enum StringFilter {
             Equals(String),
@@ -4574,6 +4458,52 @@ pub mod _prisma {
             }
         }
         #[derive(Debug, Clone)]
+        pub enum BooleanFilter {
+            Equals(bool),
+            Not(bool),
+        }
+        impl Into<::prisma_client_rust::SerializedWhereValue> for BooleanFilter {
+            fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
+                match self {
+                    Self::Equals(value) => {
+                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                            "equals".to_string(),
+                            ::prisma_client_rust::PrismaValue::Boolean(value),
+                        )])
+                    }
+                    Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "not".to_string(),
+                        ::prisma_client_rust::PrismaValue::Boolean(value),
+                    )]),
+                }
+            }
+        }
+        #[derive(Debug, Clone)]
+        pub enum BooleanNullableFilter {
+            Equals(Option<bool>),
+            Not(Option<bool>),
+        }
+        impl Into<::prisma_client_rust::SerializedWhereValue> for BooleanNullableFilter {
+            fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
+                match self {
+                    Self::Equals(value) => {
+                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                            "equals".to_string(),
+                            value
+                                .map(|value| ::prisma_client_rust::PrismaValue::Boolean(value))
+                                .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
+                        )])
+                    }
+                    Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "not".to_string(),
+                        value
+                            .map(|value| ::prisma_client_rust::PrismaValue::Boolean(value))
+                            .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
+                    )]),
+                }
+            }
+        }
+        #[derive(Debug, Clone)]
         pub enum DateTimeFilter {
             Equals(
                 ::prisma_client_rust::chrono::DateTime<::prisma_client_rust::chrono::FixedOffset>,
@@ -4702,19 +4632,23 @@ pub mod _prisma {
             }
         }
         #[derive(Debug, Clone)]
-        pub enum CountryFilter {
-            Equals(super::super::Country),
+        pub enum CountryNullableFilter {
+            Equals(Option<super::super::Country>),
             InVec(Vec<super::super::Country>),
             NotInVec(Vec<super::super::Country>),
-            Not(super::super::Country),
+            Not(Option<super::super::Country>),
         }
-        impl Into<::prisma_client_rust::SerializedWhereValue> for CountryFilter {
+        impl Into<::prisma_client_rust::SerializedWhereValue> for CountryNullableFilter {
             fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
                 match self {
                     Self::Equals(value) => {
                         ::prisma_client_rust::SerializedWhereValue::Object(vec![(
                             "equals".to_string(),
-                            ::prisma_client_rust::PrismaValue::Enum(value.to_string()),
+                            value
+                                .map(|value| {
+                                    ::prisma_client_rust::PrismaValue::Enum(value.to_string())
+                                })
+                                .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
                         )])
                     }
                     Self::InVec(value) => {
@@ -4745,37 +4679,15 @@ pub mod _prisma {
                     }
                     Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
                         "not".to_string(),
-                        ::prisma_client_rust::PrismaValue::Enum(value.to_string()),
+                        value
+                            .map(|value| ::prisma_client_rust::PrismaValue::Enum(value.to_string()))
+                            .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
                     )]),
                 }
             }
         }
     }
     pub mod write_params {
-        #[derive(Debug, Clone)]
-        pub enum BooleanParam {
-            Set(bool),
-        }
-        impl Into<::prisma_client_rust::PrismaValue> for BooleanParam {
-            fn into(self) -> ::prisma_client_rust::PrismaValue {
-                match self {
-                    Self::Set(value) => ::prisma_client_rust::PrismaValue::Boolean(value),
-                }
-            }
-        }
-        #[derive(Debug, Clone)]
-        pub enum BooleanNullableParam {
-            Set(Option<bool>),
-        }
-        impl Into<::prisma_client_rust::PrismaValue> for BooleanNullableParam {
-            fn into(self) -> ::prisma_client_rust::PrismaValue {
-                match self {
-                    Self::Set(value) => value
-                        .map(|value| ::prisma_client_rust::PrismaValue::Boolean(value))
-                        .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
-                }
-            }
-        }
         #[derive(Debug, Clone)]
         pub enum StringParam {
             Set(String),
@@ -4865,6 +4777,30 @@ pub mod _prisma {
             }
         }
         #[derive(Debug, Clone)]
+        pub enum BooleanParam {
+            Set(bool),
+        }
+        impl Into<::prisma_client_rust::PrismaValue> for BooleanParam {
+            fn into(self) -> ::prisma_client_rust::PrismaValue {
+                match self {
+                    Self::Set(value) => ::prisma_client_rust::PrismaValue::Boolean(value),
+                }
+            }
+        }
+        #[derive(Debug, Clone)]
+        pub enum BooleanNullableParam {
+            Set(Option<bool>),
+        }
+        impl Into<::prisma_client_rust::PrismaValue> for BooleanNullableParam {
+            fn into(self) -> ::prisma_client_rust::PrismaValue {
+                match self {
+                    Self::Set(value) => value
+                        .map(|value| ::prisma_client_rust::PrismaValue::Boolean(value))
+                        .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
+                }
+            }
+        }
+        #[derive(Debug, Clone)]
         pub enum DateTimeParam {
             Set(::prisma_client_rust::chrono::DateTime<::prisma_client_rust::chrono::FixedOffset>),
         }
@@ -4887,13 +4823,15 @@ pub mod _prisma {
             }
         }
         #[derive(Debug, Clone)]
-        pub enum CountryParam {
-            Set(super::super::Country),
+        pub enum CountryNullableParam {
+            Set(Option<super::super::Country>),
         }
-        impl Into<::prisma_client_rust::PrismaValue> for CountryParam {
+        impl Into<::prisma_client_rust::PrismaValue> for CountryNullableParam {
             fn into(self) -> ::prisma_client_rust::PrismaValue {
                 match self {
-                    Self::Set(value) => ::prisma_client_rust::PrismaValue::Enum(value.to_string()),
+                    Self::Set(value) => value
+                        .map(|value| ::prisma_client_rust::PrismaValue::Enum(value.to_string()))
+                        .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
                 }
             }
         }
