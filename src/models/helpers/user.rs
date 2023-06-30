@@ -8,16 +8,13 @@ use crate::models::req::CreateUserReq;
 impl CreateUserReq {
     // method to check that this username does not already exist
     pub async fn validate(&self, client: &web::Data<PrismaClient>) -> bool {
-        match client
+        client
             .user()
             .find_unique(user::name::equals(self.name.clone()))
             .exec()
             .await
             .unwrap()
-        {
-            Some(_) => false,
-            None => true,
-        }
+            .is_none()
     }
 
     // method to add a user to table from this user request
@@ -67,7 +64,6 @@ impl user::Data {
 
     // method to construct response from prisma user struct
     pub fn to_user_res(&self) -> UserResponse {
-
         let ttt_perf = GamePerf {
             games: 0,
             rating: self.ttt_rating,
