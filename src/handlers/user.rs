@@ -64,11 +64,9 @@ pub async fn login(
         None => return Err(CustomError::BadRequest),
     };
 
-    Ok(HttpResponse::Ok().json(
-        if login_req.password == user.password {
-            Some(user.to_user_res())
-        } else {
-            None
-        }
-    ))
+    if login_req.password != user.password {
+        return Err(CustomError::BadRequest);
+    }
+
+    Ok(HttpResponse::Ok().json(user.to_user_res()))
 }
