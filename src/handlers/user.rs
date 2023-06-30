@@ -1,7 +1,7 @@
-use actix_web::{web, HttpResponse, post};
+use actix_web::{web, HttpRequest, HttpResponse, get, post};
 
 use crate::CustomError;
-use crate::prisma::PrismaClient;
+use crate::prisma::{PrismaClient, user};
 use crate::models::req::CreateUserReq;
 
 
@@ -21,4 +21,27 @@ pub async fn create_user(
     let user = create_user_req.create_user(&client).await;
 
     Ok(HttpResponse::Ok().json(user.to_user_res()))
+}
+
+// route for checking if username is taken
+#[get("/api/user/{username}")]
+pub async fn get_user(
+    req: HttpRequest,
+    client: web::Data<PrismaClient>,
+) -> Result<HttpResponse, CustomError> {
+
+    let username: String = req.match_info().get("username").unwrap().parse().unwrap();
+
+    Ok(HttpResponse::Ok().json(
+        match client
+            .user()
+            .find_unique(user::name::equals(username))
+            .exec()
+            .await
+            .unwrap()
+        {
+            Some(u) => Some(u.to_user_res()),
+            None => None,
+        }
+    ))
 }
