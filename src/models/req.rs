@@ -20,4 +20,5 @@ pub struct CreateGameReq {
 #[serde(rename_all = "camelCase")]
 pub struct CreateUserReq {
     pub name: String,
+    pub password: String,
 }
