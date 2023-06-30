@@ -3737,7 +3737,7 @@ pub mod user {
             ]
         }
     }
-    #[derive(Debug, Clone, :: serde :: Serialize, :: serde :: Deserialize)]
+    #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
     pub struct Data {
         #[serde(rename = "name")]
         pub name: name::Type,
@@ -4126,6 +4126,194 @@ pub mod _prisma {
     }
     pub mod read_filters {
         #[derive(Debug, Clone)]
+        pub enum IntFilter {
+            Equals(i32),
+            InVec(Vec<i32>),
+            NotInVec(Vec<i32>),
+            Lt(i32),
+            Lte(i32),
+            Gt(i32),
+            Gte(i32),
+            Not(i32),
+        }
+        impl Into<::prisma_client_rust::SerializedWhereValue> for IntFilter {
+            fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
+                match self {
+                    Self::Equals(value) => {
+                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                            "equals".to_string(),
+                            ::prisma_client_rust::PrismaValue::Int(value as i64),
+                        )])
+                    }
+                    Self::InVec(value) => {
+                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                            "in".to_string(),
+                            ::prisma_client_rust::PrismaValue::List(
+                                value
+                                    .into_iter()
+                                    .map(|value| {
+                                        ::prisma_client_rust::PrismaValue::Int(value as i64)
+                                    })
+                                    .collect(),
+                            ),
+                        )])
+                    }
+                    Self::NotInVec(value) => {
+                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                            "notIn".to_string(),
+                            ::prisma_client_rust::PrismaValue::List(
+                                value
+                                    .into_iter()
+                                    .map(|value| {
+                                        ::prisma_client_rust::PrismaValue::Int(value as i64)
+                                    })
+                                    .collect(),
+                            ),
+                        )])
+                    }
+                    Self::Lt(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "lt".to_string(),
+                        ::prisma_client_rust::PrismaValue::Int(value as i64),
+                    )]),
+                    Self::Lte(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "lte".to_string(),
+                        ::prisma_client_rust::PrismaValue::Int(value as i64),
+                    )]),
+                    Self::Gt(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "gt".to_string(),
+                        ::prisma_client_rust::PrismaValue::Int(value as i64),
+                    )]),
+                    Self::Gte(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "gte".to_string(),
+                        ::prisma_client_rust::PrismaValue::Int(value as i64),
+                    )]),
+                    Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "not".to_string(),
+                        ::prisma_client_rust::PrismaValue::Int(value as i64),
+                    )]),
+                }
+            }
+        }
+        #[derive(Debug, Clone)]
+        pub enum IntNullableFilter {
+            Equals(Option<i32>),
+            InVec(Vec<i32>),
+            NotInVec(Vec<i32>),
+            Lt(i32),
+            Lte(i32),
+            Gt(i32),
+            Gte(i32),
+            Not(Option<i32>),
+        }
+        impl Into<::prisma_client_rust::SerializedWhereValue> for IntNullableFilter {
+            fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
+                match self {
+                    Self::Equals(value) => {
+                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                            "equals".to_string(),
+                            value
+                                .map(|value| ::prisma_client_rust::PrismaValue::Int(value as i64))
+                                .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
+                        )])
+                    }
+                    Self::InVec(value) => {
+                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                            "in".to_string(),
+                            ::prisma_client_rust::PrismaValue::List(
+                                value
+                                    .into_iter()
+                                    .map(|value| {
+                                        ::prisma_client_rust::PrismaValue::Int(value as i64)
+                                    })
+                                    .collect(),
+                            ),
+                        )])
+                    }
+                    Self::NotInVec(value) => {
+                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                            "notIn".to_string(),
+                            ::prisma_client_rust::PrismaValue::List(
+                                value
+                                    .into_iter()
+                                    .map(|value| {
+                                        ::prisma_client_rust::PrismaValue::Int(value as i64)
+                                    })
+                                    .collect(),
+                            ),
+                        )])
+                    }
+                    Self::Lt(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "lt".to_string(),
+                        ::prisma_client_rust::PrismaValue::Int(value as i64),
+                    )]),
+                    Self::Lte(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "lte".to_string(),
+                        ::prisma_client_rust::PrismaValue::Int(value as i64),
+                    )]),
+                    Self::Gt(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "gt".to_string(),
+                        ::prisma_client_rust::PrismaValue::Int(value as i64),
+                    )]),
+                    Self::Gte(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "gte".to_string(),
+                        ::prisma_client_rust::PrismaValue::Int(value as i64),
+                    )]),
+                    Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "not".to_string(),
+                        value
+                            .map(|value| ::prisma_client_rust::PrismaValue::Int(value as i64))
+                            .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
+                    )]),
+                }
+            }
+        }
+        #[derive(Debug, Clone)]
+        pub enum BooleanFilter {
+            Equals(bool),
+            Not(bool),
+        }
+        impl Into<::prisma_client_rust::SerializedWhereValue> for BooleanFilter {
+            fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
+                match self {
+                    Self::Equals(value) => {
+                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                            "equals".to_string(),
+                            ::prisma_client_rust::PrismaValue::Boolean(value),
+                        )])
+                    }
+                    Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "not".to_string(),
+                        ::prisma_client_rust::PrismaValue::Boolean(value),
+                    )]),
+                }
+            }
+        }
+        #[derive(Debug, Clone)]
+        pub enum BooleanNullableFilter {
+            Equals(Option<bool>),
+            Not(Option<bool>),
+        }
+        impl Into<::prisma_client_rust::SerializedWhereValue> for BooleanNullableFilter {
+            fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
+                match self {
+                    Self::Equals(value) => {
+                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                            "equals".to_string(),
+                            value
+                                .map(|value| ::prisma_client_rust::PrismaValue::Boolean(value))
+                                .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
+                        )])
+                    }
+                    Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
+                        "not".to_string(),
+                        value
+                            .map(|value| ::prisma_client_rust::PrismaValue::Boolean(value))
+                            .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
+                    )]),
+                }
+            }
+        }
+        #[derive(Debug, Clone)]
         pub enum StringFilter {
             Equals(String),
             InVec(Vec<String>),
@@ -4310,194 +4498,6 @@ pub mod _prisma {
                         "not".to_string(),
                         value
                             .map(|value| ::prisma_client_rust::PrismaValue::String(value))
-                            .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
-                    )]),
-                }
-            }
-        }
-        #[derive(Debug, Clone)]
-        pub enum IntFilter {
-            Equals(i32),
-            InVec(Vec<i32>),
-            NotInVec(Vec<i32>),
-            Lt(i32),
-            Lte(i32),
-            Gt(i32),
-            Gte(i32),
-            Not(i32),
-        }
-        impl Into<::prisma_client_rust::SerializedWhereValue> for IntFilter {
-            fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
-                match self {
-                    Self::Equals(value) => {
-                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                            "equals".to_string(),
-                            ::prisma_client_rust::PrismaValue::Int(value as i64),
-                        )])
-                    }
-                    Self::InVec(value) => {
-                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                            "in".to_string(),
-                            ::prisma_client_rust::PrismaValue::List(
-                                value
-                                    .into_iter()
-                                    .map(|value| {
-                                        ::prisma_client_rust::PrismaValue::Int(value as i64)
-                                    })
-                                    .collect(),
-                            ),
-                        )])
-                    }
-                    Self::NotInVec(value) => {
-                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                            "notIn".to_string(),
-                            ::prisma_client_rust::PrismaValue::List(
-                                value
-                                    .into_iter()
-                                    .map(|value| {
-                                        ::prisma_client_rust::PrismaValue::Int(value as i64)
-                                    })
-                                    .collect(),
-                            ),
-                        )])
-                    }
-                    Self::Lt(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "lt".to_string(),
-                        ::prisma_client_rust::PrismaValue::Int(value as i64),
-                    )]),
-                    Self::Lte(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "lte".to_string(),
-                        ::prisma_client_rust::PrismaValue::Int(value as i64),
-                    )]),
-                    Self::Gt(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "gt".to_string(),
-                        ::prisma_client_rust::PrismaValue::Int(value as i64),
-                    )]),
-                    Self::Gte(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "gte".to_string(),
-                        ::prisma_client_rust::PrismaValue::Int(value as i64),
-                    )]),
-                    Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "not".to_string(),
-                        ::prisma_client_rust::PrismaValue::Int(value as i64),
-                    )]),
-                }
-            }
-        }
-        #[derive(Debug, Clone)]
-        pub enum IntNullableFilter {
-            Equals(Option<i32>),
-            InVec(Vec<i32>),
-            NotInVec(Vec<i32>),
-            Lt(i32),
-            Lte(i32),
-            Gt(i32),
-            Gte(i32),
-            Not(Option<i32>),
-        }
-        impl Into<::prisma_client_rust::SerializedWhereValue> for IntNullableFilter {
-            fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
-                match self {
-                    Self::Equals(value) => {
-                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                            "equals".to_string(),
-                            value
-                                .map(|value| ::prisma_client_rust::PrismaValue::Int(value as i64))
-                                .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
-                        )])
-                    }
-                    Self::InVec(value) => {
-                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                            "in".to_string(),
-                            ::prisma_client_rust::PrismaValue::List(
-                                value
-                                    .into_iter()
-                                    .map(|value| {
-                                        ::prisma_client_rust::PrismaValue::Int(value as i64)
-                                    })
-                                    .collect(),
-                            ),
-                        )])
-                    }
-                    Self::NotInVec(value) => {
-                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                            "notIn".to_string(),
-                            ::prisma_client_rust::PrismaValue::List(
-                                value
-                                    .into_iter()
-                                    .map(|value| {
-                                        ::prisma_client_rust::PrismaValue::Int(value as i64)
-                                    })
-                                    .collect(),
-                            ),
-                        )])
-                    }
-                    Self::Lt(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "lt".to_string(),
-                        ::prisma_client_rust::PrismaValue::Int(value as i64),
-                    )]),
-                    Self::Lte(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "lte".to_string(),
-                        ::prisma_client_rust::PrismaValue::Int(value as i64),
-                    )]),
-                    Self::Gt(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "gt".to_string(),
-                        ::prisma_client_rust::PrismaValue::Int(value as i64),
-                    )]),
-                    Self::Gte(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "gte".to_string(),
-                        ::prisma_client_rust::PrismaValue::Int(value as i64),
-                    )]),
-                    Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "not".to_string(),
-                        value
-                            .map(|value| ::prisma_client_rust::PrismaValue::Int(value as i64))
-                            .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
-                    )]),
-                }
-            }
-        }
-        #[derive(Debug, Clone)]
-        pub enum BooleanFilter {
-            Equals(bool),
-            Not(bool),
-        }
-        impl Into<::prisma_client_rust::SerializedWhereValue> for BooleanFilter {
-            fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
-                match self {
-                    Self::Equals(value) => {
-                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                            "equals".to_string(),
-                            ::prisma_client_rust::PrismaValue::Boolean(value),
-                        )])
-                    }
-                    Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "not".to_string(),
-                        ::prisma_client_rust::PrismaValue::Boolean(value),
-                    )]),
-                }
-            }
-        }
-        #[derive(Debug, Clone)]
-        pub enum BooleanNullableFilter {
-            Equals(Option<bool>),
-            Not(Option<bool>),
-        }
-        impl Into<::prisma_client_rust::SerializedWhereValue> for BooleanNullableFilter {
-            fn into(self) -> ::prisma_client_rust::SerializedWhereValue {
-                match self {
-                    Self::Equals(value) => {
-                        ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                            "equals".to_string(),
-                            value
-                                .map(|value| ::prisma_client_rust::PrismaValue::Boolean(value))
-                                .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
-                        )])
-                    }
-                    Self::Not(value) => ::prisma_client_rust::SerializedWhereValue::Object(vec![(
-                        "not".to_string(),
-                        value
-                            .map(|value| ::prisma_client_rust::PrismaValue::Boolean(value))
                             .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
                     )]),
                 }
@@ -4689,30 +4689,6 @@ pub mod _prisma {
     }
     pub mod write_params {
         #[derive(Debug, Clone)]
-        pub enum StringParam {
-            Set(String),
-        }
-        impl Into<::prisma_client_rust::PrismaValue> for StringParam {
-            fn into(self) -> ::prisma_client_rust::PrismaValue {
-                match self {
-                    Self::Set(value) => ::prisma_client_rust::PrismaValue::String(value),
-                }
-            }
-        }
-        #[derive(Debug, Clone)]
-        pub enum StringNullableParam {
-            Set(Option<String>),
-        }
-        impl Into<::prisma_client_rust::PrismaValue> for StringNullableParam {
-            fn into(self) -> ::prisma_client_rust::PrismaValue {
-                match self {
-                    Self::Set(value) => value
-                        .map(|value| ::prisma_client_rust::PrismaValue::String(value))
-                        .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
-                }
-            }
-        }
-        #[derive(Debug, Clone)]
         pub enum IntParam {
             Set(i32),
             Increment(i32),
@@ -4796,6 +4772,30 @@ pub mod _prisma {
                 match self {
                     Self::Set(value) => value
                         .map(|value| ::prisma_client_rust::PrismaValue::Boolean(value))
+                        .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
+                }
+            }
+        }
+        #[derive(Debug, Clone)]
+        pub enum StringParam {
+            Set(String),
+        }
+        impl Into<::prisma_client_rust::PrismaValue> for StringParam {
+            fn into(self) -> ::prisma_client_rust::PrismaValue {
+                match self {
+                    Self::Set(value) => ::prisma_client_rust::PrismaValue::String(value),
+                }
+            }
+        }
+        #[derive(Debug, Clone)]
+        pub enum StringNullableParam {
+            Set(Option<String>),
+        }
+        impl Into<::prisma_client_rust::PrismaValue> for StringNullableParam {
+            fn into(self) -> ::prisma_client_rust::PrismaValue {
+                match self {
+                    Self::Set(value) => value
+                        .map(|value| ::prisma_client_rust::PrismaValue::String(value))
                         .unwrap_or_else(|| ::prisma_client_rust::PrismaValue::Null),
                 }
             }
