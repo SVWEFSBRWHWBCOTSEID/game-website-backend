@@ -140,51 +140,42 @@ impl CreateGameReq {
 impl game::Data {
     // method to construct reponse from prisma game struct
     pub fn to_game_res(&self) -> GameResponse {
-        
-        let game = GameType {
-            key: self.game_key.clone(),
-            name: self.game_name.clone(),
-        };
-
-        let clock = Clock {
-            initial: self.clock_initial,
-            increment: self.clock_increment,
-        };
-
-        let first_player = match self.first_name {
-            Some(_) => Some(Player {
-                name: self.first_name.clone().unwrap(),
-                provisional: self.first_provisional.unwrap(),
-                rating: self.first_rating.unwrap(),
-            }),
-            None => None,
-        };
-        let second_player = match self.second_name {
-            Some(_) => Some(Player {
-                name: self.second_name.clone().unwrap(),
-                provisional: self.second_provisional.unwrap(),
-                rating: self.second_rating.unwrap(),
-            }),
-            None => None,
-        };
-
-        let game_state = GameState {
-            moves: self.moves.clone(),
-            first_time: self.first_time,
-            second_time: self.second_time,
-            status: self.status,
-        };
 
         GameResponse {
             id: self.id.clone(),
             created_at: self.created_at.to_string(),
             rated: self.rated,
-            game,
-            clock,
-            first_player,
-            second_player,
+            game: GameType {
+                key: self.game_key.clone(),
+                name: self.game_name.clone(),
+            },
+            clock: Clock {
+                initial: self.clock_initial,
+                increment: self.clock_increment,
+            },
+            first_player: match self.first_name {
+                Some(_) => Some(Player {
+                    name: self.first_name.clone().unwrap(),
+                    provisional: self.first_provisional.unwrap(),
+                    rating: self.first_rating.unwrap(),
+                }),
+                None => None,
+            },
+            second_player: match self.second_name {
+                Some(_) => Some(Player {
+                    name: self.second_name.clone().unwrap(),
+                    provisional: self.second_provisional.unwrap(),
+                    rating: self.second_rating.unwrap(),
+                }),
+                None => None,
+            },
             start_pos: self.start_pos.clone(),
-            game_state,
+            game_state: GameState {
+                moves: self.moves.clone(),
+                first_time: self.first_time,
+                second_time: self.second_time,
+                status: self.status,
+            },
         }
     }
 }
