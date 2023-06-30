@@ -2,7 +2,7 @@ use actix_web::web;
 
 use crate::models::general::{GamePerf, Perfs, Profile};
 use crate::models::res::UserResponse;
-use crate::prisma::{user, PrismaClient, Country};
+use crate::prisma::{user, PrismaClient};
 use crate::models::req::CreateUserReq;
 
 impl CreateUserReq {
@@ -42,12 +42,7 @@ impl CreateUserReq {
                 self.name.clone(),
                 self.password.clone(),
                 serde_json::to_string(&perfs).unwrap(),
-                Country::Us,
-                "test location".to_string(),
-                "test bio".to_string(),
-                "Kepler".to_string(),
-                "Boyce".to_string(),
-                "test url".to_string(),
+                "http://localhost:3000/user/".to_string() + &self.name,
                 vec![],
             )
             .exec()

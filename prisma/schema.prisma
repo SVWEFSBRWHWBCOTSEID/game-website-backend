@@ -36,11 +36,11 @@ model User {
     createdAt       DateTime    @default(now())
     password        String
     perfs           String
-    country         Country
-    location        String
-    bio             String
-    firstName       String
-    lastName        String
+    country         Country?
+    location        String?
+    bio             String?
+    firstName       String?
+    lastName        String?
     url             String
     playing         String?
 }

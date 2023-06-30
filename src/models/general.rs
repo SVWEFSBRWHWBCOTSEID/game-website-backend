@@ -59,10 +59,10 @@ pub struct GamePerf {
 
 #[derive(Deserialize, Serialize)]
 pub struct Profile {
-    pub country: Country,
-    pub location: String,
-    pub bio: String,
-    pub first_name: String,
-    pub last_name: String,
+    pub country: Option<Country>,
+    pub location: Option<String>,
+    pub bio: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
 }
 
