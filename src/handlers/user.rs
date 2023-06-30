@@ -21,7 +21,7 @@ pub async fn create_user(
     Ok(HttpResponse::Ok().json(user.to_user_res()))
 }
 
-// route for checking if username is taken
+// route for getting user info
 #[get("/api/user/{username}")]
 pub async fn get_user(
     req: HttpRequest,
