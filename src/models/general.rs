@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::prisma::GameStatus;
+use crate::prisma::{GameStatus, Country};
 
 
 // struct for temporary use for player matching
@@ -48,7 +48,7 @@ pub struct Perfs {
     pub pc: GamePerf,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Copy, Clone)]
 pub struct GamePerf {
     pub games: i32,
     pub rating: i32,
@@ -66,9 +66,3 @@ pub struct Profile {
     pub last_name: String,
 }
 
-#[derive(Deserialize, Serialize)]
-pub enum Country {
-    US,
-    MN,
-    UK,
-}
