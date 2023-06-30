@@ -34,14 +34,15 @@ model Game {
 model User {
     name            String      @unique
     createdAt       DateTime    @default(now())
-    tttRating       Int
-    tttProvisional  Boolean
-    utttRating      Int
-    utttProvisional Boolean
-    c4Rating        Int
-    c4Provisional   Boolean
-    pcRating        Int
-    pcProvisional   Boolean
+    password        String
+    perfs           String
+    country         Country
+    location        String
+    bio             String
+    firstName       String
+    lastName        String
+    url             String
+    playing         String?
 }
 
 enum GameStatus {
@@ -53,4 +54,10 @@ enum Side {
     FIRST
     SECOND
     RANDOM
+}
+
+enum Country {
+    US
+    MN
+    UK
 }
