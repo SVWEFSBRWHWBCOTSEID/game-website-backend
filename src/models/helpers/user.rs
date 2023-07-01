@@ -22,7 +22,7 @@ impl CreateUserReq {
         let starting_perf = GamePerf {
             games: 0,
             rating: 1500,
-            rd: 0,
+            rd: 500.0,
             prog: 0,
             prov: true,
         };

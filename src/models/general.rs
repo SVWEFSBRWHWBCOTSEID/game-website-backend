@@ -52,7 +52,7 @@ pub struct Perfs {
 pub struct GamePerf {
     pub games: i32,
     pub rating: i32,
-    pub rd: i32,
+    pub rd: f32,
     pub prog: i32,
     pub prov: bool,
 }
