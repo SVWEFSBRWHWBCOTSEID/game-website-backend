@@ -1,6 +1,8 @@
 pub mod app_config;
 pub mod models;
 pub mod handlers;
+
+#[allow(warnings, unused)]
 pub mod prisma;
 
 use actix_web::{ResponseError, HttpResponse, http::{header::ContentType, StatusCode}};
