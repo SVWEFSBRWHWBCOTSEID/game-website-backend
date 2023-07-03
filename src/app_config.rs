@@ -10,5 +10,6 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
         .service(user::create_user)
         .service(user::get_user)
         .service(user::login)
+        .service(user::logout)
         .service(user::profile);
 }

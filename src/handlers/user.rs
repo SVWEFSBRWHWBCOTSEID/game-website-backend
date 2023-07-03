@@ -84,3 +84,11 @@ pub async fn login(
     }
     Ok(HttpResponse::Ok().json(user.to_user_res()))
 }
+
+// route for logging in user
+#[post("api/logout")]
+pub async fn logout(session: Session) -> Result<HttpResponse, CustomError> {
+    
+    session.purge();
+    Ok(HttpResponse::Ok().finish())
+}
