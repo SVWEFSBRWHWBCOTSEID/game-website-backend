@@ -64,7 +64,7 @@ pub async fn login(
         None => return Err(CustomError::BadRequest),
     };
 
-    if bcrypt::verify(&user.password, &login_req.password).unwrap() {
+    if bcrypt::verify(&login_req.password, &user.password).unwrap() {
         return Err(CustomError::BadRequest);
     }
 
