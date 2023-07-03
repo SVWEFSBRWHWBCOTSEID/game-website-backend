@@ -1,3 +1,4 @@
+use actix_session::Session;
 use actix_web::{web, HttpRequest, HttpResponse, get, post};
 
 use crate::CustomError;
@@ -44,10 +45,18 @@ pub async fn get_user(
     ))
 }
 
+// test route for sessions
+#[get("api/profile")]
+pub async fn profile(session: Session) -> Result<HttpResponse, CustomError> {
+    let username: String = session.get("username").unwrap().unwrap();
+    Ok(HttpResponse::Ok().json(username))
+}
+
 // route for logging in user
 #[post("api/login")]
 pub async fn login(
     client: web::Data<PrismaClient>,
+    session: Session,
     data: web::Json<LoginReq>,
 ) -> Result<HttpResponse, CustomError> {
 
@@ -68,5 +77,10 @@ pub async fn login(
         return Err(CustomError::BadRequest);
     }
 
+    session.renew();
+    match session.insert("username", &user.name) {
+        Err(_) => return Err(CustomError::InternalError),
+        _ => {},
+    }
     Ok(HttpResponse::Ok().json(user.to_user_res()))
 }
