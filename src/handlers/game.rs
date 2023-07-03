@@ -13,8 +13,14 @@ use crate::models::req::CreateGameReq;
 pub async fn create_game(
     req: HttpRequest,
     client: web::Data<PrismaClient>,
+    session: Session,
     data: web::Json<CreateGameReq>,
 ) -> Result<HttpResponse, CustomError> {
+
+    let username: String = match session.get("username") {
+        Ok(u) => u.unwrap(),
+        Err(_) => return Err(CustomError::Unauthorized),
+    };
 
     let create_game_req: CreateGameReq = data.into_inner();
     let game_key: String = req.match_info().get("game").unwrap().parse().unwrap();
@@ -26,7 +32,7 @@ pub async fn create_game(
 
     let user_option = client
         .user()
-        .find_unique(user::username::equals(create_game_req.username.clone()))
+        .find_unique(user::username::equals(username))
         .exec()
         .await
         .unwrap();
@@ -86,10 +92,14 @@ pub async fn add_move(
     session: Session,
 ) -> Result<HttpResponse, CustomError> {
 
+    let username: String = match session.get("username") {
+        Ok(u) => u.unwrap(),
+        Err(_) => return Err(CustomError::Unauthorized),
+    };
+
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let new_move: String = req.match_info().get("move").unwrap().parse().unwrap();
 
-    let username: String = session.get("username").unwrap().unwrap();
     let game_option = client
         .game()
         .find_unique(game::id::equals(game_id.clone()))
@@ -97,11 +107,10 @@ pub async fn add_move(
         .await
         .unwrap();
 
-    let game: game::Data;
-    match game_option {
-        Some(g) => game = g,
+    let game = match game_option {
+        Some(g) => g,
         None => return Err(CustomError::BadRequest),
-    }
+    };
 
     // respond with 400 if user is not signed in as a player in this game
     if game.first_username.unwrap() != username && game.second_username.unwrap() != username {

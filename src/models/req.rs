@@ -12,7 +12,6 @@ pub struct CreateGameReq {
     pub side: Side,
     pub rating_min: i32,
     pub rating_max: i32,
-    pub username: String,
     pub start_pos: Option<String>,
 }
 

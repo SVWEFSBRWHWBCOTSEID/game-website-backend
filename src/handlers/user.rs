@@ -45,13 +45,6 @@ pub async fn get_user(
     ))
 }
 
-// test route for sessions
-#[get("api/profile")]
-pub async fn profile(session: Session) -> Result<HttpResponse, CustomError> {
-    let username: String = session.get("username").unwrap().unwrap();
-    Ok(HttpResponse::Ok().json(username))
-}
-
 // route for logging in user
 #[post("api/login")]
 pub async fn login(
