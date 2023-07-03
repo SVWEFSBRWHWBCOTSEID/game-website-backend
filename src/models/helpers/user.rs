@@ -20,8 +20,8 @@ impl CreateUserReq {
     // method to add a user to table from this user request
     pub async fn create_user(&self, client: &web::Data<PrismaClient>) -> user::Data {
 
-        let hashed_pass = bcrypt::hash(self.password.clone(), bcrypt::DEFAULT_COST).unwrap();
-        
+        let hashed_pass = bcrypt::hash(&self.password, bcrypt::DEFAULT_COST).unwrap();
+
         let starting_perf = GamePerf {
             games: 0,
             rating: 1500,
