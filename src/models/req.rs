@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::prisma::Side;
+use super::general::Side;
 
 
 #[derive(Deserialize, Serialize)]
@@ -29,4 +29,3 @@ pub struct LoginReq {
     pub name: String,
     pub password: String,
 }
-

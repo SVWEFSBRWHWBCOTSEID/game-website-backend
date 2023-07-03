@@ -13,51 +13,30 @@ model Game {
     createdAt           DateTime    @default(now())
     rated               Boolean
     gameKey             String
-    gameName            String
     clockInitial        Int?
     clockIncrement      Int?
-    firstName           String?
-    firstProvisional    Boolean?
-    firstRating         Int?
-    secondName          String?
-    secondProvisional   Boolean?
-    secondRating        Int?
+    firstUsername       String?
+    secondUsername      String?
+    rating              Int
     ratingMin           Int
     ratingMax           Int
     startPos            String?
     moves               String
     firstTime           Int?
     secondTime          Int?
-    status              GameStatus
+    status              String
 }
 
 model User {
-    name            String      @unique
+    username        String      @unique
     createdAt       DateTime    @default(now())
     password        String
     perfs           String
-    country         Country?
-    location        String?
-    bio             String?
-    firstName       String?
-    lastName        String?
+    country         String
+    location        String
+    bio             String
+    firstName       String
+    lastName        String
     url             String
     playing         String?
-}
-
-enum GameStatus {
-    WAITING
-    STARTED
-}
-
-enum Side {
-    FIRST
-    SECOND
-    RANDOM
-}
-
-enum Country {
-    US
-    MN
-    UK
 }

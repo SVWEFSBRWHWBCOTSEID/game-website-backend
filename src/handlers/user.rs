@@ -34,7 +34,7 @@ pub async fn get_user(
     Ok(HttpResponse::Ok().json(
         match client
             .user()
-            .find_unique(user::name::equals(username))
+            .find_unique(user::username::equals(username))
             .exec()
             .await
             .unwrap()
@@ -64,7 +64,7 @@ pub async fn login(
 
     let user = match client
         .user()
-        .find_unique(user::name::equals(login_req.name))
+        .find_unique(user::username::equals(login_req.name))
         .exec()
         .await
         .unwrap()
@@ -78,7 +78,7 @@ pub async fn login(
     }
 
     session.renew();
-    match session.insert("username", &user.name) {
+    match session.insert("username", &user.username) {
         Err(_) => return Err(CustomError::InternalError),
         _ => {},
     }

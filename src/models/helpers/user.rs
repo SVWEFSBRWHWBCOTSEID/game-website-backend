@@ -1,6 +1,7 @@
+use std::str::FromStr;
 use actix_web::web;
 
-use crate::models::general::{GamePerf, Perfs, Profile};
+use crate::models::general::{GamePerf, Perfs, Profile, Country};
 use crate::models::res::UserResponse;
 use crate::prisma::{user, PrismaClient};
 use crate::models::req::CreateUserReq;
@@ -10,7 +11,7 @@ impl CreateUserReq {
     pub async fn validate(&self, client: &web::Data<PrismaClient>) -> bool {
         client
             .user()
-            .find_unique(user::name::equals(self.name.clone()))
+            .find_unique(user::username::equals(self.name.clone()))
             .exec()
             .await
             .unwrap()
@@ -42,6 +43,11 @@ impl CreateUserReq {
                 self.name.clone(),
                 hashed_pass,
                 serde_json::to_string(&perfs).unwrap(),
+                "Empty".to_string(),
+                "".to_string(),
+                "".to_string(),
+                "".to_string(),
+                "".to_string(),
                 "http://localhost:3000/user/".to_string() + &self.name,
                 vec![],
             )
@@ -84,11 +90,11 @@ impl user::Data {
     pub fn to_user_res(&self) -> UserResponse {
 
         UserResponse {
-            username: self.name.clone(),
+            username: self.username.clone(),
             created_at: self.created_at.to_string(),
             perfs: serde_json::from_str(&self.perfs).unwrap(),
             profile: Profile {
-                country: self.country,
+                country: Country::from_str(&self.country).unwrap(),
                 location: self.location.clone(),
                 bio: self.bio.clone(),
                 first_name: self.first_name.clone(),

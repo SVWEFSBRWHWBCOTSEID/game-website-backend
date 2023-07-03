@@ -2,8 +2,8 @@ use actix_web::{web, HttpRequest, HttpResponse, post};
 use rand::Rng;
 
 use crate::{CustomError, get_key_name};
-use crate::models::general::MatchPlayer;
-use crate::prisma::{PrismaClient, Side, user};
+use crate::models::general::{MatchPlayer, Side};
+use crate::prisma::{PrismaClient, user};
 use crate::models::req::CreateGameReq;
 
 
@@ -25,7 +25,7 @@ pub async fn create_game(
 
     let user_option = client
         .user()
-        .find_unique(user::name::equals(create_game_req.username.clone()))
+        .find_unique(user::username::equals(create_game_req.username.clone()))
         .exec()
         .await
         .unwrap();
@@ -40,7 +40,7 @@ pub async fn create_game(
     let mut rng = rand::thread_rng();
 
     let match_player = MatchPlayer {
-        name: user.name.clone(),
+        name: user.username.clone(),
         provisional: user.get_provisional(&game_key).unwrap(),
         rating: user.get_rating(&game_key).unwrap(),
         rating_min: create_game_req.rating_min,
@@ -74,5 +74,5 @@ pub async fn create_game(
         ).await,
     };
 
-    Ok(HttpResponse::Ok().json(game.to_game_res()))
+    Ok(HttpResponse::Ok().json(game.to_game_res(&client).await))
 }

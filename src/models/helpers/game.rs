@@ -1,11 +1,12 @@
+use std::str::FromStr;
 use actix_web::web;
 
 use crate::get_key_name;
-use crate::models::general::{GameType, Clock, GameState, Player, MatchPlayer};
-use crate::prisma::game;
-use crate::prisma::{GameStatus, PrismaClient};
-use crate::models::req::{CreateGameReq};
-use crate::models::res::{GameResponse};
+use crate::models::general::{GameType, Clock, GameState, Player, MatchPlayer, GameStatus};
+use crate::prisma::{game, user};
+use crate::prisma::PrismaClient;
+use crate::models::req::CreateGameReq;
+use crate::models::res::GameResponse;
 
 
 impl CreateGameReq {
@@ -25,26 +26,14 @@ impl CreateGameReq {
     ) -> game::Data {
 
         let first_name: Option<String>;
-        let first_provisional: Option<bool>;
-        let first_rating: Option<i32>;
-        let second_provisional: Option<bool>;
         let second_name: Option<String>;
-        let second_rating: Option<i32>;
 
         if player.first {
             first_name = Some(player.name.clone());
-            first_provisional = Some(player.provisional);
-            first_rating = Some(player.rating);
             second_name = None;
-            second_provisional = None;
-            second_rating = None;
         } else {
             first_name = None;
-            first_provisional = None;
-            first_rating = None;
             second_name = Some(player.name.clone());
-            second_provisional = Some(player.provisional);
-            second_rating = Some(player.rating);
         }
 
         client
@@ -52,22 +41,18 @@ impl CreateGameReq {
             .create(
                 self.rated,
                 game_key.to_string(),
-                get_key_name(game_key).unwrap(),
+                player.rating,
                 self.rating_min,
                 self.rating_max,
                 "".to_string(),
-                GameStatus::Waiting,
+                "WAITING".to_string(),
                 vec![
                     game::clock_initial::set(self.time),
                     game::clock_increment::set(self.increment),
                     game::first_time::set(self.time),
                     game::second_time::set(self.time),
-                    game::first_name::set(first_name),
-                    game::first_provisional::set(first_provisional),
-                    game::first_rating::set(first_rating),
-                    game::second_name::set(second_name),
-                    game::second_provisional::set(second_provisional),
-                    game::second_rating::set(second_rating),
+                    game::first_username::set(first_name),
+                    game::second_username::set(second_name),
                     game::start_pos::set(self.start_pos.clone()),
                 ],
             )
@@ -90,8 +75,8 @@ impl CreateGameReq {
                 game::game_key::equals(game_key.to_string()),
                 game::clock_initial::equals(self.time),
                 game::clock_increment::equals(self.increment),
-                if player.first { game::first_name::equals(None) }
-                else { game::second_name::equals(None) },
+                if player.first { game::first_username::equals(None) }
+                else { game::second_username::equals(None) },
             ])
             .exec()
             .await
@@ -100,12 +85,7 @@ impl CreateGameReq {
         let filtered_games = games
             .iter()
             .filter(|g| {
-                let rating = if player.first {
-                    g.second_rating.unwrap()
-                } else {
-                    g.first_rating.unwrap()
-                };
-                player.rating_min < rating && player.rating_max > rating &&
+                player.rating_min < g.rating && player.rating_max > g.rating &&
                 g.rating_min < player.rating && g.rating_max > player.rating
             });
 
@@ -122,12 +102,8 @@ impl CreateGameReq {
             .update(
                 game::id::equals(game.id.clone()),
                 vec![
-                    if player.first { game::first_name::set(Some(player.name.clone())) }
-                    else { game::second_name::set(Some(player.name.clone())) },
-                    if player.first { game::first_provisional::set(Some(player.provisional.clone())) }
-                    else { game::second_provisional::set(Some(player.provisional.clone())) },
-                    if player.first { game::first_rating::set(Some(player.rating.clone())) }
-                    else { game::second_rating::set(Some(player.rating.clone())) },
+                    if player.first { game::first_username::set(Some(player.name.clone())) }
+                    else { game::second_username::set(Some(player.name.clone())) },
                 ],
             )
             .exec()
@@ -139,7 +115,7 @@ impl CreateGameReq {
 
 impl game::Data {
     // method to construct reponse from prisma game struct
-    pub fn to_game_res(&self) -> GameResponse {
+    pub async fn to_game_res(&self, client: &web::Data<PrismaClient>) -> GameResponse {
 
         GameResponse {
             id: self.id.clone(),
@@ -147,26 +123,44 @@ impl game::Data {
             rated: self.rated,
             game: GameType {
                 key: self.game_key.clone(),
-                name: self.game_name.clone(),
+                name: get_key_name(&self.game_key).unwrap(),
             },
             clock: Clock {
                 initial: self.clock_initial,
                 increment: self.clock_increment,
             },
-            first_player: match self.first_name {
-                Some(_) => Some(Player {
-                    name: self.first_name.clone().unwrap(),
-                    provisional: self.first_provisional.unwrap(),
-                    rating: self.first_rating.unwrap(),
-                }),
+            first_player: match &self.first_username {
+                Some(n) => {
+                    let user = client
+                        .user()
+                        .find_unique(user::username::equals(n.clone()))
+                        .exec()
+                        .await
+                        .unwrap()
+                        .unwrap();
+                    Some(Player {
+                        name: self.first_username.clone().unwrap(),
+                        provisional: user.get_provisional(&self.game_key).unwrap(),
+                        rating: user.get_rating(&self.game_key).unwrap(),
+                    })
+                },
                 None => None,
             },
-            second_player: match self.second_name {
-                Some(_) => Some(Player {
-                    name: self.second_name.clone().unwrap(),
-                    provisional: self.second_provisional.unwrap(),
-                    rating: self.second_rating.unwrap(),
-                }),
+            second_player: match &self.second_username {
+                Some(n) => {
+                    let user = client
+                        .user()
+                        .find_unique(user::username::equals(n.clone()))
+                        .exec()
+                        .await
+                        .unwrap()
+                        .unwrap();
+                    Some(Player {
+                        name: self.second_username.clone().unwrap(),
+                        provisional: user.get_provisional(&self.game_key).unwrap(),
+                        rating: user.get_rating(&self.game_key).unwrap(),
+                    })
+                },
                 None => None,
             },
             start_pos: self.start_pos.clone(),
@@ -174,7 +168,7 @@ impl game::Data {
                 moves: self.moves.clone(),
                 first_time: self.first_time,
                 second_time: self.second_time,
-                status: self.status,
+                status: GameStatus::from_str(&self.status).unwrap(),
             },
         }
     }

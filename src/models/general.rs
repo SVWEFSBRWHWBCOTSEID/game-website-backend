@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
-
-use crate::prisma::{GameStatus, Country};
+use strum_macros::EnumString;
 
 
 // struct for temporary use for player matching
@@ -59,10 +58,30 @@ pub struct GamePerf {
 
 #[derive(Deserialize, Serialize)]
 pub struct Profile {
-    pub country: Option<Country>,
-    pub location: Option<String>,
-    pub bio: Option<String>,
-    pub first_name: Option<String>,
-    pub last_name: Option<String>,
+    pub country: Country,
+    pub location: String,
+    pub bio: String,
+    pub first_name: String,
+    pub last_name: String,
 }
 
+#[derive(Deserialize, Serialize, EnumString)]
+pub enum Country {
+    Empty,
+    Us,
+    Uk,
+    Mn,
+}
+
+#[derive(Deserialize, Serialize, EnumString)]
+pub enum GameStatus {
+    Waiting,
+    Started,
+}
+
+#[derive(Deserialize, Serialize, EnumString)]
+pub enum Side {
+    First,
+    Second,
+    Random,
+}
