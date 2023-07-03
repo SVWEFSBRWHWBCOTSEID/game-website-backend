@@ -1,9 +1,10 @@
+use actix_session::Session;
 use actix_web::{web, HttpRequest, HttpResponse, post};
 use rand::Rng;
 
 use crate::{CustomError, get_key_name};
 use crate::models::general::{MatchPlayer, Side};
-use crate::prisma::{PrismaClient, user};
+use crate::prisma::{PrismaClient, user, game};
 use crate::models::req::CreateGameReq;
 
 
@@ -12,7 +13,7 @@ use crate::models::req::CreateGameReq;
 pub async fn create_game(
     req: HttpRequest,
     client: web::Data<PrismaClient>,
-    data: web::Json<CreateGameReq>
+    data: web::Json<CreateGameReq>,
 ) -> Result<HttpResponse, CustomError> {
 
     let create_game_req: CreateGameReq = data.into_inner();
@@ -75,4 +76,54 @@ pub async fn create_game(
     };
 
     Ok(HttpResponse::Ok().json(game.to_game_res(&client).await))
+}
+
+// route for adding a move to a game
+#[post("/api/game/{id}/move/{move}")]
+pub async fn add_move(
+    req: HttpRequest,
+    client: web::Data<PrismaClient>,
+    session: Session,
+) -> Result<HttpResponse, CustomError> {
+
+    let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
+    let new_move: String = req.match_info().get("move").unwrap().parse().unwrap();
+
+    let username: String = session.get("username").unwrap().unwrap();
+    let game_option = client
+        .game()
+        .find_unique(game::id::equals(game_id.clone()))
+        .exec()
+        .await
+        .unwrap();
+
+    let game: game::Data;
+    match game_option {
+        Some(g) => game = g,
+        None => return Err(CustomError::BadRequest),
+    }
+
+    // respond with 400 if user is not signed in as a player in this game
+    if game.first_username.unwrap() != username && game.second_username.unwrap() != username {
+        return Err(CustomError::BadRequest);
+    }
+
+    client
+        .game()
+        .update(
+            game::id::equals(game_id.clone()),
+            vec![
+                game::moves::set({
+                    let mut moves = game.moves;
+                    moves.push_str(&new_move);
+                    moves
+                }),
+            ],
+        )
+        .exec()
+        .await
+        .map_err(|_| CustomError::InternalError)
+        .ok();
+
+    Ok(HttpResponse::Ok().finish())
 }
