@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 // struct for temporary use for player matching
 pub struct MatchPlayer {
-    pub name: String,
+    pub username: String,
     pub provisional: bool,
     pub rating: i32,
     pub rating_min: i32,
@@ -13,7 +13,7 @@ pub struct MatchPlayer {
 
 #[derive(Deserialize, Serialize)]
 pub struct Player {
-    pub name: String,
+    pub username: String,
     pub provisional: bool,
     pub rating: i32,
 }

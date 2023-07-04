@@ -24,17 +24,6 @@ impl CreateGameReq {
         player: &MatchPlayer,
     ) -> game::Data {
 
-        let first_name: Option<String>;
-        let second_name: Option<String>;
-
-        if player.first {
-            first_name = Some(player.name.clone());
-            second_name = None;
-        } else {
-            first_name = None;
-            second_name = Some(player.name.clone());
-        }
-
         client
             .game()
             .create(
@@ -50,9 +39,12 @@ impl CreateGameReq {
                     game::clock_increment::set(self.increment),
                     game::first_time::set(self.time),
                     game::second_time::set(self.time),
-                    game::first_username::set(first_name),
-                    game::second_username::set(second_name),
                     game::start_pos::set(self.start_pos.clone()),
+                    if player.first {
+                        game::first_user::connect(user::username::equals(player.username.clone()))
+                    } else {
+                        game::second_user::connect(user::username::equals(player.username.clone()))
+                    },
                 ],
             )
             .exec()
@@ -101,8 +93,11 @@ impl CreateGameReq {
             .update(
                 game::id::equals(game.id.clone()),
                 vec![
-                    if player.first { game::first_username::set(Some(player.name.clone())) }
-                    else { game::second_username::set(Some(player.name.clone())) },
+                    if player.first {
+                        game::first_user::connect(user::username::equals(player.username.clone()))
+                    } else {
+                        game::second_user::connect(user::username::equals(player.username.clone()))
+                    },
                 ],
             )
             .exec()
@@ -138,7 +133,7 @@ impl game::Data {
                         .unwrap()
                         .unwrap();
                     Some(Player {
-                        name: self.first_username.clone().unwrap(),
+                        username: self.first_username.clone().unwrap(),
                         provisional: user.get_provisional(&self.game_key).unwrap(),
                         rating: user.get_rating(&self.game_key).unwrap(),
                     })
@@ -155,7 +150,7 @@ impl game::Data {
                         .unwrap()
                         .unwrap();
                     Some(Player {
-                        name: self.second_username.clone().unwrap(),
+                        username: self.second_username.clone().unwrap(),
                         provisional: user.get_provisional(&self.game_key).unwrap(),
                         rating: user.get_rating(&self.game_key).unwrap(),
                     })

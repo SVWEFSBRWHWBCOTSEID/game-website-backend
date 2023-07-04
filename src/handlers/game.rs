@@ -47,7 +47,7 @@ pub async fn create_game(
     let mut rng = rand::thread_rng();
 
     let match_player = MatchPlayer {
-        name: user.username.clone(),
+        username: user.username.clone(),
         provisional: user.get_provisional(&game_key).unwrap(),
         rating: user.get_rating(&game_key).unwrap(),
         rating_min: create_game_req.rating_min,
