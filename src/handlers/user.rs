@@ -10,6 +10,7 @@ use crate::models::req::{CreateUserReq, LoginReq};
 #[post("/api/user/new")]
 pub async fn create_user(
     client: web::Data<PrismaClient>,
+    session: Session,
     data: web::Json<CreateUserReq>
 ) -> Result<HttpResponse, CustomError> {
 
@@ -19,6 +20,11 @@ pub async fn create_user(
     }
 
     let user = create_user_req.create_user(&client).await;
+
+    match session.insert("username", &user.username) {
+        Err(_) => return Err(CustomError::InternalError),
+        _ => {},
+    }
     Ok(HttpResponse::Ok().json(user.to_user_res()))
 }
 
