@@ -57,7 +57,7 @@ pub async fn login(
 
     let user = match client
         .user()
-        .find_unique(user::username::equals(login_req.name))
+        .find_unique(user::username::equals(login_req.username))
         .exec()
         .await
         .unwrap()

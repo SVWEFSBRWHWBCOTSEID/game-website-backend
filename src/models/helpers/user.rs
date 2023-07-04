@@ -10,7 +10,7 @@ impl CreateUserReq {
     pub async fn validate(&self, client: &web::Data<PrismaClient>) -> bool {
         client
             .user()
-            .find_unique(user::username::equals(self.name.clone()))
+            .find_unique(user::username::equals(self.username.clone()))
             .exec()
             .await
             .unwrap()
@@ -39,7 +39,7 @@ impl CreateUserReq {
         client
             .user()
             .create(
-                self.name.clone(),
+                self.username.clone(),
                 hashed_pass,
                 serde_json::to_string(&perfs).unwrap(),
                 "Empty".to_string(),
@@ -47,7 +47,7 @@ impl CreateUserReq {
                 "".to_string(),
                 "".to_string(),
                 "".to_string(),
-                "http://localhost:3000/user/".to_string() + &self.name,
+                "http://localhost:3000/user/".to_string() + &self.username,
                 vec![],
             )
             .exec()

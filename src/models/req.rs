@@ -18,13 +18,13 @@ pub struct CreateGameReq {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateUserReq {
-    pub name: String,
+    pub username: String,
     pub password: String,
 }
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LoginReq {
-    pub name: String,
+    pub username: String,
     pub password: String,
 }
