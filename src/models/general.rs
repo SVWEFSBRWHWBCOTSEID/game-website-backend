@@ -73,7 +73,7 @@ pub enum Country {
     Mn,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum GameStatus {
     Waiting,

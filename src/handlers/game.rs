@@ -18,7 +18,10 @@ pub async fn create_game(
 ) -> Result<HttpResponse, CustomError> {
 
     let username: String = match session.get("username") {
-        Ok(u) => u.unwrap(),
+        Ok(o) => match o {
+            Some(u) => u,
+            None => return Err(CustomError::Unauthorized),
+        },
         Err(_) => return Err(CustomError::Unauthorized),
     };
 
@@ -87,7 +90,10 @@ pub async fn add_move(
 ) -> Result<HttpResponse, CustomError> {
 
     let username: String = match session.get("username") {
-        Ok(u) => u.unwrap(),
+        Ok(o) => match o {
+            Some(u) => u,
+            None => return Err(CustomError::Unauthorized),
+        },
         Err(_) => return Err(CustomError::Unauthorized),
     };
 
@@ -125,6 +131,7 @@ pub async fn add_move(
                     moves.push_str(" ");
                     moves
                 }),
+                game::status::set(GameStatus::Started.to_string()),
             ],
         )
         .exec()
@@ -144,7 +151,10 @@ pub async fn resign(
 ) -> Result<HttpResponse, CustomError> {
 
     let username: String = match session.get("username") {
-        Ok(u) => u.unwrap(),
+        Ok(o) => match o {
+            Some(u) => u,
+            None => return Err(CustomError::Unauthorized),
+        },
         Err(_) => return Err(CustomError::Unauthorized),
     };
 
@@ -161,8 +171,10 @@ pub async fn resign(
         None => return Err(CustomError::BadRequest),
     };
 
-    // respond with 400 if user is not signed in as a player in this game
-    if game.first_username.clone().unwrap() != username || game.second_username.unwrap() != username {
+    // respond with 400 if the game has not begun yet or if user is not signed in as a player in this game
+    if GameStatus::from_str(&game.status) == GameStatus::Waiting ||
+        game.first_username.clone().unwrap() != username || game.second_username.unwrap() != username {
+            
         return Err(CustomError::BadRequest);
     }
 
@@ -195,7 +207,10 @@ pub async fn offer_draw(
 ) -> Result<HttpResponse, CustomError> {
 
     let username: String = match session.get("username") {
-        Ok(u) => u.unwrap(),
+        Ok(o) => match o {
+            Some(u) => u,
+            None => return Err(CustomError::Unauthorized),
+        },
         Err(_) => return Err(CustomError::Unauthorized),
     };
 
@@ -213,8 +228,10 @@ pub async fn offer_draw(
         None => return Err(CustomError::BadRequest),
     };
 
-    // respond with 400 if user is not signed in as a player in this game
-    if game.first_username.clone().unwrap() != username || game.second_username.unwrap() != username {
+    // respond with 400 if the game has not begun yet or if user is not signed in as a player in this game
+    if GameStatus::from_str(&game.status) == GameStatus::Waiting ||
+        game.first_username.clone().unwrap() != username || game.second_username.unwrap() != username {
+
         return Err(CustomError::BadRequest);
     }
 
