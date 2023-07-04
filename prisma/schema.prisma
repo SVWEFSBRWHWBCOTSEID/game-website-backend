@@ -15,8 +15,8 @@ model Game {
     gameKey             String
     clockInitial        Int?
     clockIncrement      Int?
-    firstUsername       String      @unique
-    secondUsername      String      @unique
+    firstUsername       String?     @unique
+    secondUsername      String?     @unique
     firstUser           User?       @relation("first", fields: [firstUsername], references: [username])
     secondUser          User?       @relation("second", fields: [secondUsername], references: [username])
     rating              Int
