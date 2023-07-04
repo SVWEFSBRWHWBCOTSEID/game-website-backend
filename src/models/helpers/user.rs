@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use actix_web::web;
 
 use crate::models::general::{GamePerf, Perfs, Profile, Country};
@@ -94,7 +93,7 @@ impl user::Data {
             created_at: self.created_at.to_string(),
             perfs: serde_json::from_str(&self.perfs).unwrap(),
             profile: Profile {
-                country: Country::from_str(&self.country).unwrap(),
+                country: Country::from_str(&self.country),
                 location: self.location.clone(),
                 bio: self.bio.clone(),
                 first_name: self.first_name.clone(),

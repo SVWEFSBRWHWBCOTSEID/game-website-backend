@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use actix_web::web;
 
 use crate::get_key_name;
@@ -168,7 +167,7 @@ impl game::Data {
                 moves: self.moves.clone(),
                 first_time: self.first_time,
                 second_time: self.second_time,
-                status: GameStatus::from_str(&self.status).unwrap(),
+                status: GameStatus::from_str(&self.status),
             },
         }
     }

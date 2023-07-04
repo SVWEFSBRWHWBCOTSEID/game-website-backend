@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use strum_macros::EnumString;
 
 
 // struct for temporary use for player matching
@@ -65,7 +64,8 @@ pub struct Profile {
     pub last_name: String,
 }
 
-#[derive(Deserialize, Serialize, EnumString)]
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Country {
     Empty,
     Us,
@@ -73,13 +73,22 @@ pub enum Country {
     Mn,
 }
 
-#[derive(Deserialize, Serialize, EnumString)]
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum GameStatus {
     Waiting,
     Started,
+    FirstResigned,
+    SecondResigned,
+    FirstWon,
+    SecondWon,
+    FirstDrawOffer,
+    SecondDrawOffer,
+    Draw,
 }
 
-#[derive(Deserialize, Serialize, EnumString)]
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Side {
     First,
     Second,
