@@ -1,7 +1,7 @@
 use actix_session::Session;
 use actix_web::{web, HttpRequest, HttpResponse, get, post};
 
-use crate::CustomError;
+use crate::common::CustomError;
 use crate::prisma::{PrismaClient, user};
 use crate::models::req::{CreateUserReq, LoginReq};
 

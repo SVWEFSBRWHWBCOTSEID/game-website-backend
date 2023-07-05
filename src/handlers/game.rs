@@ -2,7 +2,7 @@ use actix_session::Session;
 use actix_web::{web, HttpRequest, HttpResponse, post};
 use rand::Rng;
 
-use crate::{CustomError, get_key_name};
+use crate::common::{CustomError, get_key_name};
 use crate::models::general::{MatchPlayer, Side, GameStatus};
 use crate::prisma::{PrismaClient, user, game};
 use crate::models::req::CreateGameReq;

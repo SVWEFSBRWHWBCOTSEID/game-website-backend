@@ -1,6 +1,6 @@
 use actix_web::web;
 
-use crate::get_key_name;
+use crate::common::get_key_name;
 use crate::models::general::{GameType, Clock, GameState, Player, MatchPlayer, GameStatus};
 use crate::prisma::{game, user};
 use crate::prisma::PrismaClient;
