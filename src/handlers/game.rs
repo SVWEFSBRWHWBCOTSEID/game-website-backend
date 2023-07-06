@@ -144,7 +144,7 @@ pub async fn add_move(
         .map_err(|_| CustomError::InternalError)
         .ok();
 
-    broadcaster.lock().unwrap().send(&new_move);
+    broadcaster.lock().unwrap().game_send(game_id, &new_move);
 
     Ok(HttpResponse::Ok().finish())
 }

@@ -1,17 +1,15 @@
-use actix_session::storage::RedisSessionStore;
-use actix_web::cookie::Key;
-use actix_web::{web, middleware, App, HttpServer};
 use actix_cors::Cors;
+use actix_session::storage::RedisSessionStore;
 use actix_session::SessionMiddleware;
+use actix_web::cookie::Key;
+use actix_web::{middleware, web, App, HttpServer};
 
 use game_backend::app_config::config_app;
 use game_backend::prisma::PrismaClient;
 use game_backend::sse::Broadcaster;
 
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    
     let client = web::Data::new(PrismaClient::_builder().build().await.unwrap());
 
     let secret_key = Key::generate();
@@ -31,7 +29,10 @@ async fn main() -> std::io::Result<()> {
             .app_data(client.clone())
             .app_data(broadcaster.clone())
             .wrap(middleware::Logger::default())
-            .wrap(SessionMiddleware::new(redis_store.clone(), secret_key.clone()))
+            .wrap(SessionMiddleware::new(
+                redis_store.clone(),
+                secret_key.clone(),
+            ))
             .wrap(cors)
             .configure(config_app)
     })

@@ -1,8 +1,12 @@
-use std::{task::{Poll, Context}, pin::Pin, time::Duration};
 use actix_web::web::{Bytes, Data};
 use futures::Stream;
 use std::sync::Mutex;
-use tokio::{sync::mpsc::{Sender, channel, Receiver}, time::{Instant, interval_at}};
+use std::pin::Pin;
+use std::time::Duration;
+use std::task::{Context, Poll};
+use std::collections::HashMap;
+use tokio::sync::mpsc::{channel, Receiver, Sender};
+use tokio::time::{interval_at, Instant};
 
 use crate::common::CustomError;
 
@@ -22,7 +26,8 @@ impl Stream for Client {
 }
 
 pub struct Broadcaster {
-    clients: Vec<Sender<Bytes>>,
+    user_clients: HashMap<String, Vec<Sender<Bytes>>>,
+    game_clients: HashMap<String, Vec<Sender<Bytes>>>,
 }
 
 impl Broadcaster {
@@ -35,7 +40,8 @@ impl Broadcaster {
 
     fn new() -> Self {
         Broadcaster {
-            clients: Vec::new()
+            user_clients: HashMap::new(),
+            game_clients: HashMap::new(),
         }
     }
 
@@ -51,32 +57,55 @@ impl Broadcaster {
     }
 
     fn remove_stale_clients(&mut self) {
-        let mut ok_clients = Vec::new();
-        for client in self.clients.iter() {
-            let result = client.clone().try_send(Bytes::from("event: internal_status\ndata: ping\n\n"));
-
-            if let Ok(()) = result {
-                ok_clients.push(client.clone());
-            }
+        for vec in self.user_clients.values_mut() {
+            vec.retain(|x| x.clone().try_send(Bytes::from("event: internal_status\ndata: ping\n\n")).is_ok());
         }
-        self.clients = ok_clients;
+        self.user_clients.retain(|_, v| v.len() != 0);
+
+        for vec in self.game_clients.values_mut() {
+            vec.retain(|x| x.clone().try_send(Bytes::from("event: internal_status\ndata: ping\n\n")).is_ok());
+        }
+        self.game_clients.retain(|_, v| v.len() != 0);
     }
 
-    pub fn new_client(&mut self) -> Client {
+    pub fn new_user_client(&mut self, username: String) -> Client {
         let (tx, rx) = channel(100);
 
         tx.clone()
             .try_send(Bytes::from("data: connected\n\n"))
             .unwrap();
 
-        self.clients.push(tx);
+        self.user_clients.entry(username)
+            .and_modify(|v| v.push(tx.clone()))
+            .or_insert(vec![tx]);
         Client(rx)
     }
 
-    pub fn send(&self, msg: &str) {
+    pub fn new_game_client(&mut self, game_id: String) -> Client {
+        let (tx, rx) = channel(100);
+
+        tx.clone()
+            .try_send(Bytes::from("data: connected\n\n"))
+            .unwrap();
+
+        self.game_clients.entry(game_id)
+            .and_modify(|v| v.push(tx.clone()))
+            .or_insert(vec![tx]);
+        Client(rx)
+    }
+
+    pub fn user_send(&self, username: String, msg: &str) {
         let msg = Bytes::from(["data: ", msg, "\n\n"].concat());
 
-        for client in self.clients.iter() {
+        for client in self.user_clients.get(&username).unwrap().iter() {
+            client.clone().try_send(msg.clone()).unwrap_or(());
+        }
+    }
+
+    pub fn game_send(&self, game_id: String, msg: &str) {
+        let msg = Bytes::from(["data: ", msg, "\n\n"].concat());
+
+        for client in self.game_clients.get(&game_id).unwrap().iter() {
             client.clone().try_send(msg.clone()).unwrap_or(());
         }
     }

@@ -1,19 +1,18 @@
 use actix_web::web;
 
 use crate::common::get_key_name;
-use crate::models::general::{GameType, Clock, GameState, Player, MatchPlayer, GameStatus};
-use crate::prisma::{game, user};
-use crate::prisma::PrismaClient;
+use crate::models::general::{Clock, GameState, GameStatus, GameType, MatchPlayer, Player};
 use crate::models::req::CreateGameReq;
 use crate::models::res::GameResponse;
-
+use crate::prisma::PrismaClient;
+use crate::prisma::{game, user};
 
 impl CreateGameReq {
     // method to validate this game request
     pub fn validate(&self, player: &MatchPlayer) -> bool {
-        self.time.unwrap_or(1) != 0 &&
-        player.rating > self.rating_min &&
-        player.rating < self.rating_max
+        self.time.unwrap_or(1) != 0
+            && player.rating > self.rating_min
+            && player.rating < self.rating_max
     }
 
     // method to add a game to table from this game request
@@ -23,7 +22,6 @@ impl CreateGameReq {
         game_key: &str,
         player: &MatchPlayer,
     ) -> game::Data {
-
         client
             .game()
             .create(
@@ -59,50 +57,49 @@ impl CreateGameReq {
         game_key: &str,
         player: &MatchPlayer,
     ) -> Option<game::Data> {
-
         let games: Vec<game::Data> = client
             .game()
             .find_many(vec![
                 game::game_key::equals(game_key.to_string()),
                 game::clock_initial::equals(self.time),
                 game::clock_increment::equals(self.increment),
-                if player.first { game::first_username::equals(None) }
-                else { game::second_username::equals(None) },
+                if player.first {
+                    game::first_username::equals(None)
+                } else {
+                    game::second_username::equals(None)
+                },
             ])
             .exec()
             .await
             .unwrap();
 
-        let filtered_games = games
-            .iter()
-            .filter(|g| {
-                player.rating_min < g.rating && player.rating_max > g.rating &&
-                g.rating_min < player.rating && g.rating_max > player.rating
-            });
+        let filtered_games = games.iter().filter(|g| {
+            player.rating_min < g.rating
+                && player.rating_max > g.rating
+                && g.rating_min < player.rating
+                && g.rating_max > player.rating
+        });
 
         if filtered_games.clone().count() == 0 {
             return None;
         }
 
-        let game = filtered_games
-            .min_by_key(|g| g.created_at)
-            .unwrap();
+        let game = filtered_games.min_by_key(|g| g.created_at).unwrap();
 
-        Some(client
-            .game()
-            .update(
-                game::id::equals(game.id.clone()),
-                vec![
-                    if player.first {
+        Some(
+            client
+                .game()
+                .update(
+                    game::id::equals(game.id.clone()),
+                    vec![if player.first {
                         game::first_user::connect(user::username::equals(player.username.clone()))
                     } else {
                         game::second_user::connect(user::username::equals(player.username.clone()))
-                    },
-                ],
-            )
-            .exec()
-            .await
-            .unwrap()
+                    }],
+                )
+                .exec()
+                .await
+                .unwrap(),
         )
     }
 }
@@ -110,7 +107,6 @@ impl CreateGameReq {
 impl game::Data {
     // method to construct reponse from prisma game struct
     pub async fn to_game_res(&self, client: &web::Data<PrismaClient>) -> GameResponse {
-
         GameResponse {
             id: self.id.clone(),
             created_at: self.created_at.to_string(),
@@ -137,7 +133,7 @@ impl game::Data {
                         provisional: user.get_provisional(&self.game_key).unwrap(),
                         rating: user.get_rating(&self.game_key).unwrap(),
                     })
-                },
+                }
                 None => None,
             },
             second_player: match &self.second_username {
@@ -154,7 +150,7 @@ impl game::Data {
                         provisional: user.get_provisional(&self.game_key).unwrap(),
                         rating: user.get_rating(&self.game_key).unwrap(),
                     })
-                },
+                }
                 None => None,
             },
             start_pos: self.start_pos.clone(),

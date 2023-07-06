@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-
 // struct for temporary use for player matching
 pub struct MatchPlayer {
     pub username: String,
@@ -98,5 +97,9 @@ pub enum Side {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum EventType {
-    
+    GameStart,
+    GameFinish,
+    ChatMessage,
+    GameState,
+    GameFull,
 }
