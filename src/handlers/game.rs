@@ -1,4 +1,7 @@
+use std::sync::Mutex;
+
 use actix_session::Session;
+use actix_web::web::Data;
 use actix_web::{web, HttpRequest, HttpResponse, post};
 use rand::Rng;
 
@@ -6,6 +9,7 @@ use crate::common::{CustomError, get_key_name};
 use crate::models::general::{MatchPlayer, Side, GameStatus};
 use crate::prisma::{PrismaClient, user, game};
 use crate::models::req::CreateGameReq;
+use crate::sse::Broadcaster;
 
 
 // route for creating a new game
@@ -87,6 +91,7 @@ pub async fn add_move(
     req: HttpRequest,
     client: web::Data<PrismaClient>,
     session: Session,
+    broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, CustomError> {
 
     let username: String = match session.get("username") {
@@ -138,6 +143,8 @@ pub async fn add_move(
         .await
         .map_err(|_| CustomError::InternalError)
         .ok();
+
+    broadcaster.lock().unwrap().send(&new_move);
 
     Ok(HttpResponse::Ok().finish())
 }

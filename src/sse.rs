@@ -1,7 +1,7 @@
 use std::{task::{Poll, Context}, pin::Pin, time::Duration};
 use actix_web::web::{Bytes, Data};
 use futures::Stream;
-use parking_lot::Mutex;
+use std::sync::Mutex;
 use tokio::{sync::mpsc::{Sender, channel, Receiver}, time::{Instant, interval_at}};
 
 use crate::common::CustomError;
@@ -45,7 +45,7 @@ impl Broadcaster {
             let mut interval = interval_at(Instant::now(), Duration::from_secs(10));
             loop {
                 interval.tick().await;
-                me.lock().remove_stale_clients();
+                me.lock().unwrap().remove_stale_clients();
             }
         });
     }
@@ -73,8 +73,8 @@ impl Broadcaster {
         Client(rx)
     }
 
-    pub fn send(&self, evt: &str, msg: &str) {
-        let msg = Bytes::from(["event: ", evt, "\n", "data: ", msg, "\n\n"].concat());
+    pub fn send(&self, msg: &str) {
+        let msg = Bytes::from(["data: ", msg, "\n\n"].concat());
 
         for client in self.clients.iter() {
             client.clone().try_send(msg.clone()).unwrap_or(());

@@ -31,8 +31,8 @@ async fn main() -> std::io::Result<()> {
             .app_data(client.clone())
             .app_data(broadcaster.clone())
             .wrap(middleware::Logger::default())
-            .wrap(cors)
             .wrap(SessionMiddleware::new(redis_store.clone(), secret_key.clone()))
+            .wrap(cors)
             .configure(config_app)
     })
     .bind(("127.0.0.1", 8080))?

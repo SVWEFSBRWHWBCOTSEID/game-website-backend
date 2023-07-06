@@ -1205,7 +1205,6 @@ dependencies = [
  "env_logger",
  "futures",
  "log",
- "parking_lot 0.12.1",
  "phf",
  "prisma-client-rust",
  "rand 0.8.5",
