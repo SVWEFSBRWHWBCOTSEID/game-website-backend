@@ -1205,13 +1205,13 @@ dependencies = [
  "env_logger",
  "futures",
  "log",
+ "nanoid",
  "phf",
  "prisma-client-rust",
  "rand 0.8.5",
  "serde",
  "serde_json",
  "tokio",
- "uuid",
 ]
 
 [[package]]
