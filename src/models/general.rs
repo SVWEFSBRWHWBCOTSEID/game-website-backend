@@ -24,7 +24,7 @@ pub struct GameType {
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct Clock {
+pub struct TimeControl {
     pub initial: Option<i32>,
     pub increment: Option<i32>,
 }
@@ -92,14 +92,4 @@ pub enum Side {
     First,
     Second,
     Random,
-}
-
-#[derive(Deserialize, Serialize)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum EventType {
-    GameStart,
-    GameFinish,
-    ChatMessage,
-    GameState,
-    GameFull,
 }

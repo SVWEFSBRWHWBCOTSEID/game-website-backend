@@ -6,9 +6,10 @@ use actix_web::{web, HttpRequest, HttpResponse, post};
 use rand::Rng;
 
 use crate::common::{CustomError, get_key_name};
+use crate::models::events::{GameEvent, GameStateEvent, EventType};
 use crate::models::general::{MatchPlayer, Side, GameStatus};
 use crate::prisma::{PrismaClient, user, game};
-use crate::models::req::CreateGameReq;
+use crate::models::req::{CreateGameReq, ChatMessageReq};
 use crate::sse::Broadcaster;
 
 
@@ -144,7 +145,13 @@ pub async fn add_move(
         .map_err(|_| CustomError::InternalError)
         .ok();
 
-    broadcaster.lock().unwrap().game_send(game_id, &new_move);
+    broadcaster.lock().unwrap().game_send(game_id, GameEvent::GameStateEvent(GameStateEvent {
+        r#type: EventType::GameState,
+        ftime: game.first_time,
+        stime: game.second_time,
+        r#move: new_move,
+        status: GameStatus::from_str(&game.status),
+    }));
 
     Ok(HttpResponse::Ok().finish())
 }
@@ -261,6 +268,44 @@ pub async fn offer_draw(
                     _ => game.status,
                 }),
             ],
+        )
+        .exec()
+        .await
+        .map_err(|_| CustomError::InternalError)
+        .ok();
+
+    Ok(HttpResponse::Ok().finish())
+}
+
+// route for sending chat message in a game
+#[post("/api/game/{id}/chat/{visibility}")]
+pub async fn send_chat(
+    req: HttpRequest,
+    client: web::Data<PrismaClient>,
+    session: Session,
+    data: web::Json<ChatMessageReq>,
+) -> Result<HttpResponse, CustomError> {
+
+    let username: String = match session.get("username") {
+        Ok(o) => match o {
+            Some(u) => u,
+            None => return Err(CustomError::Unauthorized),
+        },
+        Err(_) => return Err(CustomError::Unauthorized),
+    };
+
+    let chat_message_req = data.into_inner();
+    let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
+    let visibility: String = req.match_info().get("visibility").unwrap().parse().unwrap();
+
+    client
+        .message()
+        .create(
+            game::id::equals(game_id),
+            username,
+            chat_message_req.message,
+            visibility,
+            vec![],
         )
         .exec()
         .await

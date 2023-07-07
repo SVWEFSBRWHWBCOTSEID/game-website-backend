@@ -1,7 +1,7 @@
 pub mod game;
 pub mod user;
 
-use super::general::{GameStatus, Country};
+use super::{general::{GameStatus, Country}, events::Visibility};
 
 
 impl GameStatus {
@@ -50,6 +50,27 @@ impl Country {
             "Uk" => Self::Uk,
             "Mn" => Self::Mn,
             _ => Self::Empty,
+        }
+    }
+}
+
+impl Visibility {
+    pub fn to_string(&self) -> String {
+        match self {
+            Self::Player => "Player",
+            Self::Spectator => "Spectator",
+            Self::Team1 => "Team1",
+            Self::Team2 => "Team2",
+        }.to_string()
+    }
+
+    pub fn from_str(string: &str) -> Self {
+        match string {
+            "Player" => Self::Player,
+            "Spectator" => Self::Spectator,
+            "Team1" => Self::Team1,
+            "Team2" => Self::Team2,
+            _ => Self::Player,
         }
     }
 }

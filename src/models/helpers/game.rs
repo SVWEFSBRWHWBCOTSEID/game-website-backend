@@ -1,7 +1,7 @@
 use actix_web::web;
 
 use crate::common::get_key_name;
-use crate::models::general::{Clock, GameState, GameStatus, GameType, MatchPlayer, Player};
+use crate::models::general::{TimeControl, GameState, GameStatus, GameType, MatchPlayer, Player};
 use crate::models::req::CreateGameReq;
 use crate::models::res::GameResponse;
 use crate::prisma::PrismaClient;
@@ -115,7 +115,7 @@ impl game::Data {
                 key: self.game_key.clone(),
                 name: get_key_name(&self.game_key).unwrap(),
             },
-            clock: Clock {
+            clock: TimeControl {
                 initial: self.clock_initial,
                 increment: self.clock_increment,
             },

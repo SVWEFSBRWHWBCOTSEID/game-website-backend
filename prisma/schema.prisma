@@ -24,6 +24,7 @@ model Game {
     ratingMax           Int
     startPos            String?
     moves               String
+    chat                Message[]
     firstTime           Int?
     secondTime          Int?
     status              String
@@ -43,4 +44,13 @@ model User {
     playing         String?
     firstUserGame   Game?       @relation("first")
     secondUserGame  Game?       @relation("second")
+}
+
+model Message {
+    id          String  @id @default(uuid())
+    game        Game    @relation(fields: [gameId], references: [id])
+    gameId      String
+    username    String
+    text        String
+    visibility  String
 }

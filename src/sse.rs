@@ -9,6 +9,7 @@ use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tokio::time::{interval_at, Instant};
 
 use crate::common::CustomError;
+use crate::models::events::{GameEvent, UserEvent};
 
 
 pub struct Client(Receiver<Bytes>);
@@ -94,16 +95,16 @@ impl Broadcaster {
         Client(rx)
     }
 
-    pub fn user_send(&self, username: String, msg: &str) {
-        let msg = Bytes::from(["data: ", msg, "\n\n"].concat());
+    pub fn user_send(&self, username: String, msg: UserEvent) {
+        let msg = Bytes::from(["data: ", &serde_json::to_string(&msg).unwrap()].concat());
 
         for client in self.user_clients.get(&username).unwrap().iter() {
             client.clone().try_send(msg.clone()).unwrap_or(());
         }
     }
 
-    pub fn game_send(&self, game_id: String, msg: &str) {
-        let msg = Bytes::from(["data: ", msg, "\n\n"].concat());
+    pub fn game_send(&self, game_id: String, msg: GameEvent) {
+        let msg = Bytes::from(["data: ", &serde_json::to_string(&msg).unwrap()].concat());
 
         for client in self.game_clients.get(&game_id).unwrap().iter() {
             client.clone().try_send(msg.clone()).unwrap_or(());
