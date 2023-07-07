@@ -131,7 +131,7 @@ pub async fn add_move(
             vec![
                 game::moves::set({
                     let mut moves = game.moves;
-                    match moves.chars().count() {
+                    match moves.len() {
                         0 => moves.push_str(&new_move),
                         _ => {
                             moves.push_str(" ");
