@@ -115,7 +115,7 @@ pub async fn add_move(
         None => return Err(CustomError::BadRequest),
     };
 
-    let first_to_move = game.moves.len() % 2 == 0;
+    let first_to_move = game.moves.split(" ").collect::<Vec<&str>>().len() % 2 == 0;
 
     // respond with 400 if user is not signed in as a player in this game
     if first_to_move && game.first_username.unwrap() != username ||
