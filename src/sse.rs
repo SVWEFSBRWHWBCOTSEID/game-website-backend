@@ -88,7 +88,7 @@ impl Broadcaster {
     }
 
     pub fn user_send(&self, username: String, msg: UserEvent) {
-        let msg = Bytes::from(["data: ", &serde_json::to_string(&msg).unwrap(), "\n\n"].concat());
+        let msg = Bytes::from(["data: ", &msg.to_string(), "\n\n"].concat());
 
         for client in self.user_clients.get(&username).unwrap().iter() {
             client.clone().try_send(msg.clone()).unwrap_or(());
@@ -96,7 +96,7 @@ impl Broadcaster {
     }
 
     pub fn game_send(&self, game_id: String, msg: GameEvent) {
-        let msg = Bytes::from(["data: ", &serde_json::to_string(&msg).unwrap(), "\n\n"].concat());
+        let msg = Bytes::from(["data: ", &msg.to_string(), "\n\n"].concat());
 
         for client in self.game_clients.get(&game_id).unwrap().iter() {
             client.clone().try_send(msg.clone()).unwrap_or(());

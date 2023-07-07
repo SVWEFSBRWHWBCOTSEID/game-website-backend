@@ -11,10 +11,28 @@ pub enum GameEvent {
     GameFullEvent(GameFullEvent),
 }
 
+impl GameEvent {
+    pub fn to_string(&self) -> String {
+        match self {
+            GameEvent::ChatMessageEvent(e) => serde_json::to_string(e).unwrap(),
+            GameEvent::GameStateEvent(e) => serde_json::to_string(e).unwrap(),
+            GameEvent::GameFullEvent(e) => serde_json::to_string(e).unwrap(),
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub enum UserEvent {
     
+}
+
+impl UserEvent {
+    pub fn to_string(&self) -> String {
+        match self {
+            _ => todo!()
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize)]

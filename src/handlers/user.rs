@@ -1,4 +1,5 @@
 use actix_session::Session;
+use actix_web::cookie::Cookie;
 use actix_web::{web, HttpRequest, HttpResponse, get, post};
 
 use crate::common::CustomError;
@@ -81,13 +82,18 @@ pub async fn login(
         Err(_) => return Err(CustomError::InternalError),
         _ => {},
     }
-    Ok(HttpResponse::Ok().json(user.to_user_res()))
+
+    let cookie = Cookie::new("username", &user.username);
+    let mut res = HttpResponse::Ok().json(user.to_user_res());
+    res.add_cookie(&cookie).unwrap();
+    Ok(res)
 }
 
 // route for logging in user
 #[post("api/logout")]
 pub async fn logout(session: Session) -> Result<HttpResponse, CustomError> {
-    
     session.purge();
-    Ok(HttpResponse::Ok().finish())
+    let mut res = HttpResponse::Ok().finish();
+    res.del_cookie("username");
+    Ok(res)
 }
