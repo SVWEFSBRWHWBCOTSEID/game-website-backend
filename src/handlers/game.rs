@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use std::{sync::Mutex, time::SystemTime};
 use actix_session::Session;
 use actix_web::{web::{Json, Data}, HttpRequest, HttpResponse, post};
 use rand::Rng;
@@ -116,7 +116,7 @@ pub async fn add_move(
     };
 
     let moves_len = game.moves.split(" ").collect::<Vec<&str>>().len();
-    let first_to_move = if moves_len == 0 {
+    let first_to_move = if game.moves.len() == 0 {
         true
     } else {
         moves_len % 2 == 0
@@ -128,6 +128,13 @@ pub async fn add_move(
 
         return Err(CustomError::BadRequest);
     }
+
+    let old_last_move_time = game.last_move_time;
+    let current_time = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_millis()
+    as i64;
 
     client
         .game()
@@ -145,6 +152,7 @@ pub async fn add_move(
                     }
                     moves
                 }),
+                game::last_move_time::set(current_time),
                 game::status::set(GameStatus::Started.to_string()),
             ],
         )
@@ -155,8 +163,22 @@ pub async fn add_move(
 
     broadcaster.lock().unwrap().game_send(game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
-        ftime: game.first_time,
-        stime: game.second_time,
+        ftime: match game.first_time {
+            Some(t) => if moves_len >= 2 && moves_len % 2 == 0 {
+                Some(t - (current_time - old_last_move_time) as i32)
+            } else {
+                Some(t)
+            },
+            None => None,
+        },
+        stime: match game.second_time {
+            Some(t) => if moves_len >= 2 && moves_len % 2 == 1 {
+                Some(t - (current_time - old_last_move_time) as i32)
+            } else {
+                Some(t)
+            },
+            None => None,
+        },
         moves: vec![new_move],
         status: GameStatus::from_str(&game.status),
     }));
