@@ -1,7 +1,7 @@
 use actix_cors::Cors;
 use actix_session::storage::RedisSessionStore;
 use actix_session::SessionMiddleware;
-use actix_web::cookie::Key;
+use actix_web::cookie::{Key, SameSite};
 use actix_web::{middleware, web, App, HttpServer};
 
 use game_backend::app_config::config_app;
@@ -29,10 +29,14 @@ async fn main() -> std::io::Result<()> {
             .app_data(client.clone())
             .app_data(broadcaster.clone())
             .wrap(middleware::Logger::default())
-            .wrap(SessionMiddleware::new(
-                redis_store.clone(),
-                secret_key.clone(),
-            ))
+            .wrap(
+                SessionMiddleware::builder(
+                    redis_store.clone(),
+                    secret_key.clone(),
+                )
+                .cookie_same_site(SameSite::None)
+                .build()
+            )
             .wrap(cors)
             .configure(config_app)
     })

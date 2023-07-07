@@ -1,8 +1,7 @@
 use std::sync::Mutex;
 
 use actix_session::Session;
-use actix_web::web::Data;
-use actix_web::{web, HttpRequest, HttpResponse, post};
+use actix_web::{web::{Json, Data}, HttpRequest, HttpResponse, post};
 use rand::Rng;
 
 use crate::common::{CustomError, get_key_name};
@@ -17,9 +16,9 @@ use crate::sse::Broadcaster;
 #[post("/api/game/new/{game}")]
 pub async fn create_game(
     req: HttpRequest,
-    client: web::Data<PrismaClient>,
+    client: Data<PrismaClient>,
     session: Session,
-    data: web::Json<CreateGameReq>,
+    data: Json<CreateGameReq>,
 ) -> Result<HttpResponse, CustomError> {
 
     let username: String = match session.get("username") {
@@ -90,7 +89,7 @@ pub async fn create_game(
 #[post("/api/game/{id}/move/{move}")]
 pub async fn add_move(
     req: HttpRequest,
-    client: web::Data<PrismaClient>,
+    client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, CustomError> {
@@ -122,7 +121,7 @@ pub async fn add_move(
     // respond with 400 if user is not signed in as a player in this game
     if first_to_move && game.first_username.unwrap() != username ||
         !first_to_move && game.second_username.unwrap() != username {
-            
+
         return Err(CustomError::BadRequest);
     }
 
@@ -160,7 +159,7 @@ pub async fn add_move(
 #[post("/api/game/{id}/resign")]
 pub async fn resign(
     req: HttpRequest,
-    client: web::Data<PrismaClient>,
+    client: Data<PrismaClient>,
     session: Session,
 ) -> Result<HttpResponse, CustomError> {
 
@@ -216,7 +215,7 @@ pub async fn resign(
 #[post("/api/game/{id}/draw/{value}")]
 pub async fn offer_draw(
     req: HttpRequest,
-    client: web::Data<PrismaClient>,
+    client: Data<PrismaClient>,
     session: Session,
 ) -> Result<HttpResponse, CustomError> {
 
@@ -281,9 +280,9 @@ pub async fn offer_draw(
 #[post("/api/game/{id}/chat/{visibility}")]
 pub async fn send_chat(
     req: HttpRequest,
-    client: web::Data<PrismaClient>,
+    client: Data<PrismaClient>,
     session: Session,
-    data: web::Json<ChatMessageReq>,
+    data: Json<ChatMessageReq>,
 ) -> Result<HttpResponse, CustomError> {
 
     let username: String = match session.get("username") {
