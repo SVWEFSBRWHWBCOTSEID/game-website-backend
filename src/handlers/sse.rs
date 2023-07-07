@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 use actix_session::Session;
-use actix_web::web::{Data, self};
+use actix_web::web::{Data};
 use actix_web::{HttpResponse, get, HttpRequest};
 
 use crate::common::CustomError;
@@ -37,7 +37,7 @@ pub async fn new_user_client(
 #[get("/api/game/{id}/events")]
 pub async fn new_game_client(
     req: HttpRequest,
-    client: web::Data<PrismaClient>,
+    client: Data<PrismaClient>,
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, CustomError> {
 
@@ -84,7 +84,11 @@ pub async fn new_game_client(
             ftime: game.first_time,
             stime: game.second_time,
             status: GameStatus::from_str(&game.status),
-            moves: vec![],
+            moves: if game.moves.len() > 0 {
+                game.moves.split(" ").map(|s| s.to_string()).collect()
+            } else {
+                vec![]
+            },
         },
     }));
 
