@@ -9,10 +9,25 @@ use crate::prisma::{game, user};
 
 impl CreateGameReq {
     // method to validate this game request
-    pub fn validate(&self, player: &MatchPlayer) -> bool {
+    pub async fn validate(
+        &self, 
+        client: &web::Data<PrismaClient>,
+        player: &MatchPlayer,
+    ) -> bool {
+        let user = client
+            .user()
+            .find_unique(user::username::equals(player.username.clone()))
+            .with(user::first_user_game::fetch())
+            .with(user::second_user_game::fetch())
+            .exec()
+            .await
+            .unwrap()
+            .unwrap();
         self.time.unwrap_or(1) != 0
             && player.rating > self.rating_min
             && player.rating < self.rating_max
+            && user.first_user_game().unwrap().is_none()
+            && user.second_user_game().unwrap().is_none()
     }
 
     // method to add a game to table from this game request

@@ -63,7 +63,7 @@ pub async fn create_game(
     };
 
     // respond with 400 if request is invalid
-    if !create_game_req.validate(&match_player) {
+    if !create_game_req.validate(&client, &match_player).await {
         return Err(CustomError::BadRequest);
     }
 
