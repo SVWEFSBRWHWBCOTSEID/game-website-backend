@@ -44,11 +44,25 @@ impl CreateGameReq {
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
         ];
+        let mut id: String;
+        loop {
+            id = nanoid!{6, &alphabet};
+            if client
+                .game()
+                .find_unique(game::id::equals(id.clone()))
+                .exec()
+                .await
+                .unwrap()
+                .is_none()
+            {
+                break;
+            }
+        }
 
         client
             .game()
             .create(
-                nanoid!{6, &alphabet},
+                id,
                 self.rated,
                 game_key.to_string(),
                 player.rating,
