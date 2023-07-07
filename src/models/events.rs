@@ -49,7 +49,7 @@ pub struct GameStateEvent {
     pub r#type: GameEventType,
     pub ftime: Option<i32>,
     pub stime: Option<i32>,
-    pub r#move: String,
+    pub moves: Vec<String>,
     pub status: GameStatus,
 }
 
@@ -70,8 +70,8 @@ pub struct GameFullEvent {
 pub struct GameState {
     pub ftime: Option<i32>,
     pub stime: Option<i32>,
-    pub status: GameStatus,
     pub moves: Vec<String>,
+    pub status: GameStatus,
 }
 
 #[derive(Deserialize, Serialize)]

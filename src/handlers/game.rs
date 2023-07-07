@@ -147,7 +147,7 @@ pub async fn add_move(
         r#type: GameEventType::GameState,
         ftime: game.first_time,
         stime: game.second_time,
-        r#move: new_move,
+        moves: vec![new_move],
         status: GameStatus::from_str(&game.status),
     }));
 
