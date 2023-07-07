@@ -131,8 +131,13 @@ pub async fn add_move(
             vec![
                 game::moves::set({
                     let mut moves = game.moves;
-                    moves.push_str(&new_move);
-                    moves.push_str(" ");
+                    match moves.chars().count() {
+                        0 => moves.push_str(&new_move),
+                        _ => {
+                            moves.push_str(" ");
+                            moves.push_str(&new_move);
+                        },
+                    }
                     moves
                 }),
                 game::status::set(GameStatus::Started.to_string()),
