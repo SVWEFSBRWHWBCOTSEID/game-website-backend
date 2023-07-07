@@ -115,7 +115,7 @@ impl game::Data {
                 key: self.game_key.clone(),
                 name: get_key_name(&self.game_key).unwrap(),
             },
-            clock: TimeControl {
+            time_control: TimeControl {
                 initial: self.clock_initial,
                 increment: self.clock_increment,
             },

@@ -84,6 +84,7 @@ pub async fn new_game_client(
             ftime: game.first_time,
             stime: game.second_time,
             status: GameStatus::from_str(&game.status),
+            moves: vec![],
         },
     }));
 

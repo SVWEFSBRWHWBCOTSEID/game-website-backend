@@ -1,5 +1,5 @@
 use actix_session::Session;
-use actix_web::cookie::Cookie;
+use actix_web::cookie::{Cookie, SameSite};
 use actix_web::{web, HttpRequest, HttpResponse, get, post};
 
 use crate::common::CustomError;
@@ -26,7 +26,14 @@ pub async fn create_user(
         Err(_) => return Err(CustomError::InternalError),
         _ => {},
     }
-    Ok(HttpResponse::Ok().json(user.to_user_res()))
+
+    let mut cookie = Cookie::new("username", &user.username);
+    cookie.set_same_site(SameSite::None);
+    cookie.set_path("/");
+
+    let mut res = HttpResponse::Ok().json(user.to_user_res());
+    res.add_cookie(&cookie).unwrap();
+    Ok(res)
 }
 
 // route for getting user info
@@ -83,7 +90,10 @@ pub async fn login(
         _ => {},
     }
 
-    let cookie = Cookie::new("username", &user.username);
+    let mut cookie = Cookie::new("username", &user.username);
+    cookie.set_same_site(SameSite::None);
+    cookie.set_path("/");
+
     let mut res = HttpResponse::Ok().json(user.to_user_res());
     res.add_cookie(&cookie).unwrap();
     Ok(res)
@@ -91,9 +101,19 @@ pub async fn login(
 
 // route for logging in user
 #[post("api/logout")]
-pub async fn logout(session: Session) -> Result<HttpResponse, CustomError> {
+pub async fn logout(req: HttpRequest, session: Session) -> Result<HttpResponse, CustomError> {
     session.purge();
     let mut res = HttpResponse::Ok().finish();
-    res.del_cookie("username");
+
+    match req.cookie("username") {
+        Some(mut cookie) => {
+            cookie.make_removal();
+            cookie.set_same_site(SameSite::None);
+            cookie.set_path("/");
+            res.add_cookie(&cookie).expect("failed to remove username cookie");
+        },
+        None => {},
+    }
+
     Ok(res)
 }

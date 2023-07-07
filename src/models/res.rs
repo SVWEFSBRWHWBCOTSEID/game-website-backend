@@ -10,7 +10,7 @@ pub struct GameResponse {
     pub created_at: String,
     pub rated: bool,
     pub game: GameType,
-    pub clock: TimeControl,
+    pub time_control: TimeControl,
     pub first_player: Option<Player>,
     pub second_player: Option<Player>,
     pub start_pos: Option<String>,

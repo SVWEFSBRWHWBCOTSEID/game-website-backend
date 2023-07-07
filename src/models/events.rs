@@ -4,7 +4,6 @@ use super::general::{GameStatus, TimeControl, Player};
 
 
 #[derive(Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub enum GameEvent {
     ChatMessageEvent(ChatMessageEvent),
     GameStateEvent(GameStateEvent),
@@ -36,6 +35,7 @@ impl UserEvent {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ChatMessageEvent {
     pub r#type: GameEventType,
     pub username: String,
@@ -44,6 +44,7 @@ pub struct ChatMessageEvent {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GameStateEvent {
     pub r#type: GameEventType,
     pub ftime: Option<i32>,
@@ -53,6 +54,7 @@ pub struct GameStateEvent {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GameFullEvent {
     pub r#type: GameEventType,
     pub rated: bool,
@@ -69,6 +71,7 @@ pub struct GameState {
     pub ftime: Option<i32>,
     pub stime: Option<i32>,
     pub status: GameStatus,
+    pub moves: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize)]
