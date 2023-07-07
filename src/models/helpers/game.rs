@@ -69,6 +69,7 @@ impl CreateGameReq {
                 self.rating_min,
                 self.rating_max,
                 "".to_string(),
+                0,
                 "Waiting".to_string(),
                 vec![
                     game::clock_initial::set(self.time),
