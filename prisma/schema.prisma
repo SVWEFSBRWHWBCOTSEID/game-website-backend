@@ -9,7 +9,7 @@ generator client {
 }
 
 model Game {
-    id                  String      @id @default(uuid())
+    id                  String      @id
     createdAt           DateTime    @default(now())
     rated               Boolean
     gameKey             String

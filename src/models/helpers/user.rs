@@ -5,6 +5,7 @@ use crate::models::res::UserResponse;
 use crate::prisma::{user, PrismaClient};
 use crate::models::req::CreateUserReq;
 
+
 impl CreateUserReq {
     // method to check that this username does not already exist
     pub async fn validate(&self, client: &web::Data<PrismaClient>) -> bool {
