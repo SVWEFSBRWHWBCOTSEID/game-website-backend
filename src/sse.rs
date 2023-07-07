@@ -72,10 +72,6 @@ impl Broadcaster {
     pub fn new_user_client(&mut self, username: String) -> Client {
         let (tx, rx) = channel(100);
 
-        tx.clone()
-            .try_send(Bytes::from("data: connected\n\n"))
-            .unwrap();
-
         self.user_clients.entry(username)
             .and_modify(|v| v.push(tx.clone()))
             .or_insert(vec![tx]);
@@ -85,10 +81,6 @@ impl Broadcaster {
     pub fn new_game_client(&mut self, game_id: String) -> Client {
         let (tx, rx) = channel(100);
 
-        tx.clone()
-            .try_send(Bytes::from("data: connected\n\n"))
-            .unwrap();
-
         self.game_clients.entry(game_id)
             .and_modify(|v| v.push(tx.clone()))
             .or_insert(vec![tx]);
@@ -96,7 +88,7 @@ impl Broadcaster {
     }
 
     pub fn user_send(&self, username: String, msg: UserEvent) {
-        let msg = Bytes::from(["data: ", &serde_json::to_string(&msg).unwrap()].concat());
+        let msg = Bytes::from(["data: ", &serde_json::to_string(&msg).unwrap(), "\n\n"].concat());
 
         for client in self.user_clients.get(&username).unwrap().iter() {
             client.clone().try_send(msg.clone()).unwrap_or(());
@@ -104,7 +96,7 @@ impl Broadcaster {
     }
 
     pub fn game_send(&self, game_id: String, msg: GameEvent) {
-        let msg = Bytes::from(["data: ", &serde_json::to_string(&msg).unwrap()].concat());
+        let msg = Bytes::from(["data: ", &serde_json::to_string(&msg).unwrap(), "\n\n"].concat());
 
         for client in self.game_clients.get(&game_id).unwrap().iter() {
             client.clone().try_send(msg.clone()).unwrap_or(());
