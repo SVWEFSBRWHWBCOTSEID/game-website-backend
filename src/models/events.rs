@@ -19,7 +19,7 @@ pub enum UserEvent {
 
 #[derive(Deserialize, Serialize)]
 pub struct ChatMessageEvent {
-    pub r#type: EventType,
+    pub r#type: GameEventType,
     pub username: String,
     pub text: String,
     pub visibility: Visibility,
@@ -27,7 +27,7 @@ pub struct ChatMessageEvent {
 
 #[derive(Deserialize, Serialize)]
 pub struct GameStateEvent {
-    pub r#type: EventType,
+    pub r#type: GameEventType,
     pub ftime: Option<i32>,
     pub stime: Option<i32>,
     pub r#move: String,
@@ -36,7 +36,7 @@ pub struct GameStateEvent {
 
 #[derive(Deserialize, Serialize)]
 pub struct GameFullEvent {
-    pub r#type: EventType,
+    pub r#type: GameEventType,
     pub rated: bool,
     pub time_control: TimeControl,
     pub created_at: String,
@@ -62,9 +62,13 @@ pub struct ChatMessage {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum EventType {
+pub enum UserEventType {
     GameStart,
-    GameFinish,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum GameEventType {
     ChatMessage,
     GameState,
     GameFull,

@@ -6,7 +6,7 @@ use actix_web::{web, HttpRequest, HttpResponse, post};
 use rand::Rng;
 
 use crate::common::{CustomError, get_key_name};
-use crate::models::events::{GameEvent, GameStateEvent, EventType};
+use crate::models::events::{GameEvent, GameStateEvent, GameEventType};
 use crate::models::general::{MatchPlayer, Side, GameStatus};
 use crate::prisma::{PrismaClient, user, game};
 use crate::models::req::{CreateGameReq, ChatMessageReq};
@@ -146,7 +146,7 @@ pub async fn add_move(
         .ok();
 
     broadcaster.lock().unwrap().game_send(game_id, GameEvent::GameStateEvent(GameStateEvent {
-        r#type: EventType::GameState,
+        r#type: GameEventType::GameState,
         ftime: game.first_time,
         stime: game.second_time,
         r#move: new_move,
