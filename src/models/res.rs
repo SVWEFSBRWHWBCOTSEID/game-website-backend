@@ -5,7 +5,7 @@ use super::general::{GameType, TimeControl, Player, GameState, Profile, Perfs};
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct GameResponse {
+pub struct CreateGameResponse {
     pub id: String,
     pub created_at: String,
     pub rated: bool,
@@ -19,7 +19,17 @@ pub struct GameResponse {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UserResponse {
+pub struct GameResponse {
+    pub rated: bool,
+    pub time_control: TimeControl,
+    pub created_at: String,
+    pub first: Option<Player>,
+    pub second: Option<Player>,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateUserResponse {
     pub username: String,
     pub created_at: String,
     pub perfs: Perfs,

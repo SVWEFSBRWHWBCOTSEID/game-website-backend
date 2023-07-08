@@ -4,7 +4,7 @@ use nanoid::nanoid;
 use crate::common::get_key_name;
 use crate::models::general::{TimeControl, GameState, GameStatus, GameType, MatchPlayer, Player};
 use crate::models::req::CreateGameReq;
-use crate::models::res::GameResponse;
+use crate::models::res::{CreateGameResponse, GameResponse};
 use crate::prisma::PrismaClient;
 use crate::prisma::{game, user};
 
@@ -145,8 +145,19 @@ impl CreateGameReq {
 
 impl game::Data {
     // method to construct reponse from prisma game struct
-    pub async fn to_game_res(&self, client: &web::Data<PrismaClient>) -> GameResponse {
-        GameResponse {
+    pub async fn to_create_game_res(&self, client: &web::Data<PrismaClient>) -> CreateGameResponse {
+        // get game from table to get user relations
+        let game = client
+            .game()
+            .find_unique(game::id::equals(self.id.clone()))
+            .with(game::first_user::fetch())
+            .with(game::second_user::fetch())
+            .exec()
+            .await
+            .unwrap()
+            .unwrap();
+
+        CreateGameResponse {
             id: self.id.clone(),
             created_at: self.created_at.to_string(),
             rated: self.rated,
@@ -158,38 +169,20 @@ impl game::Data {
                 initial: self.clock_initial,
                 increment: self.clock_increment,
             },
-            first_player: match &self.first_username {
-                Some(n) => {
-                    let user = client
-                        .user()
-                        .find_unique(user::username::equals(n.clone()))
-                        .exec()
-                        .await
-                        .unwrap()
-                        .unwrap();
-                    Some(Player {
-                        username: self.first_username.clone().unwrap(),
-                        provisional: user.get_provisional(&self.game_key).unwrap(),
-                        rating: user.get_rating(&self.game_key).unwrap(),
-                    })
-                }
+            first_player: match game.first_user().unwrap() {
+                Some(u) => Some(Player {
+                    username: u.username.clone(),
+                    provisional: u.get_provisional(&self.game_key).unwrap(),
+                    rating: u.get_rating(&self.game_key).unwrap(),
+                }),
                 None => None,
             },
-            second_player: match &self.second_username {
-                Some(n) => {
-                    let user = client
-                        .user()
-                        .find_unique(user::username::equals(n.clone()))
-                        .exec()
-                        .await
-                        .unwrap()
-                        .unwrap();
-                    Some(Player {
-                        username: self.second_username.clone().unwrap(),
-                        provisional: user.get_provisional(&self.game_key).unwrap(),
-                        rating: user.get_rating(&self.game_key).unwrap(),
-                    })
-                }
+            second_player: match game.second_user().unwrap() {
+                Some(u) => Some(Player {
+                    username: u.username.clone(),
+                    provisional: u.get_provisional(&self.game_key).unwrap(),
+                    rating: u.get_rating(&self.game_key).unwrap(),
+                }),
                 None => None,
             },
             start_pos: self.start_pos.clone(),
@@ -198,6 +191,45 @@ impl game::Data {
                 first_time: self.first_time,
                 second_time: self.second_time,
                 status: GameStatus::from_str(&self.status),
+            },
+        }
+    }
+
+    // method to construct game response object for fetching a game by id
+    pub async fn to_game_res(&self, client: &web::Data<PrismaClient>) -> GameResponse {
+        // get game from table to get user relations
+        let game = client
+            .game()
+            .find_unique(game::id::equals(self.id.clone()))
+            .with(game::first_user::fetch())
+            .with(game::second_user::fetch())
+            .exec()
+            .await
+            .unwrap()
+            .unwrap();
+
+        GameResponse {
+            rated: self.rated,
+            time_control: TimeControl {
+                initial: self.clock_initial,
+                increment: self.clock_increment,
+            },
+            created_at: self.created_at.to_string(),
+            first: match game.first_user().unwrap() {
+                Some(u) => Some(Player {
+                    username: u.username.clone(),
+                    provisional: u.get_provisional(&self.game_key).unwrap(),
+                    rating: u.get_rating(&self.game_key).unwrap(),
+                }),
+                None => None,
+            },
+            second: match game.second_user().unwrap() {
+                Some(u) => Some(Player {
+                    username: u.username.clone(),
+                    provisional: u.get_provisional(&self.game_key).unwrap(),
+                    rating: u.get_rating(&self.game_key).unwrap(),
+                }),
+                None => None,
             },
         }
     }
