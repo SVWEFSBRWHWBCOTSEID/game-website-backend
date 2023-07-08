@@ -210,6 +210,10 @@ impl game::Data {
 
         GameResponse {
             rated: self.rated,
+            game: GameType {
+                key: self.game_key.clone(),
+                name: get_key_name(&self.game_key).unwrap(),
+            },
             time_control: TimeControl {
                 initial: self.clock_initial,
                 increment: self.clock_increment,

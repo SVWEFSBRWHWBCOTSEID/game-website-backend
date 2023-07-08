@@ -21,6 +21,7 @@ pub struct CreateGameResponse {
 #[serde(rename_all = "camelCase")]
 pub struct GameResponse {
     pub rated: bool,
+    pub game: GameType,
     pub time_control: TimeControl,
     pub created_at: String,
     pub first: Option<Player>,
