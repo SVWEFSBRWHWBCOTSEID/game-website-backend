@@ -3,7 +3,7 @@ use actix_session::Session;
 use actix_web::{web::{Json, Data}, HttpRequest, HttpResponse, get, post};
 use rand::Rng;
 
-use crate::common::{CustomError, get_key_name};
+use crate::{common::{CustomError, get_key_name}, models::res::OK_RES};
 use crate::models::events::{GameEvent, GameStateEvent, GameEventType};
 use crate::models::general::{MatchPlayer, Side, GameStatus};
 use crate::prisma::{PrismaClient, user, game};
@@ -206,7 +206,7 @@ pub async fn add_move(
         status: GameStatus::from_str(&game.status),
     }));
 
-    Ok(HttpResponse::Ok().finish())
+    Ok(HttpResponse::Ok().json(OK_RES))
 }
 
 // route for resigning a game
@@ -262,7 +262,7 @@ pub async fn resign(
         .map_err(|_| CustomError::InternalError)
         .ok();
 
-    Ok(HttpResponse::Ok().finish())
+    Ok(HttpResponse::Ok().json(OK_RES))
 }
 
 // route for resigning a game
@@ -327,7 +327,7 @@ pub async fn offer_draw(
         .map_err(|_| CustomError::InternalError)
         .ok();
 
-    Ok(HttpResponse::Ok().finish())
+    Ok(HttpResponse::Ok().json(OK_RES))
 }
 
 // route for sending chat message in a game
@@ -365,5 +365,5 @@ pub async fn send_chat(
         .map_err(|_| CustomError::InternalError)
         .ok();
 
-    Ok(HttpResponse::Ok().finish())
+    Ok(HttpResponse::Ok().json(OK_RES))
 }

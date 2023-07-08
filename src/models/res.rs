@@ -38,3 +38,13 @@ pub struct CreateUserResponse {
     pub url: String,
     pub playing: Option<String>,
 }
+
+#[derive(Deserialize, Serialize, Copy, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct OkResponse {
+    pub ok: bool,
+}
+
+pub static OK_RES: OkResponse = OkResponse {
+    ok: true,
+};
