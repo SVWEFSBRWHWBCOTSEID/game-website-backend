@@ -57,6 +57,10 @@ pub async fn new_game_client(
         None => return Err(CustomError::BadRequest),
     };
 
+    if GameStatus::from_str(&game.status) == GameStatus::Waiting {
+        return Err(CustomError::BadRequest);
+    }
+
     broadcaster.lock().unwrap().game_send(game_id, GameEvent::GameFullEvent(GameFullEvent {
         r#type: GameEventType::GameFull,
         rated: game.rated,
