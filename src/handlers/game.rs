@@ -84,7 +84,7 @@ pub async fn create_game(
     Ok(HttpResponse::Ok().json(game.to_create_game_res(&client).await))
 }
 
-// route for creating a new game
+// route for getting a game by id
 #[get("/api/game/{id}")]
 pub async fn get_game(
     req: HttpRequest,
