@@ -58,7 +58,7 @@ pub async fn create_game(
         first: match create_game_req.side {
             Side::First => true,
             Side::Second => false,
-            Side::Random => rng.gen_range(0..2) == 0,
+            Side::Random => rng.gen_range(0..1) == 0,
         },
     };
 
@@ -104,7 +104,7 @@ pub async fn get_game(
         None => return Err(CustomError::BadRequest),
     };
 
-    Ok(HttpResponse::Ok().json(game.to_create_game_res(&client).await))
+    Ok(HttpResponse::Ok().json(game.to_game_res(&client).await))
 }
 
 // route for adding a move to a game
