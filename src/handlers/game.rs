@@ -58,7 +58,7 @@ pub async fn create_game(
         first: match create_game_req.side {
             Side::First => true,
             Side::Second => false,
-            Side::Random => rng.gen_range(0..1) == 0,
+            Side::Random => rng.gen_range(0..2) == 0,
         },
     };
 
