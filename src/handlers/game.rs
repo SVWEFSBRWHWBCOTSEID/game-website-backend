@@ -3,7 +3,7 @@ use actix_session::Session;
 use actix_web::{web::{Json, Data}, HttpRequest, HttpResponse, get, post};
 use rand::Rng;
 
-use crate::{common::{CustomError, get_key_name}, models::res::OK_RES};
+use crate::{common::{CustomError, get_key_name}, models::{res::OK_RES, events::{ChatMessageEvent, Visibility}}};
 use crate::models::events::{GameEvent, GameStateEvent, GameEventType};
 use crate::models::general::{MatchPlayer, Side, GameStatus};
 use crate::prisma::{PrismaClient, user, game};
@@ -337,6 +337,7 @@ pub async fn send_chat(
     client: Data<PrismaClient>,
     session: Session,
     data: Json<ChatMessageReq>,
+    broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, CustomError> {
 
     let username: String = match session.get("username") {
@@ -354,16 +355,23 @@ pub async fn send_chat(
     client
         .message()
         .create(
-            game::id::equals(game_id),
-            username,
-            chat_message_req.message,
-            visibility,
+            game::id::equals(game_id.clone()),
+            username.clone(),
+            chat_message_req.message.clone(),
+            visibility.clone(),
             vec![],
         )
         .exec()
         .await
         .map_err(|_| CustomError::InternalError)
         .ok();
+
+    broadcaster.lock().unwrap().game_send(game_id, GameEvent::ChatMessageEvent(ChatMessageEvent {
+        r#type: GameEventType::ChatMessage,
+        text: chat_message_req.message,
+        username,
+        visibility: Visibility::from_str(&visibility),
+    }));
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }
