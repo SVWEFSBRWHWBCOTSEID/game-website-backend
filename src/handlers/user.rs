@@ -31,7 +31,7 @@ pub async fn create_user(
     cookie.set_same_site(SameSite::None);
     cookie.set_path("/");
 
-    let mut res = HttpResponse::Ok().json(user.to_user_res());
+    let mut res = HttpResponse::Ok().json(user.to_create_user_res());
     res.add_cookie(&cookie).unwrap();
     Ok(res)
 }
@@ -53,7 +53,7 @@ pub async fn get_user(
             .await
             .unwrap()
         {
-            Some(u) => Some(u.to_user_res()),
+            Some(u) => Some(u.to_create_user_res()),
             None => None,
         }
     ))
@@ -94,7 +94,7 @@ pub async fn login(
     cookie.set_same_site(SameSite::None);
     cookie.set_path("/");
 
-    let mut res = HttpResponse::Ok().json(user.to_user_res());
+    let mut res = HttpResponse::Ok().json(user.to_create_user_res());
     res.add_cookie(&cookie).unwrap();
     Ok(res)
 }

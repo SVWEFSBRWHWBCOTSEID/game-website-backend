@@ -1,7 +1,7 @@
 use actix_web::web;
 
 use crate::models::general::{GamePerf, Perfs, Profile, Country};
-use crate::models::res::UserResponse;
+use crate::models::res::CreateUserResponse;
 use crate::prisma::{user, PrismaClient};
 use crate::models::req::CreateUserReq;
 
@@ -87,9 +87,9 @@ impl user::Data {
     }
 
     // method to construct response from prisma user struct
-    pub fn to_user_res(&self) -> UserResponse {
+    pub fn to_create_user_res(&self) -> CreateUserResponse {
 
-        UserResponse {
+        CreateUserResponse {
             username: self.username.clone(),
             created_at: self.created_at.to_string(),
             perfs: serde_json::from_str(&self.perfs).unwrap(),

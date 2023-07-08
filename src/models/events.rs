@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::general::{GameStatus, TimeControl, Player};
+use super::general::{GameStatus, TimeControl, Player, GameType};
 
 
 #[derive(Deserialize, Serialize)]
@@ -58,6 +58,7 @@ pub struct GameStateEvent {
 pub struct GameFullEvent {
     pub r#type: GameEventType,
     pub rated: bool,
+    pub game: GameType,
     pub time_control: TimeControl,
     pub created_at: String,
     pub first: Player,

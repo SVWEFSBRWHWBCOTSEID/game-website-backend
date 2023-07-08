@@ -1,6 +1,6 @@
 use std::{sync::Mutex, time::SystemTime};
 use actix_session::Session;
-use actix_web::{web::{Json, Data}, HttpRequest, HttpResponse, post};
+use actix_web::{web::{Json, Data}, HttpRequest, HttpResponse, get, post};
 use rand::Rng;
 
 use crate::common::{CustomError, get_key_name};
@@ -81,7 +81,30 @@ pub async fn create_game(
         ).await,
     };
 
-    Ok(HttpResponse::Ok().json(game.to_game_res(&client).await))
+    Ok(HttpResponse::Ok().json(game.to_create_game_res(&client).await))
+}
+
+// route for creating a new game
+#[get("/api/game/{id}")]
+pub async fn get_game(
+    req: HttpRequest,
+    client: Data<PrismaClient>,
+) -> Result<HttpResponse, CustomError> {
+
+    let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
+
+    let game = match client
+        .game()
+        .find_unique(game::id::equals(game_id))
+        .exec()
+        .await
+        .unwrap()
+    {
+        Some(g) => g,
+        None => return Err(CustomError::BadRequest),
+    };
+
+    Ok(HttpResponse::Ok().json(game.to_create_game_res(&client).await))
 }
 
 // route for adding a move to a game

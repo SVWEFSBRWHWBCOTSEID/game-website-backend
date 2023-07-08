@@ -3,9 +3,9 @@ use actix_session::Session;
 use actix_web::web::{Data};
 use actix_web::{HttpResponse, get, HttpRequest};
 
-use crate::common::CustomError;
+use crate::common::{CustomError, get_key_name};
 use crate::models::events::{GameEvent, GameFullEvent, GameEventType, ChatMessage, Visibility, GameState};
-use crate::models::general::{TimeControl, Player, GameStatus};
+use crate::models::general::{TimeControl, Player, GameStatus, GameType};
 use crate::prisma::{PrismaClient, game};
 use crate::sse::Broadcaster;
 
@@ -64,6 +64,10 @@ pub async fn new_game_client(
     broadcaster.lock().unwrap().game_send(game_id, GameEvent::GameFullEvent(GameFullEvent {
         r#type: GameEventType::GameFull,
         rated: game.rated,
+        game: GameType {
+            key: game.game_key.clone(),
+            name: get_key_name(&game.game_key).unwrap(),
+        },
         time_control: TimeControl {
             initial: game.clock_initial,
             increment: game.clock_increment,
