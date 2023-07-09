@@ -1,3 +1,4 @@
+use actix_session::Session;
 use actix_web::{ResponseError, HttpResponse, http::{header::ContentType, StatusCode}};
 use derive_more::{Display, Error};
 use phf::phf_map;
@@ -14,6 +15,13 @@ pub fn get_key_name(key: &str) -> Option<String> {
     match KEY_NAMES.get(key) {
         Some(s) => Some(s.to_string()),
         None => None,
+    }
+}
+
+pub fn get_username(session: Session) -> Option<String> {
+    match session.get("username") {
+        Ok(o) => o,
+        Err(_) => None,
     }
 }
 

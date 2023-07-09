@@ -7,7 +7,7 @@ use crate::models::{req::ChatMessageReq};
 use crate::models::events::{GameEventType, Visibility, GameEvent, ChatMessageEvent};
 use crate::models::res::OK_RES;
 use crate::sse::Broadcaster;
-use crate::common::CustomError;
+use crate::common::{CustomError, get_username};
 
 
 // route for sending chat message in a game
@@ -20,12 +20,9 @@ pub async fn send_chat(
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, CustomError> {
 
-    let username: String = match session.get("username") {
-        Ok(o) => match o {
-            Some(u) => u,
-            None => return Err(CustomError::Unauthorized),
-        },
-        Err(_) => return Err(CustomError::Unauthorized),
+    let username: String = match get_username(session) {
+        Some(u) => u,
+        None => return Err(CustomError::Unauthorized),
     };
 
     let chat_message_req = data.into_inner();

@@ -3,7 +3,7 @@ use actix_web::web::{Json, Data};
 use actix_web::{HttpRequest, HttpResponse, post};
 use rand::Rng;
 
-use crate::common::{CustomError, get_key_name};
+use crate::common::{CustomError, get_key_name, get_username};
 use crate::models::general::{MatchPlayer, Side};
 use crate::prisma::{PrismaClient, user};
 use crate::models::req::CreateGameReq;
@@ -18,12 +18,9 @@ pub async fn create_game(
     data: Json<CreateGameReq>,
 ) -> Result<HttpResponse, CustomError> {
 
-    let username: String = match session.get("username") {
-        Ok(o) => match o {
-            Some(u) => u,
-            None => return Err(CustomError::Unauthorized),
-        },
-        Err(_) => return Err(CustomError::Unauthorized),
+    let username: String = match get_username(session) {
+        Some(u) => u,
+        None => return Err(CustomError::Unauthorized),
     };
 
     let create_game_req: CreateGameReq = data.into_inner();

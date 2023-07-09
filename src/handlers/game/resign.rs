@@ -8,7 +8,7 @@ use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 use crate::models::events::{GameEvent, GameStateEvent, GameEventType};
 use crate::models::general::{WinType, DrawOffer};
 use crate::prisma::{PrismaClient, game};
-use crate::common::CustomError;
+use crate::common::{CustomError, get_username};
 use crate::models::{general::GameStatus, res::OK_RES};
 use crate::sse::Broadcaster;
 
@@ -22,12 +22,9 @@ pub async fn resign(
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, CustomError> {
 
-    let username: String = match session.get("username") {
-        Ok(o) => match o {
-            Some(u) => u,
-            None => return Err(CustomError::Unauthorized),
-        },
-        Err(_) => return Err(CustomError::Unauthorized),
+    let username: String = match get_username(session) {
+        Some(u) => u,
+        None => return Err(CustomError::Unauthorized),
     };
 
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
