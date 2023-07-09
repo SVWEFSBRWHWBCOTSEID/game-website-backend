@@ -20,11 +20,10 @@ pub async fn send_chat(
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, CustomError> {
 
-    let username: String = match get_username(session) {
+    let username: String = match get_username(&session) {
         Some(u) => u,
         None => return Err(CustomError::Unauthorized),
     };
-
     let chat_message_req = data.into_inner();
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let visibility: String = req.match_info().get("visibility").unwrap().parse().unwrap();
@@ -43,7 +42,7 @@ pub async fn send_chat(
         .map_err(|_| CustomError::InternalError)
         .ok();
 
-    broadcaster.lock().unwrap().game_send(game_id, GameEvent::ChatMessageEvent(ChatMessageEvent {
+    broadcaster.lock().unwrap().game_send(&game_id, GameEvent::ChatMessageEvent(ChatMessageEvent {
         r#type: GameEventType::ChatMessage,
         text: chat_message_req.message,
         username,

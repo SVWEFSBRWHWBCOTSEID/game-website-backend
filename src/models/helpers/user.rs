@@ -1,9 +1,10 @@
 use actix_web::web;
+use rand::Rng;
 
-use crate::models::general::{GamePerf, Perfs, Profile, Country};
+use crate::models::general::{GamePerf, Perfs, Profile, Country, MatchPlayer, Side};
 use crate::models::res::CreateUserResponse;
 use crate::prisma::{user, PrismaClient};
-use crate::models::req::CreateUserReq;
+use crate::models::req::{CreateUserReq, CreateGameReq};
 
 
 impl CreateUserReq {
@@ -102,6 +103,24 @@ impl user::Data {
             },
             url: self.url.clone(),
             playing: self.playing.clone(),
+        }
+    }
+
+    pub fn to_match_player(&self, game_key: &str, req: &CreateGameReq) -> MatchPlayer {
+
+        let mut rng = rand::thread_rng();
+
+        MatchPlayer {
+            username: self.username.clone(),
+            provisional: self.get_provisional(game_key).unwrap(),
+            rating: self.get_rating(game_key).unwrap(),
+            rating_min: req.rating_min,
+            rating_max: req.rating_max,
+            first: match req.side {
+                Side::First => true,
+                Side::Second => false,
+                Side::Random => rng.gen_range(0..1) == 0,
+            },
         }
     }
 }

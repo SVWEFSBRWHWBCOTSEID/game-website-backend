@@ -1,8 +1,8 @@
 use actix_web::web;
 use nanoid::nanoid;
 
-use crate::common::get_key_name;
-use crate::models::general::{TimeControl, GameState, GameStatus, GameType, MatchPlayer, Player};
+use crate::common::{get_key_name, time_millis};
+use crate::models::general::{TimeControl, GameState, GameStatus, GameType, MatchPlayer, Player, DrawOffer};
 use crate::models::req::CreateGameReq;
 use crate::models::res::{CreateGameResponse, GameResponse};
 use crate::prisma::PrismaClient;
@@ -30,6 +30,30 @@ impl CreateGameReq {
             && player.rating < self.rating_max
             && user.first_user_game().unwrap().is_none()
             && user.second_user_game().unwrap().is_none()
+    }
+
+    pub async fn create_or_join(
+        &self,
+        client: &web::Data<PrismaClient>,
+        game_key: &str,
+        player: &MatchPlayer,
+    ) -> Result<game::Data, ()> {
+
+        if !self.validate(client, player).await {
+            return Err(());
+        }
+        Ok(match self.match_if_possible(
+            &client,
+            &game_key,
+            &player,
+        ).await {
+            Some(g) => g,
+            None => self.create_game(
+                &client,
+                &game_key,
+                &player,
+            ).await,
+        })
     }
 
     // method to add a game to table from this game request
@@ -238,6 +262,75 @@ impl game::Data {
                 }),
                 None => None,
             },
+        }
+    }
+
+    // helpers to get updated first and second times
+    pub fn get_new_first_time(&self) -> Option<i32> {
+        match self.first_time {
+            Some(t) => if self.num_moves() >= 2 && self.num_moves() % 2 == 0 {
+                Some(t - (time_millis() - self.last_move_time) as i32)
+            } else {
+                Some(t)
+            },
+            None => None,
+        }
+    }
+
+    pub fn get_new_second_time(&self) -> Option<i32> {
+        match self.second_time {
+            Some(t) => if self.num_moves() >= 2 && self.num_moves() % 2 == 1 {
+                Some(t - (time_millis() - self.last_move_time) as i32)
+            } else {
+                Some(t)
+            },
+            None => None,
+        }
+    }
+
+    // helper to get number of moves
+    pub fn num_moves(&self) -> usize {
+        if self.moves.len() == 0 {
+            return 0;
+        }
+        self.moves.split(" ").collect::<Vec<&str>>().len()
+    }
+
+    pub fn get_draw_game_status(&self, value: &bool, username: &str) -> GameStatus {
+        match (
+            self.first_username.clone().unwrap() == username,
+            value,
+            self.draw_offer,
+        ) {
+            (true, true, Some(false)) => GameStatus::Draw,
+            (false, true, Some(true)) => GameStatus::Draw,
+            (true, false, Some(false)) => GameStatus::Started,
+            (false, false, Some(true)) => GameStatus::Started,
+            _ => GameStatus::from_str(&self.status),
+        }
+    }
+
+    pub fn get_resign_game_status(&self, username: &str) -> GameStatus {
+        if self.first_username.clone().unwrap() == username {
+            GameStatus::SecondWon
+        } else {
+            GameStatus::FirstWon
+        }
+    }
+
+    pub fn get_new_draw_offer(&self, value: &bool, username: &str) -> DrawOffer {
+        match (
+            self.first_username.clone().unwrap() == username,
+            value,
+            self.draw_offer,
+        ) {
+            (true, true, None) => DrawOffer::First,
+            (false, true, None) => DrawOffer::Second,
+            (true, true, Some(false)) => DrawOffer::None,
+            (false, true, Some(true)) => DrawOffer::None,
+            (true, false, Some(false)) => DrawOffer::None,
+            (false, false, Some(true)) => DrawOffer::None,
+            _ => DrawOffer::from_bool(&self.draw_offer),
         }
     }
 }

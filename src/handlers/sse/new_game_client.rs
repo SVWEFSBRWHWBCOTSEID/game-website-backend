@@ -1,13 +1,11 @@
-use std::cmp::max;
 use std::sync::Mutex;
-use std::time::SystemTime;
 use actix_web::web::{Data};
 use actix_web::{HttpResponse, get, HttpRequest};
 
-use crate::common::{CustomError, get_key_name};
+use crate::common::{CustomError, get_key_name, get_game_by_id_with_relations};
 use crate::models::events::{GameEvent, GameFullEvent, GameEventType, ChatMessage, Visibility, GameState};
 use crate::models::general::{TimeControl, Player, GameStatus, GameType, WinType, DrawOffer};
-use crate::prisma::{PrismaClient, game, message};
+use crate::prisma::PrismaClient;
 use crate::sse::Broadcaster;
 
 
@@ -21,34 +19,15 @@ pub async fn new_game_client(
 
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let rx = broadcaster.lock().unwrap().new_game_client(game_id.clone());
-    
-    let game = match client
-        .game()
-        .find_unique(game::id::equals(game_id.clone()))
-        .with(game::first_user::fetch())
-        .with(game::second_user::fetch())
-        .with(game::chat::fetch(vec![message::game_id::equals(game_id.clone())]))
-        .exec()
-        .await
-        .unwrap()
-    {
+    let game = match get_game_by_id_with_relations(&client, &game_id).await {
         Some(g) => g,
         None => return Err(CustomError::BadRequest),
     };
-
     if GameStatus::from_str(&game.status) == GameStatus::Waiting {
         return Err(CustomError::BadRequest);
     }
 
-    let moves_len = game.moves.split(" ").collect::<Vec<&str>>().len();
-    let old_last_move_time = game.last_move_time;
-    let current_time = SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap()
-        .as_millis()
-    as i64;
-
-    broadcaster.lock().unwrap().game_send(game_id, GameEvent::GameFullEvent(GameFullEvent {
+    broadcaster.lock().unwrap().game_send(&game_id, GameEvent::GameFullEvent(GameFullEvent {
         r#type: GameEventType::GameFull,
         rated: game.rated,
         game: GameType {
@@ -70,28 +49,14 @@ pub async fn new_game_client(
             provisional: game.second_user().unwrap().unwrap().get_provisional(&game.game_key).unwrap(),
             rating: game.second_user().unwrap().unwrap().get_rating(&game.game_key).unwrap(),
         },
-        chat: game.chat.unwrap_or(vec![]).iter().map(|x| ChatMessage {
+        chat: game.chat.clone().unwrap_or(vec![]).iter().map(|x| ChatMessage {
             username: x.username.clone(),
             text: x.text.clone(),
             visibility: Visibility::from_str(&x.visibility),
         }).collect(),
         state: GameState {
-            ftime: match game.first_time {
-                Some(t) => if moves_len >= 2 && moves_len % 2 == 0 {
-                    Some(max(0, t - (current_time - old_last_move_time) as i32))
-                } else {
-                    Some(t)
-                },
-                None => None,
-            },
-            stime: match game.second_time {
-                Some(t) => if moves_len >= 2 && moves_len % 2 == 1 {
-                    Some(max(0, t - (current_time - old_last_move_time) as i32))
-                } else {
-                    Some(t)
-                },
-                None => None,
-            },
+            ftime: game.get_new_first_time(),
+            stime: game.get_new_second_time(),
             moves: if game.moves.len() > 0 {
                 game.moves.split(" ").map(|s| s.to_string()).collect()
             } else {
