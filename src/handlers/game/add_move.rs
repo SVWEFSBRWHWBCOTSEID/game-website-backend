@@ -98,7 +98,6 @@ pub async fn add_move(
                 game::first_time::set(new_first_time),
                 game::second_time::set(new_second_time),
                 game::last_move_time::set(current_time),
-                game::status::set(GameStatus::Started.to_string()),
             ],
         )
         .exec()

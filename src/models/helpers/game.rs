@@ -70,7 +70,7 @@ impl CreateGameReq {
                 self.rating_max,
                 "".to_string(),
                 0,
-                "Waiting".to_string(),
+                GameStatus::Waiting.to_string(),
                 vec![
                     game::clock_initial::set(self.time),
                     game::clock_increment::set(self.increment),
@@ -130,11 +130,14 @@ impl CreateGameReq {
                 .game()
                 .update(
                     game::id::equals(game.id.clone()),
-                    vec![if player.first {
-                        game::first_user::connect(user::username::equals(player.username.clone()))
-                    } else {
-                        game::second_user::connect(user::username::equals(player.username.clone()))
-                    }],
+                    vec![
+                        if player.first {
+                            game::first_user::connect(user::username::equals(player.username.clone()))
+                        } else {
+                            game::second_user::connect(user::username::equals(player.username.clone()))
+                        },
+                        game::status::set(GameStatus::Started.to_string()),
+                    ],
                 )
                 .exec()
                 .await
