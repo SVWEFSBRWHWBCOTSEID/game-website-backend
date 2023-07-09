@@ -91,6 +91,16 @@ pub enum DrawOffer {
     Second,
 }
 
+#[derive(Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum MoveOutcome {
+    None,
+    FirstWin,
+    SecondWin,
+    Draw,
+    Stalemate,
+}
+
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Side {

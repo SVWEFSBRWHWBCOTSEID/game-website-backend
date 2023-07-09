@@ -4,7 +4,6 @@ use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
 use crate::helpers::general::{get_username, get_game_by_id_validate};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent};
-use crate::models::general::WinType;
 use crate::prisma::{PrismaClient, game};
 use crate::common::CustomError;
 use crate::models::res::OK_RES;
@@ -37,10 +36,7 @@ pub async fn offer_draw(
         stime: game.get_new_second_time(),
         moves: game.get_moves_vec(),
         status: game.get_draw_game_status(&value, &username),
-        win_type: match game.win_type.clone() {
-            Some(wt) => Some(WinType::from_str(&wt)),
-            None => None,
-        },
+        win_type: None,
         draw_offer: game.get_new_draw_offer(&value, &username),
     }));
 

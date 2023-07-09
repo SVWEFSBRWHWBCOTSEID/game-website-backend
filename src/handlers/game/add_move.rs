@@ -3,7 +3,7 @@ use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
 use crate::helpers::general::{get_username, get_game_by_id, time_millis};
-use crate::models::general::{WinType, DrawOffer};
+use crate::models::general::{WinType, DrawOffer, MoveOutcome};
 use crate::prisma::{PrismaClient, game};
 use crate::sse::Broadcaster;
 use crate::common::CustomError;
@@ -31,9 +31,11 @@ pub async fn add_move(
         None => return Err(CustomError::BadRequest),
     };
 
+    // make sure it is this player's turn and that move is legal
     let first_to_move = game.num_moves() % 2 == 0;
     if first_to_move && game.first_username.clone().unwrap() != username ||
-        !first_to_move && game.second_username.clone().unwrap() != username {
+        !first_to_move && game.second_username.clone().unwrap() != username ||
+        !game.validate_new_move(&new_move) {
 
         return Err(CustomError::BadRequest);
     }
@@ -43,12 +45,20 @@ pub async fn add_move(
         ftime: game.get_new_first_time(),
         stime: game.get_new_second_time(),
         moves: vec![new_move.clone()],
-        status: GameStatus::from_str(&game.status),
-        win_type: match game.win_type.clone() {
-            Some(wt) => Some(WinType::from_str(&wt)),
-            None => None,
+        status: match game.new_move_outcome(&new_move) {
+            MoveOutcome::None => GameStatus::Started,
+            MoveOutcome::FirstWin => GameStatus::FirstWon,
+            MoveOutcome::SecondWin => GameStatus::SecondWon,
+            _ => GameStatus::Draw,
         },
-        draw_offer: DrawOffer::from_bool(&game.draw_offer),
+        win_type: match game.new_move_outcome(&new_move) {
+            MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(WinType::Normal),
+            _ => None,
+        },
+        draw_offer: match game.new_move_outcome(&new_move) {
+            MoveOutcome::None => DrawOffer::from_bool(&game.draw_offer),
+            _ => DrawOffer::None,
+        },
     }));
 
     client

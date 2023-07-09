@@ -2,7 +2,6 @@ use std::cmp::max;
 use actix_web::web;
 
 use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer}, events::GameState}, prisma::{game, PrismaClient}};
-
 use super::general::{get_key_name, time_millis};
 
 
@@ -138,6 +137,15 @@ impl game::Data {
     pub fn get_moves_vec(&self) -> Vec<String> {
         if self.moves.len() > 0 {
             self.moves.split(" ").map(|s| s.to_string()).collect()
+        } else {
+            vec![]
+        }
+    }
+
+    // same as get_moves_vec but with &str rather than String
+    pub fn get_moves_vec_str(&self) -> Vec<&str> {
+        if self.moves.len() > 0 {
+            self.moves.split(" ").collect()
         } else {
             vec![]
         }
