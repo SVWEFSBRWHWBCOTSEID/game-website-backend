@@ -2,7 +2,8 @@ use std::sync::Mutex;
 use actix_web::web::{Data};
 use actix_web::{HttpResponse, get, HttpRequest};
 
-use crate::common::{CustomError, get_key_name, get_game_by_id_with_relations};
+use crate::common::CustomError;
+use crate::helpers::general::{get_game_by_id_with_relations, get_key_name};
 use crate::models::events::{GameEvent, GameFullEvent, GameEventType, ChatMessage, Visibility, GameState};
 use crate::models::general::{TimeControl, Player, GameStatus, GameType, WinType, DrawOffer};
 use crate::prisma::PrismaClient;

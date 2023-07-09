@@ -2,7 +2,8 @@ use actix_session::Session;
 use actix_web::web::{Json, Data};
 use actix_web::{HttpRequest, HttpResponse, post};
 
-use crate::common::{CustomError, get_key_name, get_username, get_user_by_username};
+use crate::common::CustomError;
+use crate::helpers::general::{get_username, get_key_name, get_user_by_username};
 use crate::prisma::PrismaClient;
 use crate::models::req::CreateGameReq;
 

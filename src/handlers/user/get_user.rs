@@ -1,6 +1,7 @@
 use actix_web::{web, HttpRequest, HttpResponse, get};
 
-use crate::common::{CustomError, get_user_by_username};
+use crate::common::CustomError;
+use crate::helpers::general::get_user_by_username;
 use crate::prisma::PrismaClient;
 
 

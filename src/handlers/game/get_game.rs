@@ -1,7 +1,8 @@
 use actix_web::{HttpRequest, web::Data, get, HttpResponse};
 
+use crate::helpers::general::get_game_by_id;
 use crate::prisma::PrismaClient;
-use crate::common::{CustomError, get_game_by_id};
+use crate::common::CustomError;
 
 
 // route for getting a game by id

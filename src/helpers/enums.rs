@@ -1,28 +1,5 @@
-use crate::models::{general::{WinType, DrawOffer, GameStatus, Country}, events::Visibility};
+use crate::models::{general::{WinType, DrawOffer, Country}, events::Visibility};
 
-
-impl GameStatus {
-    pub fn to_string(&self) -> String {
-        match self {
-            Self::Waiting => "Waiting",
-            Self::Started => "Started",
-            Self::FirstWon => "FirstWon",
-            Self::SecondWon => "SecondWon",
-            Self::Draw => "Draw",
-        }.to_string()
-    }
-
-    pub fn from_str(string: &str) -> Self {
-        match string {
-            "Waiting" => Self::Waiting,
-            "Started" => Self::Started,
-            "FirstWon" => Self::FirstWon,
-            "SecondWon" => Self::SecondWon,
-            "Draw" => Self::Draw,
-            _ => Self::Waiting,
-        }
-    }
-}
 
 impl WinType {
     pub fn to_string(&self) -> String {

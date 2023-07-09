@@ -1,7 +1,9 @@
 use std::cmp::max;
 use actix_web::web;
 
-use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer}, events::GameState}, prisma::{game, PrismaClient}, common::{get_key_name, time_millis}};
+use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer}, events::GameState}, prisma::{game, PrismaClient}};
+
+use super::general::{get_key_name, time_millis};
 
 
 impl game::Data {

@@ -2,10 +2,11 @@ use std::sync::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
+use crate::helpers::general::{get_username, get_game_by_id_validate};
 use crate::models::events::{GameEvent, GameStateEvent, GameEventType};
 use crate::models::general::{WinType, DrawOffer};
 use crate::prisma::{PrismaClient, game};
-use crate::common::{CustomError, get_username, get_game_by_id_validate};
+use crate::common::CustomError;
 use crate::models::res::OK_RES;
 use crate::sse::Broadcaster;
 

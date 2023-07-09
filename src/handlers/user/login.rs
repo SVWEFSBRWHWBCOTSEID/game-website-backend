@@ -2,7 +2,8 @@ use actix_session::Session;
 use actix_web::cookie::{Cookie, SameSite};
 use actix_web::{web, HttpResponse, post};
 
-use crate::common::{CustomError, get_user_by_username, get_username};
+use crate::common::CustomError;
+use crate::helpers::general::{get_username, get_user_by_username};
 use crate::prisma::PrismaClient;
 use crate::models::req::LoginReq;
 

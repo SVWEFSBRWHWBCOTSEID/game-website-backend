@@ -2,12 +2,12 @@ use std::sync::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::{Data, Json}, HttpResponse};
 
-use crate::prisma::{PrismaClient, game};
+use crate::{prisma::{PrismaClient, game}, helpers::general::get_username};
 use crate::models::{req::ChatMessageReq};
 use crate::models::events::{GameEventType, Visibility, GameEvent, ChatMessageEvent};
 use crate::models::res::OK_RES;
 use crate::sse::Broadcaster;
-use crate::common::{CustomError, get_username};
+use crate::common::CustomError;
 
 
 // route for sending chat message in a game
