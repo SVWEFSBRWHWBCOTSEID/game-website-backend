@@ -1,5 +1,7 @@
 use std::cmp::max;
 use actix_web::web;
+use async_trait::async_trait;
+use futures::future::join_all;
 
 use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer}, events::GameState}, prisma::{game, PrismaClient}};
 use super::general::{get_key_name, time_millis};
@@ -197,5 +199,20 @@ impl game::Data {
             (false, false, Some(true)) => DrawOffer::None,
             _ => DrawOffer::from_bool(&self.draw_offer),
         }
+    }
+}
+
+#[async_trait]
+pub trait GameVec {
+    async fn to_game_res_vec(&self, client: &web::Data<PrismaClient>) -> Vec<GameResponse>;
+}
+
+#[async_trait]
+impl GameVec for Vec<game::Data> {
+    // convert vec of games to vec of GameResponse structs
+    async fn to_game_res_vec(&self, client: &web::Data<PrismaClient>) -> Vec<GameResponse> {
+        join_all(self.iter().map(|g| async {
+            g.to_game_res(&client).await
+        })).await
     }
 }
