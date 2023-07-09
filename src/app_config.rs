@@ -11,6 +11,7 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
         .service(game::resign)
         .service(game::offer_draw)
         .service(game::send_chat)
+        .service(game::timeout)
         .service(user::create_user)
         .service(user::get_user)
         .service(user::login)

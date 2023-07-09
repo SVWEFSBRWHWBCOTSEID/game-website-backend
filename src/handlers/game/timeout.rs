@@ -11,7 +11,7 @@ use crate::models::res::OK_RES;
 use crate::sse::Broadcaster;
 
 
-// route for resigning a game
+// route for telling backend that you have run out of time
 #[post("/api/game/{id}/timeout")]
 pub async fn timeout(
     req: HttpRequest,
@@ -29,6 +29,12 @@ pub async fn timeout(
         Some(g) => g,
         None => return Err(CustomError::BadRequest),
     };
+    match (game.get_new_first_time(), game.get_new_second_time()) {
+        (Some(f), Some(s)) => if f > 0 && s > 0 {
+            return Err(CustomError::BadRequest)
+        },
+        _ => return Err(CustomError::BadRequest),
+    }
 
     broadcaster.lock().unwrap().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
