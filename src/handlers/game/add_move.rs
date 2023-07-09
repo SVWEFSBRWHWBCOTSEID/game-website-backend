@@ -61,6 +61,23 @@ pub async fn add_move(
         .as_millis()
     as i64;
 
+    let new_first_time = match game.first_time {
+        Some(t) => if moves_len >= 2 && moves_len % 2 == 0 {
+            Some(t - (current_time - old_last_move_time) as i32)
+        } else {
+            Some(t)
+        },
+        None => None,
+    };
+    let new_second_time = match game.second_time {
+        Some(t) => if moves_len >= 2 && moves_len % 2 == 1 {
+            Some(t - (current_time - old_last_move_time) as i32)
+        } else {
+            Some(t)
+        },
+        None => None,
+    };
+
     client
         .game()
         .update(
@@ -77,6 +94,8 @@ pub async fn add_move(
                     }
                     moves
                 }),
+                game::first_time::set(new_first_time),
+                game::second_time::set(new_second_time),
                 game::last_move_time::set(current_time),
                 game::status::set(GameStatus::Started.to_string()),
             ],
@@ -88,22 +107,8 @@ pub async fn add_move(
 
     broadcaster.lock().unwrap().game_send(game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
-        ftime: match game.first_time {
-            Some(t) => if moves_len >= 2 && moves_len % 2 == 0 {
-                Some(t - (current_time - old_last_move_time) as i32)
-            } else {
-                Some(t)
-            },
-            None => None,
-        },
-        stime: match game.second_time {
-            Some(t) => if moves_len >= 2 && moves_len % 2 == 1 {
-                Some(t - (current_time - old_last_move_time) as i32)
-            } else {
-                Some(t)
-            },
-            None => None,
-        },
+        ftime: new_first_time,
+        stime: new_second_time,
         moves: vec![new_move],
         status: GameStatus::from_str(&game.status),
     }));
