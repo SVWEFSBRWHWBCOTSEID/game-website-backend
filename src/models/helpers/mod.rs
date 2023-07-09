@@ -1,7 +1,7 @@
 pub mod game;
 pub mod user;
 
-use super::{general::{GameStatus, Country}, events::Visibility};
+use super::{general::{GameStatus, Country, WinType, DrawOffer}, events::Visibility};
 
 
 impl GameStatus {
@@ -9,12 +9,8 @@ impl GameStatus {
         match self {
             Self::Waiting => "Waiting",
             Self::Started => "Started",
-            Self::FirstResigned => "FirstResigned",
-            Self::SecondResigned => "SecondResigned",
             Self::FirstWon => "FirstWon",
             Self::SecondWon => "SecondWon",
-            Self::FirstDrawOffer => "FirstDrawOffer",
-            Self::SecondDrawOffer => "SecondDrawOffer",
             Self::Draw => "Draw",
         }.to_string()
     }
@@ -23,12 +19,49 @@ impl GameStatus {
         match string {
             "Waiting" => Self::Waiting,
             "Started" => Self::Started,
-            "FirstResigned" => Self::FirstResigned,
-            "SecondResigned" => Self::SecondResigned,
             "FirstWon" => Self::FirstWon,
             "SecondWon" => Self::SecondWon,
             "Draw" => Self::Draw,
             _ => Self::Waiting,
+        }
+    }
+}
+
+impl WinType {
+    pub fn to_string(&self) -> String {
+        match self {
+            Self::Normal => "Normal",
+            Self::Resign => "Resign",
+            Self::Timeout => "Timeout",
+            Self::Disconnect => "Disconnect",
+        }.to_string()
+    }
+
+    pub fn from_str(string: &str) -> Self {
+        match string {
+            "Normal" => Self::Normal,
+            "Resign" => Self::Resign,
+            "Timeout" => Self::Timeout,
+            "Disconnect" => Self::Disconnect,
+            _ => Self::Normal,
+        }
+    }
+}
+
+impl DrawOffer {
+    pub fn to_bool(&self) -> Option<bool> {
+        match self {
+            Self::None => None,
+            Self::First => Some(true),
+            Self::Second => Some(false),
+        }
+    }
+
+    pub fn from_bool(bool: &Option<bool>) -> Self {
+        match bool {
+            None => Self::None,
+            Some(true) => Self::First,
+            Some(false) => Self::Second,
         }
     }
 }

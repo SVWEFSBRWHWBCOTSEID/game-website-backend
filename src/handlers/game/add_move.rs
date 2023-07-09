@@ -2,6 +2,7 @@ use std::{sync::Mutex, time::SystemTime};
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
+use crate::models::general::{WinType, DrawOffer};
 use crate::prisma::{PrismaClient, game};
 use crate::sse::Broadcaster;
 use crate::common::CustomError;
@@ -111,6 +112,11 @@ pub async fn add_move(
         stime: new_second_time,
         moves: vec![new_move],
         status: GameStatus::from_str(&game.status),
+        win_type: match game.win_type {
+            Some(wt) => Some(WinType::from_str(&wt)),
+            None => None,
+        },
+        draw_offer: DrawOffer::from_bool(&game.draw_offer),
     }));
 
     Ok(HttpResponse::Ok().json(OK_RES))

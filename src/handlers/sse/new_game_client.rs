@@ -1,3 +1,4 @@
+use std::cmp::max;
 use std::sync::Mutex;
 use std::time::SystemTime;
 use actix_web::web::{Data};
@@ -5,8 +6,8 @@ use actix_web::{HttpResponse, get, HttpRequest};
 
 use crate::common::{CustomError, get_key_name};
 use crate::models::events::{GameEvent, GameFullEvent, GameEventType, ChatMessage, Visibility, GameState};
-use crate::models::general::{TimeControl, Player, GameStatus, GameType};
-use crate::prisma::{PrismaClient, game};
+use crate::models::general::{TimeControl, Player, GameStatus, GameType, WinType, DrawOffer};
+use crate::prisma::{PrismaClient, game, message};
 use crate::sse::Broadcaster;
 
 
@@ -26,6 +27,7 @@ pub async fn new_game_client(
         .find_unique(game::id::equals(game_id.clone()))
         .with(game::first_user::fetch())
         .with(game::second_user::fetch())
+        .with(game::chat::fetch(vec![message::game_id::equals(game_id.clone())]))
         .exec()
         .await
         .unwrap()
@@ -76,7 +78,7 @@ pub async fn new_game_client(
         state: GameState {
             ftime: match game.first_time {
                 Some(t) => if moves_len >= 2 && moves_len % 2 == 0 {
-                    Some(t - (current_time - old_last_move_time) as i32)
+                    Some(max(0, t - (current_time - old_last_move_time) as i32))
                 } else {
                     Some(t)
                 },
@@ -84,18 +86,23 @@ pub async fn new_game_client(
             },
             stime: match game.second_time {
                 Some(t) => if moves_len >= 2 && moves_len % 2 == 1 {
-                    Some(t - (current_time - old_last_move_time) as i32)
+                    Some(max(0, t - (current_time - old_last_move_time) as i32))
                 } else {
                     Some(t)
                 },
                 None => None,
             },
-            status: GameStatus::from_str(&game.status),
             moves: if game.moves.len() > 0 {
                 game.moves.split(" ").map(|s| s.to_string()).collect()
             } else {
                 vec![]
             },
+            status: GameStatus::from_str(&game.status),
+            win_type: match game.win_type {
+                Some(wt) => Some(WinType::from_str(&wt)),
+                None => None,
+            },
+            draw_offer: DrawOffer::from_bool(&game.draw_offer),
         },
     }));
 

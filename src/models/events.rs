@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::general::{GameStatus, TimeControl, Player, GameType};
+use super::general::{GameStatus, TimeControl, Player, GameType, WinType, DrawOffer};
 
 
 #[derive(Deserialize, Serialize)]
@@ -51,6 +51,8 @@ pub struct GameStateEvent {
     pub stime: Option<i32>,
     pub moves: Vec<String>,
     pub status: GameStatus,
+    pub win_type: Option<WinType>,
+    pub draw_offer: DrawOffer,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -73,6 +75,8 @@ pub struct GameState {
     pub stime: Option<i32>,
     pub moves: Vec<String>,
     pub status: GameStatus,
+    pub win_type: Option<WinType>,
+    pub draw_offer: DrawOffer,
 }
 
 #[derive(Deserialize, Serialize)]

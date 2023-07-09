@@ -77,13 +77,26 @@ pub enum Country {
 pub enum GameStatus {
     Waiting,
     Started,
-    FirstResigned,
-    SecondResigned,
     FirstWon,
     SecondWon,
-    FirstDrawOffer,
-    SecondDrawOffer,
     Draw,
+}
+
+#[derive(Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum WinType {
+    Normal,
+    Resign,
+    Timeout,
+    Disconnect,
+}
+
+#[derive(Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum DrawOffer {
+    None,
+    First,
+    Second,
 }
 
 #[derive(Deserialize, Serialize)]
