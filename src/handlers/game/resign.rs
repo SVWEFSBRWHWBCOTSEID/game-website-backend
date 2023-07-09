@@ -45,7 +45,7 @@ pub async fn resign(
 
     // respond with 400 if the game is not in progress or if user is not signed in as a player in this game
     if GameStatus::from_str(&game.status) != GameStatus::Started ||
-        game.first_username.clone().unwrap() != username || game.second_username.unwrap() != username {
+        game.first_username.clone().unwrap() != username && game.second_username.unwrap() != username {
             
         return Err(CustomError::BadRequest);
     }
