@@ -1,3 +1,5 @@
+use std::cmp::max;
+
 use actix_web::web;
 use nanoid::nanoid;
 
@@ -269,7 +271,7 @@ impl game::Data {
     pub fn get_new_first_time(&self) -> Option<i32> {
         match self.first_time {
             Some(t) => if self.num_moves() >= 2 && self.num_moves() % 2 == 0 {
-                Some(t - (time_millis() - self.last_move_time) as i32)
+                Some(max(0, t - (time_millis() - self.last_move_time) as i32))
             } else {
                 Some(t)
             },
@@ -280,7 +282,7 @@ impl game::Data {
     pub fn get_new_second_time(&self) -> Option<i32> {
         match self.second_time {
             Some(t) => if self.num_moves() >= 2 && self.num_moves() % 2 == 1 {
-                Some(t - (time_millis() - self.last_move_time) as i32)
+                Some(max(0, t - (time_millis() - self.last_move_time) as i32))
             } else {
                 Some(t)
             },
