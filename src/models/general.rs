@@ -11,6 +11,7 @@ pub struct MatchPlayer {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Player {
     pub username: String,
     pub provisional: bool,
@@ -18,18 +19,21 @@ pub struct Player {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GameType {
     pub key: String,
     pub name: String,
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TimeControl {
     pub initial: Option<i32>,
     pub increment: Option<i32>,
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Perfs {
     pub ttt: GamePerf,
     pub uttt: GamePerf,
@@ -38,6 +42,7 @@ pub struct Perfs {
 }
 
 #[derive(Deserialize, Serialize, Copy, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct GamePerf {
     pub games: i32,
     pub rating: i32,
@@ -47,6 +52,7 @@ pub struct GamePerf {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Profile {
     pub country: Country,
     pub location: String,
