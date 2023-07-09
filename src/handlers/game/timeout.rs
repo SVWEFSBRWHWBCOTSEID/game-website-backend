@@ -1,8 +1,8 @@
 use std::sync::Mutex;
 use actix_session::Session;
-use actix_web::{post, HttpRequest, web::Data, HttpResponse};
+use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
-use crate::models::events::{GameEvent, GameStateEvent, GameEventType};
+use crate::models::events::{GameEventType, GameStateEvent, GameEvent};
 use crate::models::general::{WinType, DrawOffer};
 use crate::prisma::{PrismaClient, game};
 use crate::common::{CustomError, get_username, get_game_by_id_validate};
@@ -11,8 +11,8 @@ use crate::sse::Broadcaster;
 
 
 // route for resigning a game
-#[post("/api/game/{id}/resign")]
-pub async fn resign(
+#[post("/api/game/{id}/timeout")]
+pub async fn timeout(
     req: HttpRequest,
     client: Data<PrismaClient>,
     session: Session,
@@ -38,8 +38,8 @@ pub async fn resign(
         } else {
             vec![]
         },
-        status: game.get_resign_game_status(&username),
-        win_type: Some(WinType::Resign),
+        status: game.get_timeout_game_status(&username),
+        win_type: Some(WinType::Timeout),
         draw_offer: DrawOffer::None,
     }));
 
@@ -48,8 +48,8 @@ pub async fn resign(
         .update(
             game::id::equals(game_id.clone()),
             vec![
-                game::status::set(game.get_resign_game_status(&username).to_string()),
-                game::win_type::set(Some(WinType::Resign.to_string())),
+                game::status::set(game.get_timeout_game_status(&username).to_string()),
+                game::win_type::set(Some(WinType::Timeout.to_string())),
                 game::draw_offer::set(DrawOffer::None.to_bool()),
             ],
         )

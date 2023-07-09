@@ -320,6 +320,16 @@ impl game::Data {
         }
     }
 
+    pub fn get_timeout_game_status(&self, username: &str) -> GameStatus {
+        if self.first_username.clone().unwrap() == username && self.get_new_first_time().unwrap() <= 0 {
+            GameStatus::SecondWon
+        } else if self.second_username.clone().unwrap() == username && self.get_new_second_time().unwrap() <= 0 {
+            GameStatus::FirstWon
+        } else {
+            GameStatus::from_str(&self.status)
+        }
+    }
+
     pub fn get_new_draw_offer(&self, value: &bool, username: &str) -> DrawOffer {
         match (
             self.first_username.clone().unwrap() == username,
