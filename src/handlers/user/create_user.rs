@@ -19,7 +19,6 @@ pub async fn create_user(
     if !create_user_req.validate(&client).await {
         return Err(CustomError::BadRequest);
     }
-
     let user = create_user_req.create_user(&client).await;
 
     match session.insert("username", &user.username) {

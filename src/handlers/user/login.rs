@@ -2,8 +2,8 @@ use actix_session::Session;
 use actix_web::cookie::{Cookie, SameSite};
 use actix_web::{web, HttpResponse, post};
 
-use crate::common::CustomError;
-use crate::prisma::{PrismaClient, user};
+use crate::common::{CustomError, get_user_by_username, get_username};
+use crate::prisma::PrismaClient;
 use crate::models::req::LoginReq;
 
 
@@ -15,15 +15,12 @@ pub async fn login(
     data: web::Json<LoginReq>,
 ) -> Result<HttpResponse, CustomError> {
 
+    let username: String = match get_username(&session) {
+        Some(u) => u,
+        None => return Err(CustomError::Unauthorized),
+    };
     let login_req: LoginReq = data.into_inner();
-
-    let user = match client
-        .user()
-        .find_unique(user::username::equals(login_req.username))
-        .exec()
-        .await
-        .unwrap()
-    {
+    let user = match get_user_by_username(&client, &username).await {
         Some(u) => u,
         None => return Err(CustomError::BadRequest),
     };

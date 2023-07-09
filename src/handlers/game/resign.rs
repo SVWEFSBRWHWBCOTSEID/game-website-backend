@@ -49,6 +49,8 @@ pub async fn resign(
             game::id::equals(game_id.clone()),
             vec![
                 game::status::set(game.get_resign_game_status(&username).to_string()),
+                game::win_type::set(Some(WinType::Resign.to_string())),
+                game::draw_offer::set(None),
             ],
         )
         .exec()
