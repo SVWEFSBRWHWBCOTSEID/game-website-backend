@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-// struct for temporary use for player matching
+
 pub struct MatchPlayer {
     pub username: String,
     pub provisional: bool,
@@ -27,14 +27,6 @@ pub struct GameType {
 pub struct TimeControl {
     pub initial: Option<i32>,
     pub increment: Option<i32>,
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct GameState {
-    pub moves: String,
-    pub first_time: Option<i32>,
-    pub second_time: Option<i32>,
-    pub status: GameStatus,
 }
 
 #[derive(Deserialize, Serialize)]

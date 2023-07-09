@@ -1,176 +1,8 @@
 use std::cmp::max;
-
 use actix_web::web;
-use nanoid::nanoid;
 
-use crate::common::{get_key_name, time_millis};
-use crate::models::general::{TimeControl, GameState, GameStatus, GameType, MatchPlayer, Player, DrawOffer};
-use crate::models::req::CreateGameReq;
-use crate::models::res::{CreateGameResponse, GameResponse};
-use crate::prisma::PrismaClient;
-use crate::prisma::{game, user};
+use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer}, events::GameState}, prisma::{game, PrismaClient}, common::{get_key_name, time_millis}};
 
-
-impl CreateGameReq {
-    // method to validate this game request
-    pub async fn validate(
-        &self, 
-        client: &web::Data<PrismaClient>,
-        player: &MatchPlayer,
-    ) -> bool {
-        let user = client
-            .user()
-            .find_unique(user::username::equals(player.username.clone()))
-            .with(user::first_user_game::fetch())
-            .with(user::second_user_game::fetch())
-            .exec()
-            .await
-            .unwrap()
-            .unwrap();
-        self.time.unwrap_or(1) != 0
-            && player.rating > self.rating_min
-            && player.rating < self.rating_max
-            && user.first_user_game().unwrap().is_none()
-            && user.second_user_game().unwrap().is_none()
-    }
-
-    pub async fn create_or_join(
-        &self,
-        client: &web::Data<PrismaClient>,
-        game_key: &str,
-        player: &MatchPlayer,
-    ) -> Result<game::Data, ()> {
-
-        if !self.validate(client, player).await {
-            return Err(());
-        }
-        Ok(match self.match_if_possible(
-            &client,
-            &game_key,
-            &player,
-        ).await {
-            Some(g) => g,
-            None => self.create_game(
-                &client,
-                &game_key,
-                &player,
-            ).await,
-        })
-    }
-
-    // method to add a game to table from this game request
-    pub async fn create_game(
-        &self,
-        client: &web::Data<PrismaClient>,
-        game_key: &str,
-        player: &MatchPlayer,
-    ) -> game::Data {
-        let alphabet: [char; 62] = [
-            '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-        ];
-        let mut id: String;
-        loop {
-            id = nanoid!{6, &alphabet};
-            if client
-                .game()
-                .find_unique(game::id::equals(id.clone()))
-                .exec()
-                .await
-                .unwrap()
-                .is_none()
-            {
-                break;
-            }
-        }
-
-        client
-            .game()
-            .create(
-                id,
-                self.rated,
-                game_key.to_string(),
-                player.rating,
-                self.rating_min,
-                self.rating_max,
-                "".to_string(),
-                0,
-                GameStatus::Waiting.to_string(),
-                vec![
-                    game::clock_initial::set(self.time),
-                    game::clock_increment::set(self.increment),
-                    game::first_time::set(self.time),
-                    game::second_time::set(self.time),
-                    game::start_pos::set(self.start_pos.clone()),
-                    if player.first {
-                        game::first_user::connect(user::username::equals(player.username.clone()))
-                    } else {
-                        game::second_user::connect(user::username::equals(player.username.clone()))
-                    },
-                ],
-            )
-            .exec()
-            .await
-            .unwrap()
-    }
-
-    // method to match player with an existing game if criteria are met
-    pub async fn match_if_possible(
-        &self,
-        client: &web::Data<PrismaClient>,
-        game_key: &str,
-        player: &MatchPlayer,
-    ) -> Option<game::Data> {
-        let games: Vec<game::Data> = client
-            .game()
-            .find_many(vec![
-                game::game_key::equals(game_key.to_string()),
-                game::clock_initial::equals(self.time),
-                game::clock_increment::equals(self.increment),
-                if player.first {
-                    game::first_username::equals(None)
-                } else {
-                    game::second_username::equals(None)
-                },
-            ])
-            .exec()
-            .await
-            .unwrap();
-
-        let filtered_games = games.iter().filter(|g| {
-            player.rating_min < g.rating
-                && player.rating_max > g.rating
-                && g.rating_min < player.rating
-                && g.rating_max > player.rating
-        });
-
-        if filtered_games.clone().count() == 0 {
-            return None;
-        }
-
-        let game = filtered_games.min_by_key(|g| g.created_at).unwrap();
-
-        Some(
-            client
-                .game()
-                .update(
-                    game::id::equals(game.id.clone()),
-                    vec![
-                        if player.first {
-                            game::first_user::connect(user::username::equals(player.username.clone()))
-                        } else {
-                            game::second_user::connect(user::username::equals(player.username.clone()))
-                        },
-                        game::status::set(GameStatus::Started.to_string()),
-                    ],
-                )
-                .exec()
-                .await
-                .unwrap(),
-        )
-    }
-}
 
 impl game::Data {
     // method to construct reponse from prisma game struct
@@ -216,10 +48,12 @@ impl game::Data {
             },
             start_pos: self.start_pos.clone(),
             game_state: GameState {
-                moves: self.moves.clone(),
-                first_time: self.first_time,
-                second_time: self.second_time,
+                ftime: self.get_new_first_time(),
+                stime: self.get_new_second_time(),
+                moves: self.get_moves_vec(),
                 status: GameStatus::from_str(&self.status),
+                win_type: None,
+                draw_offer: DrawOffer::None,
             },
         }
     }
@@ -296,6 +130,15 @@ impl game::Data {
             return 0;
         }
         self.moves.split(" ").collect::<Vec<&str>>().len()
+    }
+
+    // helper to convert moves string to vec
+    pub fn get_moves_vec(&self) -> Vec<String> {
+        if self.moves.len() > 0 {
+            self.moves.split(" ").map(|s| s.to_string()).collect()
+        } else {
+            vec![]
+        }
     }
 
     pub fn get_draw_game_status(&self, value: &bool, username: &str) -> GameStatus {

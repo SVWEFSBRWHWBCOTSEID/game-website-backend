@@ -33,11 +33,7 @@ pub async fn resign(
         r#type: GameEventType::GameState,
         ftime: game.get_new_first_time(),
         stime: game.get_new_second_time(),
-        moves: if game.moves.len() > 0 {
-            game.moves.split(" ").map(|s| s.to_string()).collect()
-        } else {
-            vec![]
-        },
+        moves: game.get_moves_vec(),
         status: game.get_resign_game_status(&username),
         win_type: Some(WinType::Resign),
         draw_offer: DrawOffer::None,

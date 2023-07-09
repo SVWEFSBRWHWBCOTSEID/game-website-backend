@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::general::{GameType, TimeControl, Player, GameState, Profile, Perfs};
+use super::{general::{GameType, TimeControl, Player, Profile, Perfs}, events::GameState};
 
 
 #[derive(Deserialize, Serialize)]
