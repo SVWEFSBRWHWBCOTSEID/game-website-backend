@@ -1,4 +1,5 @@
 use std::sync::Mutex;
+use std::time::SystemTime;
 use actix_web::web::{Data};
 use actix_web::{HttpResponse, get, HttpRequest};
 
@@ -37,6 +38,14 @@ pub async fn new_game_client(
         return Err(CustomError::BadRequest);
     }
 
+    let moves_len = game.moves.split(" ").collect::<Vec<&str>>().len();
+    let old_last_move_time = game.last_move_time;
+    let current_time = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_millis()
+    as i64;
+
     broadcaster.lock().unwrap().game_send(game_id, GameEvent::GameFullEvent(GameFullEvent {
         r#type: GameEventType::GameFull,
         rated: game.rated,
@@ -65,8 +74,22 @@ pub async fn new_game_client(
             visibility: Visibility::from_str(&x.visibility),
         }).collect(),
         state: GameState {
-            ftime: game.first_time,
-            stime: game.second_time,
+            ftime: match game.first_time {
+                Some(t) => if moves_len >= 2 && moves_len % 2 == 0 {
+                    Some(t - (current_time - old_last_move_time) as i32)
+                } else {
+                    Some(t)
+                },
+                None => None,
+            },
+            stime: match game.second_time {
+                Some(t) => if moves_len >= 2 && moves_len % 2 == 1 {
+                    Some(t - (current_time - old_last_move_time) as i32)
+                } else {
+                    Some(t)
+                },
+                None => None,
+            },
             status: GameStatus::from_str(&game.status),
             moves: if game.moves.len() > 0 {
                 game.moves.split(" ").map(|s| s.to_string()).collect()
