@@ -44,8 +44,8 @@ pub async fn offer_draw(
         None => return Err(CustomError::BadRequest),
     };
 
-    // respond with 400 if the game has not begun yet or if user is not signed in as a player in this game
-    if GameStatus::from_str(&game.status) == GameStatus::Waiting ||
+    // respond with 400 if the game is not in progress or if user is not signed in as a player in this game
+    if GameStatus::from_str(&game.status) != GameStatus::Started ||
         game.first_username.clone().unwrap() != username || game.second_username.unwrap() != username {
 
         return Err(CustomError::BadRequest);
