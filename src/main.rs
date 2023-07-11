@@ -1,3 +1,4 @@
+use std::env;
 use actix_cors::Cors;
 use actix_session::config::PersistentSession;
 use actix_session::storage::RedisSessionStore;
@@ -13,7 +14,7 @@ use game_backend::sse::Broadcaster;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let client = web::Data::new(PrismaClient::_builder().build().await.unwrap());
-    let redis_store = RedisSessionStore::new("redis://127.0.0.1:6379").await.unwrap();
+    let redis_store = RedisSessionStore::new(env::var("REDIS_URL").unwrap()).await.unwrap();
     let broadcaster = Broadcaster::create();
 
     std::env::set_var("RUST_LOG", "debug");
@@ -41,7 +42,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .configure(config_app)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((env::var("HOST").unwrap(), env::var("PORT").unwrap().parse::<u16>().unwrap()))?
     .run()
     .await
 }
