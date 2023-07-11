@@ -1203,6 +1203,7 @@ dependencies = [
  "bcrypt",
  "chrono",
  "derive_more",
+ "dotenv",
  "env_logger",
  "futures",
  "log",
