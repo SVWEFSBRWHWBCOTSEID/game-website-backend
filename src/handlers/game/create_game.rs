@@ -33,7 +33,10 @@ pub async fn create_game(
         None => return Err(CustomError::BadRequest),
     };
     let match_player = user.to_match_player(&game_key, &create_game_req);
-    let game = create_game_req.create_or_join(&client, &game_key, &match_player).await.map_err(|_| CustomError::BadRequest).unwrap();
+    let game = match create_game_req.create_or_join(&client, &game_key, &match_player).await {
+        Ok(g) => g,
+        Err(_) => return Err(CustomError::BadRequest),
+    };
 
     Ok(HttpResponse::Ok().json(game.to_create_game_res(&client).await))
 }
