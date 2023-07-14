@@ -17,7 +17,6 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     let host = env::var("HOST").unwrap();
     let port = env::var("PORT").unwrap().parse::<u16>().unwrap();
-    let cookie_domain = env::var("COOKIE_DOMAIN").unwrap();
     
     let client = web::Data::new(PrismaClient::_builder().build().await.unwrap());
     let redis_store = RedisSessionStore::new(env::var("REDIS_URL").unwrap()).await.unwrap();
@@ -39,13 +38,7 @@ async fn main() -> std::io::Result<()> {
                     redis_store.clone(),
                     Key::from(&[0; 64]),
                 )
-                .session_lifecycle(
-                    PersistentSession::default().session_ttl(Duration::days(3))
-                )
-                .cookie_domain(match cookie_domain.as_str() {
-                    s if s != "" => Some(s.to_string()),
-                    _ => None,
-                })
+                .session_lifecycle(PersistentSession::default().session_ttl(Duration::days(3)))
                 .cookie_same_site(SameSite::None)
                 .build()
             )
