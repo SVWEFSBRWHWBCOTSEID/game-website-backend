@@ -21,16 +21,13 @@ pub async fn create_user(
     }
     let user = create_user_req.create_user(&client).await;
 
-    match session.insert("username", &user.username) {
-        Err(_) => return Err(CustomError::InternalError),
-        _ => {},
-    }
+    session.insert("username", &user.username).map_err(|_| CustomError::InternalError)?;
 
     let mut cookie = Cookie::new("username", &user.username);
     cookie.set_same_site(SameSite::None);
     cookie.set_path("/");
 
     let mut res = HttpResponse::Ok().json(user.to_create_user_res());
-    res.add_cookie(&cookie).unwrap();
+    res.add_cookie(&cookie).map_err(|_| CustomError::InternalError)?;
     Ok(res)
 }

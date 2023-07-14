@@ -16,7 +16,7 @@ pub async fn logout(req: HttpRequest, session: Session) -> Result<HttpResponse, 
             cookie.make_removal();
             cookie.set_same_site(SameSite::None);
             cookie.set_path("/");
-            res.add_cookie(&cookie).expect("failed to remove username cookie");
+            res.add_cookie(&cookie).map_err(|_| CustomError::InternalError)?;
         },
         None => {},
     }
