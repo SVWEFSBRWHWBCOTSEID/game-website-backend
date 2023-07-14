@@ -20,12 +20,9 @@ pub async fn new_game_client(
 
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let rx = broadcaster.lock().unwrap().new_game_client(game_id.clone());
-    let game = match get_game_by_id_with_relations(&client, &game_id).await {
-        Some(g) => g,
-        None => return Err(CustomError::BadRequest),
-    };
+    let game = get_game_by_id_with_relations(&client, &game_id).await?;
     if GameStatus::from_str(&game.status) == GameStatus::Waiting {
-        return Err(CustomError::BadRequest);
+        return Err(CustomError::Forbidden);
     }
 
     broadcaster.lock().unwrap().game_send(&game_id, GameEvent::GameFullEvent(GameFullEvent {

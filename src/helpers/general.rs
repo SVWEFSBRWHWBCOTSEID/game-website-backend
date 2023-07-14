@@ -47,8 +47,8 @@ pub async fn get_game_by_id_validate(client: &web::Data<PrismaClient>, id: &str,
 }
 
 // same as get_game_by_id but fetches user and chat relations
-pub async fn get_game_by_id_with_relations(client: &web::Data<PrismaClient>, id: &str) -> Option<game::Data> {
-    client
+pub async fn get_game_by_id_with_relations(client: &web::Data<PrismaClient>, id: &str) -> Result<game::Data, CustomError> {
+    match client
         .game()
         .find_unique(game::id::equals(id.to_string()))
         .with(game::first_user::fetch())
@@ -57,6 +57,10 @@ pub async fn get_game_by_id_with_relations(client: &web::Data<PrismaClient>, id:
         .exec()
         .await
         .unwrap()
+    {
+        Some(g) => Ok(g),
+        None => Err(CustomError::NotFound),
+    }
 }
 
 pub async fn get_user_by_username(client: &web::Data<PrismaClient>, username: &str) -> Result<user::Data, CustomError> {
