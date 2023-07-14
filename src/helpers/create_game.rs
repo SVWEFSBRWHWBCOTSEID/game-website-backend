@@ -1,6 +1,7 @@
 use actix_web::web;
 use nanoid::nanoid;
 
+use crate::common::CustomError;
 use crate::models::general::{GameStatus, MatchPlayer};
 use crate::models::req::CreateGameReq;
 use crate::prisma::PrismaClient;
@@ -35,10 +36,10 @@ impl CreateGameReq {
         client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
-    ) -> Result<game::Data, ()> {
+    ) -> Result<game::Data, CustomError> {
 
         if !self.validate(client, player).await {
-            return Err(());
+            return Err(CustomError::Forbidden);
         }
         Ok(match self.match_if_possible(
             &client,

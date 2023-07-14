@@ -13,10 +13,7 @@ pub async fn get_game(
 ) -> Result<HttpResponse, CustomError> {
 
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
-    let game = match get_game_by_id(&client, &game_id).await {
-        Some(g) => g,
-        None => return Err(CustomError::BadRequest),
-    };
+    let game = get_game_by_id(&client, &game_id).await?;
 
     Ok(HttpResponse::Ok().json(game.to_game_res(&client).await))
 }

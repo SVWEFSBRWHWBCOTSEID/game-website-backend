@@ -14,10 +14,5 @@ pub async fn get_user(
 
     let username: String = req.match_info().get("username").unwrap().parse().unwrap();
 
-    Ok(HttpResponse::Ok().json(
-        match get_user_by_username(&client, &username).await {
-            Some(u) => Some(u.to_create_user_res()),
-            None => None,
-        }
-    ))
+    Ok(HttpResponse::Ok().json(get_user_by_username(&client, &username).await?))
 }

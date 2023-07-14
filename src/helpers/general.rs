@@ -2,28 +2,33 @@ use std::time::SystemTime;
 use actix_session::Session;
 use actix_web::web;
 
+use crate::common::CustomError;
 use crate::models::general::GameStatus;
 use crate::prisma::{user, PrismaClient, message, game};
 
 
-pub fn get_username(session: &Session) -> Option<String> {
+pub fn get_username(session: &Session) -> Result<String, CustomError> {
     match session.get("username") {
-        Ok(o) => o,
-        Err(_) => None,
+        Ok(u) => Ok(u.unwrap()),
+        Err(_) => Err(CustomError::Unauthorized),
     }
 }
 
-pub async fn get_game_by_id(client: &web::Data<PrismaClient>, id: &str) -> Option<game::Data> {
-    client
+pub async fn get_game_by_id(client: &web::Data<PrismaClient>, id: &str) -> Result<game::Data, CustomError> {
+    match client
         .game()
         .find_unique(game::id::equals(id.to_string()))
         .exec()
         .await
         .unwrap()
+    {
+        Some(g) => Ok(g),
+        None => Err(CustomError::NotFound),
+    }
 }
 
 // same as get_game_by_id but checks checks status and username
-pub async fn get_game_by_id_validate(client: &web::Data<PrismaClient>, id: &str, username: &str) -> Option<game::Data> {
+pub async fn get_game_by_id_validate(client: &web::Data<PrismaClient>, id: &str, username: &str) -> Result<game::Data, CustomError> {
     match client
         .game()
         .find_unique(game::id::equals(id.to_string()))
@@ -33,11 +38,11 @@ pub async fn get_game_by_id_validate(client: &web::Data<PrismaClient>, id: &str,
     {
         Some(g) => if GameStatus::from_str(&g.status) != GameStatus::Started ||
             g.first_username.clone().unwrap() != username && g.second_username.clone().unwrap() != username {
-            None
+                Err(CustomError::NotFound)
         } else {
-            Some(g)
+            Ok(g)
         }
-        None => None,
+        None => Err(CustomError::NotFound),
     }
 }
 
@@ -54,13 +59,17 @@ pub async fn get_game_by_id_with_relations(client: &web::Data<PrismaClient>, id:
         .unwrap()
 }
 
-pub async fn get_user_by_username(client: &web::Data<PrismaClient>, username: &str) -> Option<user::Data> {
-    client
+pub async fn get_user_by_username(client: &web::Data<PrismaClient>, username: &str) -> Result<user::Data, CustomError> {
+    match client
         .user()
         .find_unique(user::username::equals(username.to_string()))
         .exec()
         .await
         .unwrap()
+    {
+        Some(u) => Ok(u),
+        None => Err(CustomError::NotFound),
+    }
 }
 
 pub fn time_millis() -> i64 {

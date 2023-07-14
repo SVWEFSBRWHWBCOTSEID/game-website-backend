@@ -17,26 +17,20 @@ pub async fn login(
 ) -> Result<HttpResponse, CustomError> {
 
     let login_req: LoginReq = data.into_inner();
-    let user = match get_user_by_username(&client, &login_req.username).await {
-        Some(u) => u,
-        None => return Err(CustomError::BadRequest),
-    };
+    let user = get_user_by_username(&client, &login_req.username).await?;
 
     if !bcrypt::verify(&login_req.password, &user.password).unwrap() {
-        return Err(CustomError::BadRequest);
+        return Err(CustomError::Unauthorized);
     }
 
     session.renew();
-    match session.insert("username", &user.username) {
-        Err(_) => return Err(CustomError::InternalError),
-        _ => {},
-    }
+    session.insert("username", &user.username).map_err(|_| CustomError::InternalError)?;
 
     let mut cookie = Cookie::new("username", &user.username);
     cookie.set_same_site(SameSite::None);
     cookie.set_path("/");
 
     let mut res = HttpResponse::Ok().json(user.to_create_user_res());
-    res.add_cookie(&cookie).unwrap();
+    res.add_cookie(&cookie).map_err(|_| CustomError::InternalError)?;
     Ok(res)
 }

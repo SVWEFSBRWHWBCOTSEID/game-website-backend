@@ -12,6 +12,12 @@ pub enum CustomError {
 
     #[display(fmt = "not authorized for this action")]
     Unauthorized,
+
+    #[display(fmt = "action forbidden")]
+    Forbidden,
+
+    #[display(fmt = "resource not found")]
+    NotFound,
     
     #[display(fmt = "timeout")]
     Timeout,
@@ -29,7 +35,9 @@ impl ResponseError for CustomError {
         match *self {
             CustomError::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
             CustomError::BadRequest => StatusCode::BAD_REQUEST,
-            CustomError::Unauthorized => StatusCode::BAD_REQUEST,
+            CustomError::Unauthorized => StatusCode::UNAUTHORIZED,
+            CustomError::Forbidden => StatusCode::FORBIDDEN,
+            CustomError::NotFound => StatusCode::NOT_FOUND,
             CustomError::Timeout => StatusCode::GATEWAY_TIMEOUT,
         }
     }

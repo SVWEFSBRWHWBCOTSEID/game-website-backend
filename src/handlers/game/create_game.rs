@@ -18,25 +18,17 @@ pub async fn create_game(
     data: Json<CreateGameReq>,
 ) -> Result<HttpResponse, CustomError> {
 
-    let username: String = match get_username(&session) {
-        Some(u) => u,
-        None => return Err(CustomError::Unauthorized),
-    };
+    let username: String = get_username(&session)?;
     let create_game_req: CreateGameReq = data.into_inner();
     let game_key: String = req.match_info().get("game").unwrap().parse().unwrap();
     if GameKey::get_game_name(&game_key).is_none() {
         return Err(CustomError::BadRequest);
     }
 
-    let user = match get_user_by_username(&client, &username).await {
-        Some(u) => u,
-        None => return Err(CustomError::BadRequest),
-    };
-    let match_player = user.to_match_player(&game_key, &create_game_req);
-    let game = match create_game_req.create_or_join(&client, &game_key, &match_player).await {
-        Ok(g) => g,
-        Err(_) => return Err(CustomError::BadRequest),
-    };
+    let match_player = get_user_by_username(&client, &username)
+        .await?
+        .to_match_player(&game_key, &create_game_req);
+    let game = create_game_req.create_or_join(&client, &game_key, &match_player).await?;
 
     Ok(HttpResponse::Ok().json(game.to_create_game_res(&client).await))
 }

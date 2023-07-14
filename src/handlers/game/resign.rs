@@ -20,15 +20,9 @@ pub async fn resign(
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, CustomError> {
 
-    let username: String = match get_username(&session) {
-        Some(u) => u,
-        None => return Err(CustomError::Unauthorized),
-    };
+    let username: String = get_username(&session)?;
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
-    let game = match get_game_by_id_validate(&client, &game_id, &username).await {
-        Some(g) => g,
-        None => return Err(CustomError::BadRequest),
-    };
+    let game = get_game_by_id_validate(&client, &game_id, &username).await?;
 
     broadcaster.lock().unwrap().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
@@ -52,8 +46,7 @@ pub async fn resign(
         )
         .exec()
         .await
-        .map_err(|_| CustomError::InternalError)
-        .ok();
+        .map_err(|_| CustomError::InternalError)?;
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }
