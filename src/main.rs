@@ -42,7 +42,10 @@ async fn main() -> std::io::Result<()> {
                 .session_lifecycle(
                     PersistentSession::default().session_ttl(Duration::days(3))
                 )
-                .cookie_domain(Some(cookie_domain.clone()))
+                .cookie_domain(match cookie_domain.as_str() {
+                    s if s != "" => Some(s.to_string()),
+                    _ => None,
+                })
                 .cookie_same_site(SameSite::None)
                 .build()
             )
