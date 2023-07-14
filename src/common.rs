@@ -1,14 +1,6 @@
 use actix_web::{ResponseError, HttpResponse, http::{header::ContentType, StatusCode}};
 use derive_more::{Display, Error};
-use phf::phf_map;
 
-
-pub static KEY_NAMES: phf::Map<&'static str, &'static str> = phf_map! {
-    "ttt" => "Tic-Tac-Toe",
-    "uttt" => "Ultimate Tic-Tac-Toe",
-    "c4" => "Connect 4",
-    "pc" => "Pokemon Chess",
-};
 
 #[derive(Debug, Display, Error)]
 pub enum CustomError {

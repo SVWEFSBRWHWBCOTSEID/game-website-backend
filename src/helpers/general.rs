@@ -4,15 +4,7 @@ use actix_web::web;
 
 use crate::models::general::GameStatus;
 use crate::prisma::{user, PrismaClient, message, game};
-use crate::common::KEY_NAMES;
 
-
-pub fn get_key_name(key: &str) -> Option<String> {
-    match KEY_NAMES.get(key) {
-        Some(s) => Some(s.to_string()),
-        None => None,
-    }
-}
 
 pub fn get_username(session: &Session) -> Option<String> {
     match session.get("username") {

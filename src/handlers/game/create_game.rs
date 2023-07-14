@@ -3,7 +3,8 @@ use actix_web::web::{Json, Data};
 use actix_web::{HttpRequest, HttpResponse, post};
 
 use crate::common::CustomError;
-use crate::helpers::general::{get_username, get_key_name, get_user_by_username};
+use crate::helpers::general::{get_username, get_user_by_username};
+use crate::models::general::GameKey;
 use crate::prisma::PrismaClient;
 use crate::models::req::CreateGameReq;
 
@@ -23,7 +24,7 @@ pub async fn create_game(
     };
     let create_game_req: CreateGameReq = data.into_inner();
     let game_key: String = req.match_info().get("game").unwrap().parse().unwrap();
-    if get_key_name(&game_key).is_none() {
+    if GameKey::get_game_name(&game_key).is_none() {
         return Err(CustomError::BadRequest);
     }
 

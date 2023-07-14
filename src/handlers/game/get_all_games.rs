@@ -6,7 +6,7 @@ use crate::helpers::game::GameVec;
 
 
 // route for getting all games
-#[get("/api/game")]
+#[get("/api/games")]
 pub async fn get_all_games(
     client: Data<PrismaClient>,
 ) -> Result<HttpResponse, CustomError> {

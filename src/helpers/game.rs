@@ -3,8 +3,8 @@ use actix_web::web;
 use async_trait::async_trait;
 use futures::future::join_all;
 
-use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer}, events::GameState}, prisma::{game, PrismaClient}};
-use super::general::{get_key_name, time_millis};
+use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey}, events::GameState}, prisma::{game, PrismaClient}};
+use super::general::time_millis;
 
 
 impl game::Data {
@@ -27,7 +27,7 @@ impl game::Data {
             rated: self.rated,
             game: GameType {
                 key: self.game_key.clone(),
-                name: get_key_name(&self.game_key).unwrap(),
+                name: GameKey::get_game_name(&self.game_key).expect("invalid game key"),
             },
             time_control: TimeControl {
                 initial: self.clock_initial,
@@ -78,7 +78,7 @@ impl game::Data {
             rated: self.rated,
             game: GameType {
                 key: self.game_key.clone(),
-                name: get_key_name(&self.game_key).unwrap(),
+                name: GameKey::get_game_name(&self.game_key).expect("invalid game key"),
             },
             time_control: TimeControl {
                 initial: self.clock_initial,

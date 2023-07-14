@@ -1,5 +1,37 @@
-use crate::models::{general::{WinType, DrawOffer, Country}, events::Visibility};
+use crate::models::general::{WinType, DrawOffer, Country, GameKey};
+use crate::models::events::Visibility;
 
+
+impl GameKey {
+    pub fn to_string(&self) -> String {
+        match self {
+            GameKey::TTT => "ttt",
+            GameKey::UTTT => "uttt",
+            GameKey::C4 => "c4",
+            GameKey::PC => "pc",
+        }.to_string()
+    }
+
+    pub fn from_str(string: &str) -> Option<Self> {
+        match string {
+            "ttt" => Some(GameKey::TTT),
+            "uttt" => Some(GameKey::UTTT),
+            "c4" => Some(GameKey::C4),
+            "pc" => Some(GameKey::PC),
+            _ => None
+        }
+    }
+
+    pub fn get_game_name(string: &str) -> Option<String> {
+        match string {
+            "ttt" => Some("Tic-Tac-Toe".to_string()),
+            "uttt" => Some("ultimate Tic-Tac-Toe".to_string()),
+            "c4" => Some("Connect 4".to_string()),
+            "pc" => Some("Pokémon Chess".to_string()),
+            _ => None,
+        }
+    }
+}
 
 impl WinType {
     pub fn to_string(&self) -> String {

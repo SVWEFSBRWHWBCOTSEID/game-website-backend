@@ -1,11 +1,11 @@
 use std::sync::Mutex;
-use actix_web::web::{Data};
+use actix_web::web::Data;
 use actix_web::{HttpResponse, get, HttpRequest};
 
 use crate::common::CustomError;
-use crate::helpers::general::{get_game_by_id_with_relations, get_key_name};
+use crate::helpers::general::get_game_by_id_with_relations;
 use crate::models::events::{GameEvent, GameFullEvent, GameEventType, ChatMessage, Visibility, GameState};
-use crate::models::general::{TimeControl, Player, GameStatus, GameType, WinType, DrawOffer};
+use crate::models::general::{TimeControl, Player, GameStatus, GameType, WinType, DrawOffer, GameKey};
 use crate::prisma::PrismaClient;
 use crate::sse::Broadcaster;
 
@@ -33,7 +33,7 @@ pub async fn new_game_client(
         rated: game.rated,
         game: GameType {
             key: game.game_key.clone(),
-            name: get_key_name(&game.game_key).unwrap(),
+            name: GameKey::get_game_name(&game.game_key).expect("invalid game key"),
         },
         time_control: TimeControl {
             initial: game.clock_initial,
