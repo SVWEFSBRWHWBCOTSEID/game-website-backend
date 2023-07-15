@@ -14,7 +14,7 @@ impl CreateGameReq {
         &self, 
         client: &web::Data<PrismaClient>,
         player: &MatchPlayer,
-    ) -> bool {
+    ) -> Result<bool, CustomError> {
         let user = client
             .user()
             .find_unique(user::username::equals(player.username.clone()))
@@ -22,13 +22,13 @@ impl CreateGameReq {
             .with(user::second_user_game::fetch())
             .exec()
             .await
-            .unwrap()
+            .map_err(|_| CustomError::InternalError)?
             .unwrap();
-        self.time.unwrap_or(1) != 0
+        Ok(self.time.unwrap_or(1) != 0
             && player.rating > self.rating_min
             && player.rating < self.rating_max
             && user.first_user_game().unwrap().is_none()
-            && user.second_user_game().unwrap().is_none()
+            && user.second_user_game().unwrap().is_none())
     }
 
     pub async fn create_or_join(
@@ -38,14 +38,14 @@ impl CreateGameReq {
         player: &MatchPlayer,
     ) -> Result<game::Data, CustomError> {
 
-        if !self.validate(client, player).await {
+        if !self.validate(client, player).await? {
             return Err(CustomError::Forbidden);
         }
         Ok(match self.match_if_possible(
             &client,
             &game_key,
             &player,
-        ).await {
+        ).await? {
             Some(g) => g,
             None => self.create_game(
                 &client,
@@ -118,7 +118,7 @@ impl CreateGameReq {
         client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
-    ) -> Option<game::Data> {
+    ) -> Result<Option<game::Data>, CustomError> {
         let games: Vec<game::Data> = client
             .game()
             .find_many(vec![
@@ -133,7 +133,7 @@ impl CreateGameReq {
             ])
             .exec()
             .await
-            .unwrap();
+            .map_err(|_| CustomError::InternalError)?;
 
         let filtered_games = games.iter().filter(|g| {
             player.rating_min < g.rating
@@ -143,12 +143,12 @@ impl CreateGameReq {
         });
 
         if filtered_games.clone().count() == 0 {
-            return None;
+            return Ok(None);
         }
 
         let game = filtered_games.min_by_key(|g| g.created_at).unwrap();
 
-        Some(
+        Ok(Some(
             client
                 .game()
                 .update(
@@ -165,6 +165,6 @@ impl CreateGameReq {
                 .exec()
                 .await
                 .unwrap(),
-        )
+        ))
     }
 }

@@ -16,7 +16,7 @@ pub async fn create_user(
 ) -> Result<HttpResponse, CustomError> {
 
     let create_user_req: CreateUserReq = data.into_inner();
-    if !create_user_req.validate(&client).await {
+    if !create_user_req.validate(&client).await? {
         return Err(CustomError::BadRequest);
     }
     let user = create_user_req.create_user(&client).await;

@@ -3,7 +3,7 @@ use actix_web::web;
 use async_trait::async_trait;
 use futures::future::join_all;
 
-use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey}, events::GameState}, prisma::{game, PrismaClient}, common::CustomError};
+use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey, WinType}, events::{GameState, GameFullEvent, GameEventType, Visibility, ChatMessage}}, prisma::{game, PrismaClient}, common::CustomError};
 use super::general::time_millis;
 
 
@@ -18,7 +18,7 @@ impl game::Data {
             .with(game::second_user::fetch())
             .exec()
             .await
-            .unwrap()
+            .map_err(|_| CustomError::InternalError)?
             .unwrap();
 
         Ok(CreateGameResponse {
@@ -71,7 +71,7 @@ impl game::Data {
             .with(game::second_user::fetch())
             .exec()
             .await
-            .unwrap()
+            .map_err(|_| CustomError::InternalError)?
             .unwrap();
 
         Ok(GameResponse {
@@ -100,6 +100,52 @@ impl game::Data {
                     rating: u.get_rating(&self.game_key)?,
                 }),
                 None => None,
+            },
+        })
+    }
+
+    pub fn to_game_full_event(&self) -> Result<GameFullEvent, CustomError> {
+        Ok(GameFullEvent {
+            r#type: GameEventType::GameFull,
+            rated: self.rated,
+            game: GameType {
+                key: self.game_key.clone(),
+                name: GameKey::get_game_name(&self.game_key)?,
+            },
+            time_control: TimeControl {
+                initial: self.clock_initial,
+                increment: self.clock_increment,
+            },
+            created_at: self.created_at.to_string(),
+            first: Player {
+                username: self.first_username.clone().unwrap(),
+                provisional: self.first_user().unwrap().unwrap().get_provisional(&self.game_key).unwrap(),
+                rating: self.first_user().unwrap().unwrap().get_rating(&self.game_key).unwrap(),
+            },
+            second: Player {
+                username: self.second_username.clone().unwrap(),
+                provisional: self.second_user().unwrap().unwrap().get_provisional(&self.game_key).unwrap(),
+                rating: self.second_user().unwrap().unwrap().get_rating(&self.game_key).unwrap(),
+            },
+            chat: self.chat.clone().unwrap_or(vec![]).iter().map(|x| ChatMessage {
+                username: x.username.clone(),
+                text: x.text.clone(),
+                visibility: Visibility::from_str(&x.visibility),
+            }).collect(),
+            state: GameState {
+                ftime: self.get_new_first_time(),
+                stime: self.get_new_second_time(),
+                moves: if self.moves.len() > 0 {
+                    self.moves.split(" ").map(|s| s.to_string()).collect()
+                } else {
+                    vec![]
+                },
+                status: GameStatus::from_str(&self.status),
+                win_type: match &self.win_type {
+                    Some(wt) => Some(WinType::from_str(wt)),
+                    None => None,
+                },
+                draw_offer: DrawOffer::from_bool(&self.draw_offer),
             },
         })
     }

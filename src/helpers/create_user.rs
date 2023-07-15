@@ -1,5 +1,6 @@
 use actix_web::web;
 
+use crate::common::CustomError;
 use crate::models::general::{GamePerf, Perfs};
 use crate::prisma::{user, PrismaClient};
 use crate::models::req::CreateUserReq;
@@ -7,14 +8,14 @@ use crate::models::req::CreateUserReq;
 
 impl CreateUserReq {
     // method to check that this username does not already exist
-    pub async fn validate(&self, client: &web::Data<PrismaClient>) -> bool {
-        client
+    pub async fn validate(&self, client: &web::Data<PrismaClient>) -> Result<bool, CustomError> {
+        Ok(client
             .user()
             .find_unique(user::username::equals(self.username.clone()))
             .exec()
             .await
-            .unwrap()
-            .is_none()
+            .map_err(|_| CustomError::InternalError)?
+            .is_none())
     }
 
     // method to add a user to table from this user request
