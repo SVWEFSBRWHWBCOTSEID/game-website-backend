@@ -1,34 +1,34 @@
 use rand::Rng;
 
-use crate::{models::{general::{Perfs, MatchPlayer, Profile, Country, Side}, res::CreateUserResponse, req::CreateGameReq}, prisma::user};
+use crate::{models::{general::{Perfs, MatchPlayer, Profile, Country, Side}, res::CreateUserResponse, req::CreateGameReq}, prisma::user, common::CustomError};
 
 
 impl user::Data {
     // method to get provisional for game
-    pub fn get_provisional(&self, game_key: &str) -> Option<bool> {
+    pub fn get_provisional(&self, game_key: &str) -> Result<bool, CustomError> {
 
         let perfs: Perfs = serde_json::from_str(&self.perfs).unwrap();
 
         match game_key {
-            "ttt" => Some(perfs.ttt.prov),
-            "uttt" => Some(perfs.uttt.prov),
-            "c4" => Some(perfs.c4.prov),
-            "pc" => Some(perfs.pc.prov),
-            _ => None,
+            "ttt" => Ok(perfs.ttt.prov),
+            "uttt" => Ok(perfs.uttt.prov),
+            "c4" => Ok(perfs.c4.prov),
+            "pc" => Ok(perfs.pc.prov),
+            _ => Err(CustomError::NotFound),
         }
     }
 
     // method to get rating for game
-    pub fn get_rating(&self, game_key: &str) -> Option<i32> {
+    pub fn get_rating(&self, game_key: &str) -> Result<i32, CustomError> {
 
         let perfs: Perfs = serde_json::from_str(&self.perfs).unwrap();
 
         match game_key {
-            "ttt" => Some(perfs.ttt.rating),
-            "uttt" => Some(perfs.uttt.rating),
-            "c4" => Some(perfs.c4.rating),
-            "pc" => Some(perfs.pc.rating),
-            _ => None,
+            "ttt" => Ok(perfs.ttt.rating),
+            "uttt" => Ok(perfs.uttt.rating),
+            "c4" => Ok(perfs.c4.rating),
+            "pc" => Ok(perfs.pc.rating),
+            _ => Err(CustomError::NotFound),
         }
     }
 

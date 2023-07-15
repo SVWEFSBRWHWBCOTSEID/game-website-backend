@@ -3,13 +3,13 @@ use actix_web::web;
 use async_trait::async_trait;
 use futures::future::join_all;
 
-use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey}, events::GameState}, prisma::{game, PrismaClient}};
+use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey}, events::GameState}, prisma::{game, PrismaClient}, common::CustomError};
 use super::general::time_millis;
 
 
 impl game::Data {
     // method to construct reponse from prisma game struct
-    pub async fn to_create_game_res(&self, client: &web::Data<PrismaClient>) -> CreateGameResponse {
+    pub async fn to_create_game_res(&self, client: &web::Data<PrismaClient>) -> Result<CreateGameResponse, CustomError> {
         // get game from table to get user relations
         let game = client
             .game()
@@ -21,13 +21,13 @@ impl game::Data {
             .unwrap()
             .unwrap();
 
-        CreateGameResponse {
+        Ok(CreateGameResponse {
             id: self.id.clone(),
             created_at: self.created_at.to_string(),
             rated: self.rated,
             game: GameType {
                 key: self.game_key.clone(),
-                name: GameKey::get_game_name(&self.game_key).expect("invalid game key"),
+                name: GameKey::get_game_name(&self.game_key)?,
             },
             time_control: TimeControl {
                 initial: self.clock_initial,
@@ -36,16 +36,16 @@ impl game::Data {
             first_player: match game.first_user().unwrap() {
                 Some(u) => Some(Player {
                     username: u.username.clone(),
-                    provisional: u.get_provisional(&self.game_key).unwrap(),
-                    rating: u.get_rating(&self.game_key).unwrap(),
+                    provisional: u.get_provisional(&self.game_key)?,
+                    rating: u.get_rating(&self.game_key)?,
                 }),
                 None => None,
             },
             second_player: match game.second_user().unwrap() {
                 Some(u) => Some(Player {
                     username: u.username.clone(),
-                    provisional: u.get_provisional(&self.game_key).unwrap(),
-                    rating: u.get_rating(&self.game_key).unwrap(),
+                    provisional: u.get_provisional(&self.game_key)?,
+                    rating: u.get_rating(&self.game_key)?,
                 }),
                 None => None,
             },
@@ -58,11 +58,11 @@ impl game::Data {
                 win_type: None,
                 draw_offer: DrawOffer::None,
             },
-        }
+        })
     }
 
     // method to construct game response object for fetching a game by id
-    pub async fn to_game_res(&self, client: &web::Data<PrismaClient>) -> GameResponse {
+    pub async fn to_game_res(&self, client: &web::Data<PrismaClient>) -> Result<GameResponse, CustomError> {
         // get game from table to get user relations
         let game = client
             .game()
@@ -74,11 +74,11 @@ impl game::Data {
             .unwrap()
             .unwrap();
 
-        GameResponse {
+        Ok(GameResponse {
             rated: self.rated,
             game: GameType {
                 key: self.game_key.clone(),
-                name: GameKey::get_game_name(&self.game_key).expect("invalid game key"),
+                name: GameKey::get_game_name(&self.game_key)?,
             },
             time_control: TimeControl {
                 initial: self.clock_initial,
@@ -88,20 +88,20 @@ impl game::Data {
             first: match game.first_user().unwrap() {
                 Some(u) => Some(Player {
                     username: u.username.clone(),
-                    provisional: u.get_provisional(&self.game_key).unwrap(),
-                    rating: u.get_rating(&self.game_key).unwrap(),
+                    provisional: u.get_provisional(&self.game_key)?,
+                    rating: u.get_rating(&self.game_key)?,
                 }),
                 None => None,
             },
             second: match game.second_user().unwrap() {
                 Some(u) => Some(Player {
                     username: u.username.clone(),
-                    provisional: u.get_provisional(&self.game_key).unwrap(),
-                    rating: u.get_rating(&self.game_key).unwrap(),
+                    provisional: u.get_provisional(&self.game_key)?,
+                    rating: u.get_rating(&self.game_key)?,
                 }),
                 None => None,
             },
-        }
+        })
     }
 
     // helpers to get updated first and second times
@@ -204,15 +204,17 @@ impl game::Data {
 
 #[async_trait]
 pub trait GameVec {
-    async fn to_game_res_vec(&self, client: &web::Data<PrismaClient>) -> Vec<GameResponse>;
+    async fn to_game_res_vec(&self, client: &web::Data<PrismaClient>) -> Result<Vec<GameResponse>, CustomError>;
 }
 
 #[async_trait]
 impl GameVec for Vec<game::Data> {
     // convert vec of games to vec of GameResponse structs
-    async fn to_game_res_vec(&self, client: &web::Data<PrismaClient>) -> Vec<GameResponse> {
-        join_all(self.iter().map(|g| async {
-            g.to_game_res(&client).await
-        })).await
+    async fn to_game_res_vec(&self, client: &web::Data<PrismaClient>) -> Result<Vec<GameResponse>, CustomError> {
+        Ok(join_all(self.iter().map(
+            |g| async {
+                g.to_game_res(&client).await.expect("Err in to_game_res_vec")
+            }
+        )).await)
     }
 }

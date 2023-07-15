@@ -15,5 +15,5 @@ pub async fn get_game(
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let game = get_game_by_id(&client, &game_id).await?;
 
-    Ok(HttpResponse::Ok().json(game.to_game_res(&client).await))
+    Ok(HttpResponse::Ok().json(game.to_game_res(&client).await?))
 }

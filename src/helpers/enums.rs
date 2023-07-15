@@ -1,3 +1,4 @@
+use crate::common::CustomError;
 use crate::models::general::{WinType, DrawOffer, Country, GameKey};
 use crate::models::events::Visibility;
 
@@ -12,23 +13,23 @@ impl GameKey {
         }.to_string()
     }
 
-    pub fn from_str(string: &str) -> Option<Self> {
+    pub fn from_str(string: &str) -> Result<Self, CustomError> {
         match string {
-            "ttt" => Some(GameKey::TTT),
-            "uttt" => Some(GameKey::UTTT),
-            "c4" => Some(GameKey::C4),
-            "pc" => Some(GameKey::PC),
-            _ => None
+            "ttt" => Ok(GameKey::TTT),
+            "uttt" => Ok(GameKey::UTTT),
+            "c4" => Ok(GameKey::C4),
+            "pc" => Ok(GameKey::PC),
+            _ => Err(CustomError::NotFound),
         }
     }
 
-    pub fn get_game_name(string: &str) -> Option<String> {
+    pub fn get_game_name(string: &str) -> Result<String, CustomError> {
         match string {
-            "ttt" => Some("Tic-Tac-Toe".to_string()),
-            "uttt" => Some("ultimate Tic-Tac-Toe".to_string()),
-            "c4" => Some("Connect 4".to_string()),
-            "pc" => Some("Pokémon Chess".to_string()),
-            _ => None,
+            "ttt" => Ok("Tic-Tac-Toe".to_string()),
+            "uttt" => Ok("ultimate Tic-Tac-Toe".to_string()),
+            "c4" => Ok("Connect 4".to_string()),
+            "pc" => Ok("Pokémon Chess".to_string()),
+            _ => Err(CustomError::NotFound),
         }
     }
 }
