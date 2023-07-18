@@ -37,7 +37,7 @@ model User {
     username        String      @unique
     createdAt       DateTime    @default(now())
     password        String
-    perfs           String
+    perfs           Perf[]
     country         String
     location        String
     bio             String
@@ -47,6 +47,19 @@ model User {
     playing         String?
     firstUserGame   Game?       @relation("first")
     secondUserGame  Game?       @relation("second")
+}
+
+model Perf {
+    id          String  @id @default(uuid())
+    user        User    @relation(fields: [username], references: [username])
+    username    String
+    gameKey     String
+    games       Int
+    rating      Int
+    rd          Float
+    prog        Int
+    prov        Boolean
+    @@unique([username, gameKey])
 }
 
 model Message {

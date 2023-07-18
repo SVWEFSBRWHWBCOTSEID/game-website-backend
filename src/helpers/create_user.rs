@@ -1,8 +1,9 @@
 use actix_web::web;
+use strum::IntoEnumIterator;
 
 use crate::common::CustomError;
-use crate::models::general::{GamePerf, Perfs};
-use crate::prisma::{user, PrismaClient};
+use crate::models::general::GameKey;
+use crate::prisma::{user, PrismaClient, perf};
 use crate::models::req::CreateUserReq;
 
 
@@ -14,35 +15,20 @@ impl CreateUserReq {
             .find_unique(user::username::equals(self.username.clone()))
             .exec()
             .await
-            .map_err(|_| CustomError::InternalError)?
+            .or(Err(CustomError::InternalError))?
             .is_none())
     }
 
     // method to add a user to table from this user request
-    pub async fn create_user(&self, client: &web::Data<PrismaClient>) -> user::Data {
+    pub async fn create_user(&self, client: &web::Data<PrismaClient>) -> Result<user::Data, CustomError> {
 
         let hashed_pass = bcrypt::hash(&self.password, bcrypt::DEFAULT_COST).unwrap();
 
-        let starting_perf = GamePerf {
-            games: 0,
-            rating: 1500,
-            rd: 500.0,
-            prog: 0,
-            prov: true,
-        };
-        let perfs = Perfs {
-            ttt: starting_perf,
-            uttt: starting_perf,
-            c4: starting_perf,
-            pc: starting_perf,
-        };
-
-        client
+        let user = client
             .user()
             .create(
                 self.username.clone(),
                 hashed_pass,
-                serde_json::to_string(&perfs).unwrap(),
                 "Empty".to_string(),
                 "".to_string(),
                 "".to_string(),
@@ -53,6 +39,28 @@ impl CreateUserReq {
             )
             .exec()
             .await
-            .unwrap()
+            .or(Err(CustomError::InternalError))?;
+
+        client
+            .perf()
+            .create_many(
+                GameKey::iter().map(|k|
+                    perf::create_unchecked(
+                        user.username.clone(),
+                        k.to_string(),
+                        0,
+                        1500,
+                        500.0,
+                        0,
+                        true,
+                        vec![],
+                    )
+                ).collect()
+            )
+            .exec()
+            .await
+            .or(Err(CustomError::InternalError))?;
+
+        Ok(user)
     }
 }

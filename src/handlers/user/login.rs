@@ -30,7 +30,7 @@ pub async fn login(
     cookie.set_same_site(SameSite::None);
     cookie.set_path("/");
 
-    let mut res = HttpResponse::Ok().json(user.to_create_user_res());
+    let mut res = HttpResponse::Ok().json(user.to_create_user_res()?);
     res.add_cookie(&cookie).map_err(|_| CustomError::InternalError)?;
     Ok(res)
 }

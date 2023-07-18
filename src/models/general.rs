@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use strum_macros::EnumIter;
 
 
 pub struct MatchPlayer {
@@ -61,7 +62,7 @@ pub struct Profile {
     pub last_name: String,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, EnumIter)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum GameKey {
     TTT,

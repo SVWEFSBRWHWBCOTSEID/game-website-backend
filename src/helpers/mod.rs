@@ -5,3 +5,4 @@ pub mod user;
 pub mod enums;
 pub mod general;
 pub mod moves;
+pub mod perf;
