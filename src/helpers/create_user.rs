@@ -2,7 +2,7 @@ use actix_web::web;
 use strum::IntoEnumIterator;
 
 use crate::common::CustomError;
-use crate::models::general::GameKey;
+use crate::models::general::{GameKey, GamePerf};
 use crate::prisma::{user, PrismaClient, perf};
 use crate::models::req::CreateUserReq;
 
@@ -48,11 +48,11 @@ impl CreateUserReq {
                     perf::create_unchecked(
                         user.username.clone(),
                         k.to_string(),
-                        0,
-                        1500,
-                        500.0,
-                        0,
-                        true,
+                        GamePerf::default().games,
+                        GamePerf::default().rating,
+                        GamePerf::default().rd as f64,
+                        GamePerf::default().prog,
+                        GamePerf::default().prov,
                         vec![],
                     )
                 ).collect()
