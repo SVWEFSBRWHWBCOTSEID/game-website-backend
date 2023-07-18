@@ -36,7 +36,7 @@ pub async fn send_chat(
         )
         .exec()
         .await
-        .map_err(|_| CustomError::InternalError)?;
+        .or(Err(CustomError::InternalError))?;
 
     broadcaster.lock().unwrap().game_send(&game_id, GameEvent::ChatMessageEvent(ChatMessageEvent {
         r#type: GameEventType::ChatMessage,

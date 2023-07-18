@@ -52,7 +52,7 @@ pub async fn timeout(
         )
         .exec()
         .await
-        .map_err(|_| CustomError::InternalError)?;
+        .or(Err(CustomError::InternalError))?;
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }

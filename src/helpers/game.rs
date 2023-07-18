@@ -18,7 +18,7 @@ impl game::Data {
             .with(game::second_user::fetch())
             .exec()
             .await
-            .map_err(|_| CustomError::InternalError)?
+            .or(Err(CustomError::InternalError))?
             .unwrap();
 
         Ok(CreateGameResponse {
@@ -71,7 +71,7 @@ impl game::Data {
             .with(game::second_user::fetch())
             .exec()
             .await
-            .map_err(|_| CustomError::InternalError)?
+            .or(Err(CustomError::InternalError))?
             .unwrap();
 
         Ok(GameResponse {

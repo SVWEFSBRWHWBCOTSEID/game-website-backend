@@ -16,7 +16,7 @@ pub async fn get_all_games(
         .find_many(vec![])
         .exec()
         .await
-        .map_err(|_| CustomError::InternalError)?;
+        .or(Err(CustomError::InternalError))?;
 
     Ok(HttpResponse::Ok().json(games.to_game_res_vec(&client).await?))
 }

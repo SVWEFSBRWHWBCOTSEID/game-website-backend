@@ -28,6 +28,6 @@ pub async fn create_user(
     cookie.set_path("/");
 
     let mut res = HttpResponse::Ok().json(user.to_create_user_res()?);
-    res.add_cookie(&cookie).map_err(|_| CustomError::InternalError)?;
+    res.add_cookie(&cookie).or(Err(CustomError::InternalError))?;
     Ok(res)
 }

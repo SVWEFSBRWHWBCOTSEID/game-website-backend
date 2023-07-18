@@ -24,13 +24,13 @@ pub async fn login(
     }
 
     session.renew();
-    session.insert("username", &user.username).map_err(|_| CustomError::InternalError)?;
+    session.insert("username", &user.username).or(Err(CustomError::InternalError))?;
 
     let mut cookie = Cookie::new("username", &user.username);
     cookie.set_same_site(SameSite::None);
     cookie.set_path("/");
 
     let mut res = HttpResponse::Ok().json(user.to_create_user_res()?);
-    res.add_cookie(&cookie).map_err(|_| CustomError::InternalError)?;
+    res.add_cookie(&cookie).or(Err(CustomError::InternalError))?;
     Ok(res)
 }

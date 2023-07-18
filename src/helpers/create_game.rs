@@ -22,7 +22,7 @@ impl CreateGameReq {
             .with(user::second_user_game::fetch())
             .exec()
             .await
-            .map_err(|_| CustomError::InternalError)?
+            .or(Err(CustomError::InternalError))?
             .unwrap();
         Ok(self.time.unwrap_or(1) != 0
             && player.rating > self.rating_min
@@ -133,7 +133,7 @@ impl CreateGameReq {
             ])
             .exec()
             .await
-            .map_err(|_| CustomError::InternalError)?;
+            .or(Err(CustomError::InternalError))?;
 
         let filtered_games = games.iter().filter(|g| {
             player.rating_min < g.rating
