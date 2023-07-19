@@ -30,7 +30,7 @@ pub struct GameResponse {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateUserResponse {
+pub struct UserResponse {
     pub username: String,
     pub created_at: String,
     pub perfs: Perfs,

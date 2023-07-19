@@ -1,6 +1,12 @@
+use actix_web::web;
 use rand::Rng;
+use strum::IntoEnumIterator;
 
-use crate::{models::{general::{MatchPlayer, Profile, Country, Side}, res::CreateUserResponse, req::CreateGameReq}, prisma::user, common::CustomError};
+use crate::models::general::{MatchPlayer, Profile, Country, Side, GameKey, GamePerf};
+use crate::models::res::UserResponse;
+use crate::models::req::CreateGameReq;
+use crate::prisma::{user, PrismaClient};
+use crate::common::CustomError;
 use super::perf::PerfVec;
 
 
@@ -19,11 +25,44 @@ impl user::Data {
         Ok(perfs.iter().find(|p| p.game_key == game_key).ok_or(CustomError::InternalError)?.rating)
     }
 
+    // method to add perfs if user is missing perfs for new games
+    pub async fn update_perfs(&mut self, client: &web::Data<PrismaClient>) -> Result<(), CustomError> {
+        for k in GameKey::iter() {
+            if self.perfs().or(Err(CustomError::InternalError))?.iter().find(|p| p.game_key == k.to_string()).is_none() {
+                client
+                    .perf()
+                    .create_unchecked(
+                        self.username.clone(),
+                        k.to_string(),
+                        GamePerf::default().games,
+                        GamePerf::default().rating,
+                        GamePerf::default().rd as f64,
+                        GamePerf::default().prog,
+                        GamePerf::default().prov,
+                        vec![],
+                    )
+                    .exec()
+                    .await
+                    .or(Err(CustomError::InternalError))?;
+            }
+        }
+        *self = client
+            .user()
+            .find_unique(user::username::equals(self.username.clone()))
+            .with(user::perfs::fetch(vec![]))
+            .exec()
+            .await
+            .or(Err(CustomError::InternalError))?
+            .unwrap();
+
+        Ok(())
+    }
+
     // method to construct response from prisma user struct
-    pub fn to_create_user_res(&self) -> Result<CreateUserResponse, CustomError> {
+    pub fn to_user_res(&self) -> Result<UserResponse, CustomError> {
         let perfs = self.perfs().or(Err(CustomError::InternalError))?;
 
-        Ok(CreateUserResponse {
+        Ok(UserResponse {
             username: self.username.clone(),
             created_at: self.created_at.to_string(),
             perfs: perfs.to_perfs_struct()?,

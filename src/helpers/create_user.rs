@@ -61,6 +61,15 @@ impl CreateUserReq {
             .await
             .or(Err(CustomError::InternalError))?;
 
-        Ok(user)
+        let new_user = client
+            .user()
+            .find_unique(user::username::equals(user.username))
+            .with(user::perfs::fetch(vec![]))
+            .exec()
+            .await
+            .or(Err(CustomError::InternalError))?
+            .unwrap();
+
+        Ok(new_user)
     }
 }

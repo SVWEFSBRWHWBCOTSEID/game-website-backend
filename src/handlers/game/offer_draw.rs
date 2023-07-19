@@ -2,7 +2,7 @@ use std::sync::Mutex;
 use actix_session::Session;
 use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, get_game_by_id_validate};
+use crate::helpers::general::{get_username, get_game_validate};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent};
 use crate::prisma::{PrismaClient, game};
 use crate::common::CustomError;
@@ -22,7 +22,7 @@ pub async fn offer_draw(
     let username: String = get_username(&session)?;
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let value: bool = req.match_info().get("value").unwrap().parse().unwrap();
-    let game = get_game_by_id_validate(&client, &game_id, &username).await?;
+    let game = get_game_validate(&client, &game_id, &username).await?;
 
     broadcaster.lock().unwrap().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,

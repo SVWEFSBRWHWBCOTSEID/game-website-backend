@@ -3,7 +3,7 @@ use actix_web::web::Data;
 use actix_web::{HttpResponse, get, HttpRequest};
 
 use crate::common::CustomError;
-use crate::helpers::general::get_game_by_id_with_relations;
+use crate::helpers::general::get_game_with_relations;
 use crate::models::events::GameEvent;
 use crate::models::general::GameStatus;
 use crate::prisma::PrismaClient;
@@ -20,7 +20,7 @@ pub async fn new_game_client(
 
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let rx = broadcaster.lock().unwrap().new_game_client(game_id.clone());
-    let game = get_game_by_id_with_relations(&client, &game_id).await?;
+    let game = get_game_with_relations(&client, &game_id).await?;
     if GameStatus::from_str(&game.status) == GameStatus::Waiting {
         return Err(CustomError::Forbidden);
     }

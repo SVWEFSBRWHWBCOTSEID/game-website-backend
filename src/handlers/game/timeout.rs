@@ -2,7 +2,7 @@ use std::sync::Mutex;
 use actix_session::Session;
 use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, get_game_by_id_validate};
+use crate::helpers::general::{get_username, get_game_validate};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent};
 use crate::models::general::{WinType, DrawOffer};
 use crate::prisma::{PrismaClient, game};
@@ -22,7 +22,7 @@ pub async fn timeout(
 
     let username: String = get_username(&session)?;
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
-    let game = get_game_by_id_validate(&client, &game_id, &username).await?;
+    let game = get_game_validate(&client, &game_id, &username).await?;
     match (game.get_new_first_time(), game.get_new_second_time()) {
         (Some(f), Some(s)) => if f > 0 && s > 0 {
             return Err(CustomError::Forbidden)

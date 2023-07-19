@@ -27,7 +27,7 @@ pub async fn create_user(
     cookie.set_same_site(SameSite::None);
     cookie.set_path("/");
 
-    let mut res = HttpResponse::Ok().json(user.to_create_user_res()?);
+    let mut res = HttpResponse::Ok().json(user.to_user_res()?);
     res.add_cookie(&cookie).or(Err(CustomError::InternalError))?;
     Ok(res)
 }
