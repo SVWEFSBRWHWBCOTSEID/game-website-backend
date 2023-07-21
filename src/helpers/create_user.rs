@@ -1,3 +1,5 @@
+use std::env;
+
 use actix_web::web;
 use strum::IntoEnumIterator;
 
@@ -34,7 +36,7 @@ impl CreateUserReq {
                 "".to_string(),
                 "".to_string(),
                 "".to_string(),
-                "http://localhost:3000/user/".to_string() + &self.username,
+                [env::var("DOMAIN").unwrap(), "/user/".to_string(), self.username.clone()].concat(),
                 vec![],
             )
             .exec()

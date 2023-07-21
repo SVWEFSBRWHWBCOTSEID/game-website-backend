@@ -2,7 +2,7 @@ use std::sync::Mutex;
 use actix_session::Session;
 use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, get_game_validate};
+use crate::helpers::general::{get_username, get_game_validate, set_user_playing};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent};
 use crate::models::general::{WinType, DrawOffer};
 use crate::prisma::{PrismaClient, game};
@@ -39,6 +39,9 @@ pub async fn timeout(
         win_type: Some(WinType::Timeout),
         draw_offer: DrawOffer::None,
     }));
+
+    set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
+    set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
 
     client
         .game()

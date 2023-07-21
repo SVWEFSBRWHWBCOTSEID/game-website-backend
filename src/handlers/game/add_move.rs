@@ -2,7 +2,7 @@ use std::sync::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, get_game_by_id, time_millis};
+use crate::helpers::general::{get_username, get_game_by_id, time_millis, set_user_playing};
 use crate::models::general::{WinType, DrawOffer, MoveOutcome};
 use crate::prisma::{PrismaClient, game};
 use crate::sse::Broadcaster;
@@ -54,6 +54,11 @@ pub async fn add_move(
             _ => DrawOffer::None,
         },
     }));
+
+    if game.new_move_outcome(&new_move) != MoveOutcome::None {
+        set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
+        set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
+    }
 
     client
         .game()

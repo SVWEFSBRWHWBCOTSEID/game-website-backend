@@ -77,6 +77,21 @@ pub async fn get_user_with_relations(client: &web::Data<PrismaClient>, username:
     }
 }
 
+pub async fn set_user_playing(client: &web::Data<PrismaClient>, username: &str, playing: Option<String>) -> Result<(), CustomError> {
+    client
+        .user()
+        .update(
+            user::username::equals(username.to_string()),
+            vec![
+                user::playing::set(playing),
+            ],
+        )
+        .exec()
+        .await
+        .or(Err(CustomError::InternalError))?;
+    Ok(())
+}
+
 pub fn time_millis() -> i64 {
     SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)

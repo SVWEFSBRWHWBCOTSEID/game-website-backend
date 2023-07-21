@@ -2,8 +2,9 @@ use std::sync::Mutex;
 use actix_session::Session;
 use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, get_game_validate};
+use crate::helpers::general::{get_username, get_game_validate, set_user_playing};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent};
+use crate::models::general::DrawOffer;
 use crate::prisma::{PrismaClient, game};
 use crate::common::CustomError;
 use crate::models::res::OK_RES;
@@ -33,6 +34,11 @@ pub async fn offer_draw(
         win_type: None,
         draw_offer: game.get_new_draw_offer(&value, &username),
     }));
+
+    if game.get_new_draw_offer(&value, &username) != DrawOffer::None {
+        set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
+        set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
+    }
 
     client
         .game()

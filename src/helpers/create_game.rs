@@ -1,3 +1,5 @@
+use std::env;
+
 use actix_web::web;
 use nanoid::nanoid;
 
@@ -6,6 +8,8 @@ use crate::models::general::{GameStatus, MatchPlayer};
 use crate::models::req::CreateGameReq;
 use crate::prisma::PrismaClient;
 use crate::prisma::{game, user};
+
+use super::general::set_user_playing;
 
 
 impl CreateGameReq {
@@ -18,8 +22,8 @@ impl CreateGameReq {
         let user = client
             .user()
             .find_unique(user::username::equals(player.username.clone()))
-            .with(user::first_user_game::fetch())
-            .with(user::second_user_game::fetch())
+            .with(user::first_user_games::fetch(vec![]))
+            .with(user::second_user_games::fetch(vec![]))
             .exec()
             .await
             .or(Err(CustomError::InternalError))?
@@ -27,8 +31,7 @@ impl CreateGameReq {
         Ok(self.time.unwrap_or(1) != 0
             && player.rating > self.rating_min
             && player.rating < self.rating_max
-            && user.first_user_game().unwrap().is_none()
-            && user.second_user_game().unwrap().is_none())
+            && user.playing == None)
     }
 
     pub async fn create_or_join(
@@ -51,7 +54,7 @@ impl CreateGameReq {
                 &client,
                 &game_key,
                 &player,
-            ).await,
+            ).await?,
         })
     }
 
@@ -61,7 +64,7 @@ impl CreateGameReq {
         client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
-    ) -> game::Data {
+    ) -> Result<game::Data, CustomError> {
         let alphabet: [char; 62] = [
             '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -82,7 +85,9 @@ impl CreateGameReq {
             }
         }
 
-        client
+        set_user_playing(&client, &player.username, Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
+
+        Ok(client
             .game()
             .create(
                 id,
@@ -109,7 +114,7 @@ impl CreateGameReq {
             )
             .exec()
             .await
-            .unwrap()
+            .or(Err(CustomError::InternalError))?)
     }
 
     // method to match player with an existing game if criteria are met
@@ -145,7 +150,6 @@ impl CreateGameReq {
         if filtered_games.clone().count() == 0 {
             return Ok(None);
         }
-
         let game = filtered_games.min_by_key(|g| g.created_at).unwrap();
 
         Ok(Some(

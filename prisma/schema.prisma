@@ -15,8 +15,8 @@ model Game {
     gameKey         String
     clockInitial    Int?
     clockIncrement  Int?
-    firstUsername   String?     @unique
-    secondUsername  String?     @unique
+    firstUsername   String?
+    secondUsername  String?
     firstUser       User?       @relation("first", fields: [firstUsername], references: [username])
     secondUser      User?       @relation("second", fields: [secondUsername], references: [username])
     rating          Int
@@ -45,8 +45,8 @@ model User {
     lastName        String
     url             String
     playing         String?
-    firstUserGame   Game?       @relation("first")
-    secondUserGame  Game?       @relation("second")
+    firstUserGames  Game[]      @relation("first")
+    secondUserGames Game[]      @relation("second")
 }
 
 model Perf {
