@@ -4,7 +4,7 @@ use actix_web::web;
 use strum::IntoEnumIterator;
 
 use crate::common::CustomError;
-use crate::models::general::{GameKey, GamePerf};
+use crate::models::general::{GameKey, GamePerf, Profile};
 use crate::prisma::{user, PrismaClient, perf};
 use crate::models::req::CreateUserReq;
 
@@ -31,11 +31,11 @@ impl CreateUserReq {
             .create(
                 self.username.clone(),
                 hashed_pass,
-                "Empty".to_string(),
-                "".to_string(),
-                "".to_string(),
-                "".to_string(),
-                "".to_string(),
+                Profile::default().country.to_string(),
+                Profile::default().location,
+                Profile::default().bio,
+                Profile::default().first_name,
+                Profile::default().last_name,
                 [env::var("DOMAIN").unwrap(), "/user/".to_string(), self.username.clone()].concat(),
                 vec![],
             )

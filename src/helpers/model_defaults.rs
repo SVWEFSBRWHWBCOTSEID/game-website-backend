@@ -1,4 +1,4 @@
-use crate::models::general::GamePerf;
+use crate::models::general::{GamePerf, Profile, Country};
 
 
 impl Default for GamePerf {
@@ -9,6 +9,18 @@ impl Default for GamePerf {
             rd: 500.0,
             prog: 0,
             prov: true,
+        }
+    }
+}
+
+impl Default for Profile {
+    fn default() -> Self {
+        Profile {
+            country: Country::Empty,
+            location: "".to_string(),
+            bio: "".to_string(),
+            first_name: "".to_string(),
+            last_name: "".to_string(),
         }
     }
 }
