@@ -1,5 +1,5 @@
 use crate::common::WebErr;
-use crate::models::general::{WinType, DrawOffer, Country, GameKey};
+use crate::models::general::{WinType, DrawOffer, Country, GameKey, FriendRequest};
 use crate::models::events::Visibility;
 
 
@@ -19,7 +19,7 @@ impl GameKey {
             "uttt" => Ok(GameKey::UTTT),
             "c4" => Ok(GameKey::C4),
             "pc" => Ok(GameKey::PC),
-            _ => Err(WebErr::NotFound(format!("provided game key does not match an enum variant"))),
+            _ => Err(WebErr::NotFound(format!("provided game key string does not match an enum variant"))),
         }
     }
 
@@ -29,7 +29,26 @@ impl GameKey {
             "uttt" => Ok("ultimate Tic-Tac-Toe".to_string()),
             "c4" => Ok("Connect 4".to_string()),
             "pc" => Ok("Pokémon Chess".to_string()),
-            _ => Err(WebErr::NotFound(format!("provided game key does not match an enum variant"))),
+            _ => Err(WebErr::NotFound(format!("provided game key string does not match an enum variant"))),
+        }
+    }
+}
+
+impl FriendRequest {
+    pub fn to_string(&self) -> String {
+        match self {
+            FriendRequest::Out => "Out",
+            FriendRequest::In => "In",
+            FriendRequest::Friend => "Friend",
+        }.to_string()
+    }
+
+    pub fn from_str(string: &str) -> Result<Self, WebErr> {
+        match string {
+            "Out" => Ok(FriendRequest::Out),
+            "In" => Ok(FriendRequest::In),
+            "Friend" => Ok(FriendRequest::Friend),
+            _ => Err(WebErr::NotFound(format!("provided friend request string does not match an enum variant"))),
         }
     }
 }
@@ -44,13 +63,13 @@ impl WinType {
         }.to_string()
     }
 
-    pub fn from_str(string: &str) -> Self {
+    pub fn from_str(string: &str) -> Result<Self, WebErr> {
         match string {
-            "Normal" => Self::Normal,
-            "Resign" => Self::Resign,
-            "Timeout" => Self::Timeout,
-            "Disconnect" => Self::Disconnect,
-            _ => Self::Normal,
+            "Normal" => Ok(Self::Normal),
+            "Resign" => Ok(Self::Resign),
+            "Timeout" => Ok(Self::Timeout),
+            "Disconnect" => Ok(Self::Disconnect),
+            _ => Err(WebErr::NotFound(format!("provided wintype string does not match an enum variant"))),
         }
     }
 }
@@ -83,13 +102,13 @@ impl Country {
         }.to_string()
     }
 
-    pub fn from_str(string: &str) -> Self {
+    pub fn from_str(string: &str) -> Result<Self, WebErr> {
         match string {
-            "Empty" => Self::Empty,
-            "Us" => Self::Us,
-            "Uk" => Self::Uk,
-            "Mn" => Self::Mn,
-            _ => Self::Empty,
+            "Empty" => Ok(Self::Empty),
+            "Us" => Ok(Self::Us),
+            "Uk" => Ok(Self::Uk),
+            "Mn" => Ok(Self::Mn),
+            _ => Err(WebErr::NotFound(format!("provided country string does not match an enum variant"))),
         }
     }
 }
@@ -104,13 +123,13 @@ impl Visibility {
         }.to_string()
     }
 
-    pub fn from_str(string: &str) -> Self {
+    pub fn from_str(string: &str) -> Result<Self, WebErr> {
         match string {
-            "Player" => Self::Player,
-            "Spectator" => Self::Spectator,
-            "Team1" => Self::Team1,
-            "Team2" => Self::Team2,
-            _ => Self::Player,
+            "Player" => Ok(Self::Player),
+            "Spectator" => Ok(Self::Spectator),
+            "Team1" => Ok(Self::Team1),
+            "Team2" => Ok(Self::Team2),
+            _ => Err(WebErr::NotFound(format!("provided visibility string does not match an enum variant"))),
         }
     }
 }

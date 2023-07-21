@@ -47,6 +47,17 @@ model User {
     playing         String?
     firstUserGames  Game[]      @relation("first")
     secondUserGames Game[]      @relation("second")
+    friends         Friend[]    @relation(name: "user")
+    friendsRelation Friend[]    @relation(name: "friend")
+}
+
+model Friend {
+    type        String
+    user        User    @relation(name: "user", fields: [username], references: [username])
+    friend      User    @relation(name: "friend", fields: [friendName], references: [username])
+    username    String
+    friendName  String
+    @@unique([username, friendName])
 }
 
 model Perf {

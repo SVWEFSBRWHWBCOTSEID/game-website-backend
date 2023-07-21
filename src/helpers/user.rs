@@ -73,7 +73,7 @@ impl user::Data {
             created_at: self.created_at.to_string(),
             perfs: perfs.to_perfs_struct()?,
             profile: Profile {
-                country: Country::from_str(&self.country),
+                country: Country::from_str(&self.country)?,
                 location: self.location.clone(),
                 bio: self.bio.clone(),
                 first_name: self.first_name.clone(),

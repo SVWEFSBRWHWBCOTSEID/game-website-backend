@@ -127,11 +127,11 @@ impl game::Data {
                 provisional: self.second_user().unwrap().unwrap().get_provisional(&self.game_key).unwrap(),
                 rating: self.second_user().unwrap().unwrap().get_rating(&self.game_key).unwrap(),
             },
-            chat: self.chat.clone().unwrap_or(vec![]).iter().map(|x| ChatMessage {
+            chat: self.chat.clone().unwrap_or(vec![]).iter().map(|x| Ok::<ChatMessage, WebErr>(ChatMessage {
                 username: x.username.clone(),
                 text: x.text.clone(),
-                visibility: Visibility::from_str(&x.visibility),
-            }).collect(),
+                visibility: Visibility::from_str(&x.visibility)?,
+            })).flatten().collect(),
             state: GameState {
                 ftime: self.get_new_first_time(),
                 stime: self.get_new_second_time(),
@@ -142,7 +142,7 @@ impl game::Data {
                 },
                 status: GameStatus::from_str(&self.status),
                 win_type: match &self.win_type {
-                    Some(wt) => Some(WinType::from_str(wt)),
+                    Some(wt) => Some(WinType::from_str(wt)?),
                     None => None,
                 },
                 draw_offer: DrawOffer::from_bool(&self.draw_offer),

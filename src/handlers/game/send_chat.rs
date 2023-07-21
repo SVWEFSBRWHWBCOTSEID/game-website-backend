@@ -42,7 +42,7 @@ pub async fn send_chat(
         r#type: GameEventType::ChatMessage,
         text: chat_message_req.message,
         username,
-        visibility: Visibility::from_str(&visibility),
+        visibility: Visibility::from_str(&visibility)?,
     }));
 
     Ok(HttpResponse::Ok().json(OK_RES))

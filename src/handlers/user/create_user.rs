@@ -12,7 +12,7 @@ use crate::models::req::CreateUserReq;
 pub async fn create_user(
     client: web::Data<PrismaClient>,
     session: Session,
-    data: web::Json<CreateUserReq>
+    data: web::Json<CreateUserReq>,
 ) -> Result<HttpResponse, WebErr> {
 
     let create_user_req: CreateUserReq = data.into_inner();
