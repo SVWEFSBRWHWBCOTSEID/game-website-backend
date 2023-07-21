@@ -15,6 +15,7 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
         .service(game::timeout)
         .service(user::create_user)
         .service(user::get_user)
+        .service(user::get_current_user)
         .service(user::login)
         .service(user::logout)
         .service(sse::new_user_client)
