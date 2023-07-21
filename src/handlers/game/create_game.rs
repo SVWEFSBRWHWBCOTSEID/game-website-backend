@@ -2,7 +2,7 @@ use actix_session::Session;
 use actix_web::web::{Json, Data};
 use actix_web::{HttpRequest, HttpResponse, post};
 
-use crate::common::CustomError;
+use crate::common::WebErr;
 use crate::helpers::general::{get_username, get_user_with_relations};
 use crate::prisma::PrismaClient;
 use crate::models::req::CreateGameReq;
@@ -15,7 +15,7 @@ pub async fn create_game(
     client: Data<PrismaClient>,
     session: Session,
     data: Json<CreateGameReq>,
-) -> Result<HttpResponse, CustomError> {
+) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
     let create_game_req: CreateGameReq = data.into_inner();

@@ -2,7 +2,7 @@ use std::sync::Mutex;
 use actix_web::web::Data;
 use actix_web::{HttpResponse, get, HttpRequest};
 
-use crate::common::CustomError;
+use crate::common::WebErr;
 use crate::helpers::general::get_game_with_relations;
 use crate::models::events::GameEvent;
 use crate::models::general::GameStatus;
@@ -16,13 +16,13 @@ pub async fn new_game_client(
     req: HttpRequest,
     client: Data<PrismaClient>,
     broadcaster: Data<Mutex<Broadcaster>>,
-) -> Result<HttpResponse, CustomError> {
+) -> Result<HttpResponse, WebErr> {
 
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let rx = broadcaster.lock().unwrap().new_game_client(game_id.clone());
     let game = get_game_with_relations(&client, &game_id).await?;
     if GameStatus::from_str(&game.status) == GameStatus::Waiting {
-        return Err(CustomError::Forbidden);
+        return Err(WebErr::Forbidden(format!("cannot fetch event stream, game has not started yet")));
     }
 
     broadcaster.lock().unwrap().game_send(&game_id, GameEvent::GameFullEvent(game.to_game_full_event()?));

@@ -6,7 +6,7 @@ use crate::helpers::general::{get_username, get_game_validate, set_user_playing}
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent};
 use crate::models::general::{WinType, DrawOffer};
 use crate::prisma::{PrismaClient, game};
-use crate::common::CustomError;
+use crate::common::WebErr;
 use crate::models::res::OK_RES;
 use crate::sse::Broadcaster;
 
@@ -18,16 +18,16 @@ pub async fn timeout(
     client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
-) -> Result<HttpResponse, CustomError> {
+) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let game = get_game_validate(&client, &game_id, &username).await?;
     match (game.get_new_first_time(), game.get_new_second_time()) {
         (Some(f), Some(s)) => if f > 0 && s > 0 {
-            return Err(CustomError::Forbidden)
+            return Err(WebErr::Forbidden(format!("neither player has timed out on server")))
         },
-        _ => return Err(CustomError::Forbidden),
+        _ => return Err(WebErr::Forbidden(format!("cannot time out in untimed game"))),
     }
 
     broadcaster.lock().unwrap().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
@@ -55,7 +55,7 @@ pub async fn timeout(
         )
         .exec()
         .await
-        .or(Err(CustomError::InternalError))?;
+        .or(Err(WebErr::Internal(format!("error updating game with id {} to time out", game_id))))?;
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }

@@ -3,7 +3,7 @@ use std::env;
 use actix_web::web;
 use nanoid::nanoid;
 
-use crate::common::CustomError;
+use crate::common::WebErr;
 use crate::models::general::{GameStatus, MatchPlayer};
 use crate::models::req::CreateGameReq;
 use crate::prisma::PrismaClient;
@@ -18,7 +18,7 @@ impl CreateGameReq {
         &self, 
         client: &web::Data<PrismaClient>,
         player: &MatchPlayer,
-    ) -> Result<bool, CustomError> {
+    ) -> Result<bool, WebErr> {
         let user = client
             .user()
             .find_unique(user::username::equals(player.username.clone()))
@@ -26,7 +26,7 @@ impl CreateGameReq {
             .with(user::second_user_games::fetch(vec![]))
             .exec()
             .await
-            .or(Err(CustomError::InternalError))?
+            .or(Err(WebErr::Internal(format!("could not find user {}", player.username))))?
             .unwrap();
         Ok(self.time.unwrap_or(1) != 0
             && player.rating > self.rating_min
@@ -39,10 +39,10 @@ impl CreateGameReq {
         client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
-    ) -> Result<game::Data, CustomError> {
+    ) -> Result<game::Data, WebErr> {
 
         if !self.validate(client, player).await? {
-            return Err(CustomError::Forbidden);
+            return Err(WebErr::Forbidden(format!("user {} does not meet requirements to join this game", player.username)));
         }
         Ok(match self.match_if_possible(
             &client,
@@ -64,7 +64,7 @@ impl CreateGameReq {
         client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
-    ) -> Result<game::Data, CustomError> {
+    ) -> Result<game::Data, WebErr> {
         let alphabet: [char; 62] = [
             '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -114,7 +114,7 @@ impl CreateGameReq {
             )
             .exec()
             .await
-            .or(Err(CustomError::InternalError))?)
+            .or(Err(WebErr::Internal(format!("error creating game"))))?)
     }
 
     // method to match player with an existing game if criteria are met
@@ -123,7 +123,7 @@ impl CreateGameReq {
         client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
-    ) -> Result<Option<game::Data>, CustomError> {
+    ) -> Result<Option<game::Data>, WebErr> {
         let games: Vec<game::Data> = client
             .game()
             .find_many(vec![
@@ -138,7 +138,7 @@ impl CreateGameReq {
             ])
             .exec()
             .await
-            .or(Err(CustomError::InternalError))?;
+            .or(Err(WebErr::Internal(format!("error fetching games"))))?;
 
         let filtered_games = games.iter().filter(|g| {
             player.rating_min < g.rating

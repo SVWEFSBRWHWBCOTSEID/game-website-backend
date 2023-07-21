@@ -1202,7 +1202,6 @@ dependencies = [
  "async-trait",
  "bcrypt",
  "chrono",
- "derive_more",
  "dotenv",
  "env_logger",
  "futures",

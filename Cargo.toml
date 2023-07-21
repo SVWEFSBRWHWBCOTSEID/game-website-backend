@@ -16,7 +16,6 @@ log = "0.4.19"
 rand = "0.8.5"
 serde = { version = "1.0.164", features = ["derive"] }
 prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust", default-features = false, features = ["postgresql"] }
-derive_more = "0.99.17"
 serde_json = "1.0.99"
 actix-cors = "0.6.4"
 actix-session = { version = "0.7.2", features = ["redis-rs-session", "redis-rs-tls-session"] }

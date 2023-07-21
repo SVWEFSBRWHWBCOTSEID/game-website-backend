@@ -3,13 +3,13 @@ use actix_web::web;
 use async_trait::async_trait;
 use futures::future::join_all;
 
-use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey, WinType}, events::{GameState, GameFullEvent, GameEventType, Visibility, ChatMessage}}, prisma::{game, PrismaClient}, common::CustomError};
+use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey, WinType}, events::{GameState, GameFullEvent, GameEventType, Visibility, ChatMessage}}, prisma::{game, PrismaClient}, common::WebErr};
 use super::general::time_millis;
 
 
 impl game::Data {
     // method to construct reponse from prisma game struct
-    pub async fn to_create_game_res(&self, client: &web::Data<PrismaClient>) -> Result<CreateGameResponse, CustomError> {
+    pub async fn to_create_game_res(&self, client: &web::Data<PrismaClient>) -> Result<CreateGameResponse, WebErr> {
         // get game from table to get user relations
         let game = client
             .game()
@@ -18,7 +18,7 @@ impl game::Data {
             .with(game::second_user::fetch())
             .exec()
             .await
-            .or(Err(CustomError::InternalError))?
+            .or(Err(WebErr::Internal(format!("could not find game with id {}", self.id))))?
             .unwrap();
 
         Ok(CreateGameResponse {
@@ -62,7 +62,7 @@ impl game::Data {
     }
 
     // method to construct game response object for fetching a game by id
-    pub async fn to_game_res(&self, client: &web::Data<PrismaClient>) -> Result<GameResponse, CustomError> {
+    pub async fn to_game_res(&self, client: &web::Data<PrismaClient>) -> Result<GameResponse, WebErr> {
         // get game from table to get user relations
         let game = client
             .game()
@@ -71,7 +71,7 @@ impl game::Data {
             .with(game::second_user::fetch())
             .exec()
             .await
-            .or(Err(CustomError::InternalError))?
+            .or(Err(WebErr::Internal(format!("could not find game with id {}", self.id))))?
             .unwrap();
 
         Ok(GameResponse {
@@ -104,7 +104,7 @@ impl game::Data {
         })
     }
 
-    pub fn to_game_full_event(&self) -> Result<GameFullEvent, CustomError> {
+    pub fn to_game_full_event(&self) -> Result<GameFullEvent, WebErr> {
         Ok(GameFullEvent {
             r#type: GameEventType::GameFull,
             rated: self.rated,
@@ -250,13 +250,13 @@ impl game::Data {
 
 #[async_trait]
 pub trait GameVec {
-    async fn to_game_res_vec(&self, client: &web::Data<PrismaClient>) -> Result<Vec<GameResponse>, CustomError>;
+    async fn to_game_res_vec(&self, client: &web::Data<PrismaClient>) -> Result<Vec<GameResponse>, WebErr>;
 }
 
 #[async_trait]
 impl GameVec for Vec<game::Data> {
     // convert vec of games to vec of GameResponse structs
-    async fn to_game_res_vec(&self, client: &web::Data<PrismaClient>) -> Result<Vec<GameResponse>, CustomError> {
+    async fn to_game_res_vec(&self, client: &web::Data<PrismaClient>) -> Result<Vec<GameResponse>, WebErr> {
         Ok(join_all(self.iter().map(
             |g| async {
                 g.to_game_res(&client).await.expect("Err in to_game_res_vec")

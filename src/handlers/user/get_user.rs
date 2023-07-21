@@ -1,6 +1,6 @@
 use actix_web::{web, HttpRequest, HttpResponse, get};
 
-use crate::common::CustomError;
+use crate::common::WebErr;
 use crate::helpers::general::get_user_with_relations;
 use crate::prisma::PrismaClient;
 
@@ -10,7 +10,7 @@ use crate::prisma::PrismaClient;
 pub async fn get_user(
     req: HttpRequest,
     client: web::Data<PrismaClient>,
-) -> Result<HttpResponse, CustomError> {
+) -> Result<HttpResponse, WebErr> {
 
     let username: String = req.match_info().get("username").unwrap().parse().unwrap();
     let mut user = get_user_with_relations(&client, &username).await?;

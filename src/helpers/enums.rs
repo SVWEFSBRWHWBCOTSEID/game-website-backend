@@ -1,4 +1,4 @@
-use crate::common::CustomError;
+use crate::common::WebErr;
 use crate::models::general::{WinType, DrawOffer, Country, GameKey};
 use crate::models::events::Visibility;
 
@@ -13,23 +13,23 @@ impl GameKey {
         }.to_string()
     }
 
-    pub fn from_str(string: &str) -> Result<Self, CustomError> {
+    pub fn from_str(string: &str) -> Result<Self, WebErr> {
         match string {
             "ttt" => Ok(GameKey::TTT),
             "uttt" => Ok(GameKey::UTTT),
             "c4" => Ok(GameKey::C4),
             "pc" => Ok(GameKey::PC),
-            _ => Err(CustomError::NotFound),
+            _ => Err(WebErr::NotFound(format!("provided game key does not match an enum variant"))),
         }
     }
 
-    pub fn get_game_name(string: &str) -> Result<String, CustomError> {
+    pub fn get_game_name(string: &str) -> Result<String, WebErr> {
         match string {
             "ttt" => Ok("Tic-Tac-Toe".to_string()),
             "uttt" => Ok("ultimate Tic-Tac-Toe".to_string()),
             "c4" => Ok("Connect 4".to_string()),
             "pc" => Ok("Pokémon Chess".to_string()),
-            _ => Err(CustomError::NotFound),
+            _ => Err(WebErr::NotFound(format!("provided game key does not match an enum variant"))),
         }
     }
 }

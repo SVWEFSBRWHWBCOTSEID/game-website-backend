@@ -2,7 +2,7 @@ use actix_web::{HttpRequest, web::Data, get, HttpResponse};
 
 use crate::helpers::general::get_game_by_id;
 use crate::prisma::PrismaClient;
-use crate::common::CustomError;
+use crate::common::WebErr;
 
 
 // route for getting a game by id
@@ -10,7 +10,7 @@ use crate::common::CustomError;
 pub async fn get_game(
     req: HttpRequest,
     client: Data<PrismaClient>,
-) -> Result<HttpResponse, CustomError> {
+) -> Result<HttpResponse, WebErr> {
 
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let game = get_game_by_id(&client, &game_id).await?;

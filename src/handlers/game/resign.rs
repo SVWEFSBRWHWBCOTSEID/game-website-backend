@@ -6,7 +6,7 @@ use crate::helpers::general::{get_username, get_game_validate, set_user_playing}
 use crate::models::events::{GameEvent, GameStateEvent, GameEventType};
 use crate::models::general::{WinType, DrawOffer};
 use crate::prisma::{PrismaClient, game};
-use crate::common::CustomError;
+use crate::common::WebErr;
 use crate::models::res::OK_RES;
 use crate::sse::Broadcaster;
 
@@ -18,7 +18,7 @@ pub async fn resign(
     client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
-) -> Result<HttpResponse, CustomError> {
+) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
@@ -49,7 +49,7 @@ pub async fn resign(
         )
         .exec()
         .await
-        .or(Err(CustomError::InternalError))?;
+        .or(Err(WebErr::Internal(format!("error updating game with id {} to resign", game_id))))?;
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }

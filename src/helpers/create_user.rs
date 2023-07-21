@@ -3,7 +3,7 @@ use std::env;
 use actix_web::web;
 use strum::IntoEnumIterator;
 
-use crate::common::CustomError;
+use crate::common::WebErr;
 use crate::models::general::{GameKey, GamePerf, Profile};
 use crate::prisma::{user, PrismaClient, perf};
 use crate::models::req::CreateUserReq;
@@ -11,18 +11,18 @@ use crate::models::req::CreateUserReq;
 
 impl CreateUserReq {
     // method to check that this username does not already exist
-    pub async fn validate(&self, client: &web::Data<PrismaClient>) -> Result<bool, CustomError> {
+    pub async fn validate(&self, client: &web::Data<PrismaClient>) -> Result<bool, WebErr> {
         Ok(client
             .user()
             .find_unique(user::username::equals(self.username.clone()))
             .exec()
             .await
-            .or(Err(CustomError::InternalError))?
+            .or(Err(WebErr::Internal(format!("could not find user {}", self.username))))?
             .is_none())
     }
 
     // method to add a user to table from this user request
-    pub async fn create_user(&self, client: &web::Data<PrismaClient>) -> Result<user::Data, CustomError> {
+    pub async fn create_user(&self, client: &web::Data<PrismaClient>) -> Result<user::Data, WebErr> {
 
         let hashed_pass = bcrypt::hash(&self.password, bcrypt::DEFAULT_COST).unwrap();
 
@@ -41,7 +41,7 @@ impl CreateUserReq {
             )
             .exec()
             .await
-            .or(Err(CustomError::InternalError))?;
+            .or(Err(WebErr::Internal(format!("error creating user {}", self.username))))?;
 
         client
             .perf()
@@ -61,7 +61,7 @@ impl CreateUserReq {
             )
             .exec()
             .await
-            .or(Err(CustomError::InternalError))?;
+            .or(Err(WebErr::Internal(format!("error creating perfs for user {}", self.username))))?;
 
         let new_user = client
             .user()
@@ -69,7 +69,7 @@ impl CreateUserReq {
             .with(user::perfs::fetch(vec![]))
             .exec()
             .await
-            .or(Err(CustomError::InternalError))?
+            .or(Err(WebErr::Internal(format!("error fetching user {} after adding perfs", self.username))))?
             .unwrap();
 
         Ok(new_user)

@@ -6,29 +6,35 @@ use crate::models::general::{MatchPlayer, Profile, Country, Side, GameKey, GameP
 use crate::models::res::UserResponse;
 use crate::models::req::CreateGameReq;
 use crate::prisma::{user, PrismaClient};
-use crate::common::CustomError;
+use crate::common::WebErr;
 use super::perf::PerfVec;
 
 
 impl user::Data {
     // method to get provisional for game
-    pub fn get_provisional(&self, game_key: &str) -> Result<bool, CustomError> {
-        let perfs = self.perfs().or(Err(CustomError::InternalError))?;
+    pub fn get_provisional(&self, game_key: &str) -> Result<bool, WebErr> {
+        let perfs = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
 
-        Ok(perfs.iter().find(|p| p.game_key == game_key).ok_or(CustomError::InternalError)?.prov)
+        Ok(perfs.iter().find(|p| p.game_key == game_key)
+            .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
+            .prov)
     }
 
     // method to get rating for game
-    pub fn get_rating(&self, game_key: &str) -> Result<i32, CustomError> {
-        let perfs = self.perfs().or(Err(CustomError::InternalError))?;
+    pub fn get_rating(&self, game_key: &str) -> Result<i32, WebErr> {
+        let perfs = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
 
-        Ok(perfs.iter().find(|p| p.game_key == game_key).ok_or(CustomError::InternalError)?.rating)
+        Ok(perfs.iter().find(|p| p.game_key == game_key)
+            .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
+            .rating)
     }
 
     // method to add perfs if user is missing perfs for new games
-    pub async fn update_perfs(&mut self, client: &web::Data<PrismaClient>) -> Result<(), CustomError> {
+    pub async fn update_perfs(&mut self, client: &web::Data<PrismaClient>) -> Result<(), WebErr> {
         for k in GameKey::iter() {
-            if self.perfs().or(Err(CustomError::InternalError))?.iter().find(|p| p.game_key == k.to_string()).is_none() {
+            if self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?.iter()
+                .find(|p| p.game_key == k.to_string()).is_none()
+            {
                 client
                     .perf()
                     .create_unchecked(
@@ -43,7 +49,7 @@ impl user::Data {
                     )
                     .exec()
                     .await
-                    .or(Err(CustomError::InternalError))?;
+                    .or(Err(WebErr::Internal(format!("error updating perfs"))))?;
             }
         }
         *self = client
@@ -52,15 +58,15 @@ impl user::Data {
             .with(user::perfs::fetch(vec![]))
             .exec()
             .await
-            .or(Err(CustomError::InternalError))?
+            .or(Err(WebErr::Internal(format!("error finding user"))))?
             .unwrap();
 
         Ok(())
     }
 
     // method to construct response from prisma user struct
-    pub fn to_user_res(&self) -> Result<UserResponse, CustomError> {
-        let perfs = self.perfs().or(Err(CustomError::InternalError))?;
+    pub fn to_user_res(&self) -> Result<UserResponse, WebErr> {
+        let perfs = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
 
         Ok(UserResponse {
             username: self.username.clone(),

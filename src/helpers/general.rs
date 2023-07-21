@@ -2,19 +2,19 @@ use std::time::SystemTime;
 use actix_session::Session;
 use actix_web::web;
 
-use crate::common::CustomError;
+use crate::common::WebErr;
 use crate::models::general::GameStatus;
 use crate::prisma::{user, PrismaClient, message, game};
 
 
-pub fn get_username(session: &Session) -> Result<String, CustomError> {
+pub fn get_username(session: &Session) -> Result<String, WebErr> {
     match session.get("username") {
         Ok(u) => Ok(u.unwrap()),
-        Err(_) => Err(CustomError::Unauthorized),
+        Err(_) => Err(WebErr::Unauth(format!("missing session cookie to get username"))),
     }
 }
 
-pub async fn get_game_by_id(client: &web::Data<PrismaClient>, id: &str) -> Result<game::Data, CustomError> {
+pub async fn get_game_by_id(client: &web::Data<PrismaClient>, id: &str) -> Result<game::Data, WebErr> {
     match client
         .game()
         .find_unique(game::id::equals(id.to_string()))
@@ -23,12 +23,12 @@ pub async fn get_game_by_id(client: &web::Data<PrismaClient>, id: &str) -> Resul
         .unwrap()
     {
         Some(g) => Ok(g),
-        None => Err(CustomError::NotFound),
+        None => Err(WebErr::NotFound(format!("could not find game with id {}", id))),
     }
 }
 
 // same as get_game_by_id but checks checks status and username
-pub async fn get_game_validate(client: &web::Data<PrismaClient>, id: &str, username: &str) -> Result<game::Data, CustomError> {
+pub async fn get_game_validate(client: &web::Data<PrismaClient>, id: &str, username: &str) -> Result<game::Data, WebErr> {
     match client
         .game()
         .find_unique(game::id::equals(id.to_string()))
@@ -38,16 +38,16 @@ pub async fn get_game_validate(client: &web::Data<PrismaClient>, id: &str, usern
     {
         Some(g) => if GameStatus::from_str(&g.status) != GameStatus::Started ||
             g.first_username.clone().unwrap() != username && g.second_username.clone().unwrap() != username {
-                Err(CustomError::NotFound)
+                Err(WebErr::Forbidden(format!("could not validate, game not started or not a player")))
         } else {
             Ok(g)
         }
-        None => Err(CustomError::NotFound),
+        None => Err(WebErr::NotFound(format!("could not find game with id {}", id))),
     }
 }
 
 // same as get_game_by_id but fetches user and chat relations
-pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str) -> Result<game::Data, CustomError> {
+pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str) -> Result<game::Data, WebErr> {
     match client
         .game()
         .find_unique(game::id::equals(id.to_string()))
@@ -59,11 +59,11 @@ pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str)
         .unwrap()
     {
         Some(g) => Ok(g),
-        None => Err(CustomError::NotFound),
+        None => Err(WebErr::NotFound(format!("could not find game with id {}", id))),
     }
 }
 
-pub async fn get_user_with_relations(client: &web::Data<PrismaClient>, username: &str) -> Result<user::Data, CustomError> {
+pub async fn get_user_with_relations(client: &web::Data<PrismaClient>, username: &str) -> Result<user::Data, WebErr> {
     match client
         .user()
         .find_unique(user::username::equals(username.to_string()))
@@ -73,11 +73,11 @@ pub async fn get_user_with_relations(client: &web::Data<PrismaClient>, username:
         .unwrap()
     {
         Some(u) => Ok(u),
-        None => Err(CustomError::NotFound),
+        None => Err(WebErr::NotFound(format!("could not find user {}", username))),
     }
 }
 
-pub async fn set_user_playing(client: &web::Data<PrismaClient>, username: &str, playing: Option<String>) -> Result<(), CustomError> {
+pub async fn set_user_playing(client: &web::Data<PrismaClient>, username: &str, playing: Option<String>) -> Result<(), WebErr> {
     client
         .user()
         .update(
@@ -88,7 +88,7 @@ pub async fn set_user_playing(client: &web::Data<PrismaClient>, username: &str, 
         )
         .exec()
         .await
-        .or(Err(CustomError::InternalError))?;
+        .or(Err(WebErr::Internal(format!("error setting 'playing' field on user {}", username))))?;
     Ok(())
 }
 

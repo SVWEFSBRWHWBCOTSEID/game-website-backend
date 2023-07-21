@@ -8,14 +8,14 @@ use std::collections::HashMap;
 use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tokio::time::{interval_at, Instant};
 
-use crate::common::CustomError;
+use crate::common::WebErr;
 use crate::models::events::{GameEvent, UserEvent};
 
 
 pub struct Client(Receiver<Bytes>);
 
 impl Stream for Client {
-    type Item = Result<Bytes, CustomError>;
+    type Item = Result<Bytes, WebErr>;
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         match Pin::new(&mut self.0).poll_recv(cx) {

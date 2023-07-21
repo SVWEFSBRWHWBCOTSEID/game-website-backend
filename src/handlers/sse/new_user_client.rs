@@ -3,7 +3,7 @@ use actix_session::Session;
 use actix_web::web::Data;
 use actix_web::{HttpResponse, get};
 
-use crate::common::CustomError;
+use crate::common::WebErr;
 use crate::helpers::general::get_username;
 use crate::sse::Broadcaster;
 
@@ -13,7 +13,7 @@ use crate::sse::Broadcaster;
 pub async fn new_user_client(
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
-) -> Result<HttpResponse, CustomError> {
+) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
     let rx = broadcaster.lock().unwrap().new_user_client(username);
