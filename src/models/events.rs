@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::general::{GameStatus, TimeControl, Player, GameType, WinType, DrawOffer};
+use super::general::{GameStatus, TimeControl, Player, GameType, WinType, DrawOffer, GameKey};
 
 
 pub enum GameEvent {
@@ -22,7 +22,7 @@ impl GameEvent {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub enum UserEvent {
-    
+    GameStartEvent(GameStartEvent),
 }
 
 impl UserEvent {
@@ -85,6 +85,14 @@ pub struct ChatMessage {
     pub username: String,
     pub text: String,
     pub visibility: Visibility,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GameStartEvent {
+    pub r#type: UserEventType,
+    pub game: GameKey,
+    pub id: String,
 }
 
 #[derive(Deserialize, Serialize)]

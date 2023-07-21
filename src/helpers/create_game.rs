@@ -1,14 +1,15 @@
 use std::env;
-
-use actix_web::web;
+use std::sync::Mutex;
+use actix_web::web::{self, Data};
 use nanoid::nanoid;
 
 use crate::common::WebErr;
-use crate::models::general::{GameStatus, MatchPlayer};
+use crate::models::events::{UserEvent, GameStartEvent, UserEventType};
+use crate::models::general::{GameStatus, MatchPlayer, GameKey};
 use crate::models::req::CreateGameReq;
 use crate::prisma::PrismaClient;
 use crate::prisma::{game, user};
-
+use crate::sse::Broadcaster;
 use super::general::set_user_playing;
 
 
@@ -39,6 +40,7 @@ impl CreateGameReq {
         client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
+        broadcaster: &Data<Mutex<Broadcaster>>,
     ) -> Result<game::Data, WebErr> {
 
         if !self.validate(client, player).await? {
@@ -48,6 +50,7 @@ impl CreateGameReq {
             &client,
             &game_key,
             &player,
+            &broadcaster,
         ).await? {
             Some(g) => g,
             None => self.create_game(
@@ -123,6 +126,7 @@ impl CreateGameReq {
         client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
+        broadcaster: &Data<Mutex<Broadcaster>>,
     ) -> Result<Option<game::Data>, WebErr> {
         let games: Vec<game::Data> = client
             .game()
@@ -146,11 +150,25 @@ impl CreateGameReq {
                 && g.rating_min < player.rating
                 && g.rating_max > player.rating
         });
-
         if filtered_games.clone().count() == 0 {
             return Ok(None);
         }
         let game = filtered_games.min_by_key(|g| g.created_at).unwrap();
+
+        broadcaster.lock().unwrap().user_send(&player.username, UserEvent::GameStartEvent(GameStartEvent {
+            r#type: UserEventType::GameStart,
+            game: GameKey::from_str(game_key)?,
+            id: game.id.clone(),
+        }));
+        broadcaster.lock().unwrap().user_send(if player.first {
+            game.second_username.as_ref().unwrap()
+        } else {
+            game.first_username.as_ref().unwrap()
+        }, UserEvent::GameStartEvent(GameStartEvent {
+            r#type: UserEventType::GameStart,
+            game: GameKey::from_str(game_key)?,
+            id: game.id.clone(),
+        }));
 
         Ok(Some(
             client

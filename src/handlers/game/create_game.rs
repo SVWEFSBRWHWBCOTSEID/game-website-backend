@@ -1,3 +1,4 @@
+use std::sync::Mutex;
 use actix_session::Session;
 use actix_web::web::{Json, Data};
 use actix_web::{HttpRequest, HttpResponse, post};
@@ -6,6 +7,7 @@ use crate::common::WebErr;
 use crate::helpers::general::{get_username, get_user_with_relations};
 use crate::prisma::PrismaClient;
 use crate::models::req::CreateGameReq;
+use crate::sse::Broadcaster;
 
 
 // route for creating a new game
@@ -15,6 +17,7 @@ pub async fn create_game(
     client: Data<PrismaClient>,
     session: Session,
     data: Json<CreateGameReq>,
+    broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
@@ -24,7 +27,7 @@ pub async fn create_game(
     let match_player = get_user_with_relations(&client, &username)
         .await?
         .to_match_player(&game_key, &create_game_req);
-    let game = create_game_req.create_or_join(&client, &game_key, &match_player).await?;
+    let game = create_game_req.create_or_join(&client, &game_key, &match_player, &broadcaster).await?;
 
     Ok(HttpResponse::Ok().json(game.to_create_game_res(&client).await?))
 }
