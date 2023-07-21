@@ -3,7 +3,7 @@ use actix_web::web;
 use async_trait::async_trait;
 use futures::future::join_all;
 
-use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey, WinType}, events::{GameState, GameFullEvent, GameEventType, Visibility, ChatMessage}}, prisma::{game, PrismaClient}, common::WebErr};
+use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey, WinType}, events::{GameState, GameFullEvent, GameEventType, Visibility, ChatMessage}}, prisma::{game, PrismaClient, user}, common::WebErr};
 use super::general::time_millis;
 
 
@@ -14,8 +14,8 @@ impl game::Data {
         let game = client
             .game()
             .find_unique(game::id::equals(self.id.clone()))
-            .with(game::first_user::fetch())
-            .with(game::second_user::fetch())
+            .with(game::first_user::fetch().with(user::perfs::fetch(vec![])))
+            .with(game::second_user::fetch().with(user::perfs::fetch(vec![])))
             .exec()
             .await
             .or(Err(WebErr::Internal(format!("could not find game with id {}", self.id))))?
