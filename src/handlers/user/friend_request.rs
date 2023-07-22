@@ -18,6 +18,9 @@ pub async fn friend_request(
 
     let username: String = get_username(&session)?;
     let other_name: String = req.match_info().get("username").unwrap().parse().unwrap();
+    if username == other_name {
+        return Err(WebErr::Forbidden(format!("cannot friend reqeust yourself")));
+    }
 
     let user = client
         .user()
