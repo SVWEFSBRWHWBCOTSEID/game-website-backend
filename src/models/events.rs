@@ -29,7 +29,8 @@ pub enum UserEvent {
 impl UserEvent {
     pub fn to_string(&self) -> String {
         match self {
-            _ => todo!()
+            UserEvent::GameStartEvent(e) => serde_json::to_string(e).unwrap(),
+            UserEvent::FriendEvent(e) => serde_json::to_string(e).unwrap(),
         }
     }
 }
