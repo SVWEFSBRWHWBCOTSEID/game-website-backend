@@ -9,7 +9,7 @@ use crate::prisma::{PrismaClient, user, friend};
 
 
 // route for creating a new user
-#[post("/api/follow/{username}")]
+#[post("/api/friend/{username}")]
 pub async fn friend_request(
     req: HttpRequest,
     client: web::Data<PrismaClient>,
