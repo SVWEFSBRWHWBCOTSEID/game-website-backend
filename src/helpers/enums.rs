@@ -37,17 +37,15 @@ impl GameKey {
 impl FriendRequest {
     pub fn to_string(&self) -> String {
         match self {
-            FriendRequest::Out => "Out",
-            FriendRequest::In => "In",
-            FriendRequest::Friend => "Friend",
+            FriendRequest::Pending => "Pending",
+            FriendRequest::Accepted => "Accepted",
         }.to_string()
     }
 
     pub fn from_str(string: &str) -> Result<Self, WebErr> {
         match string {
-            "Out" => Ok(FriendRequest::Out),
-            "In" => Ok(FriendRequest::In),
-            "Friend" => Ok(FriendRequest::Friend),
+            "Pending" => Ok(FriendRequest::Pending),
+            "Accepted" => Ok(FriendRequest::Accepted),
             _ => Err(WebErr::NotFound(format!("provided friend request string does not match an enum variant"))),
         }
     }

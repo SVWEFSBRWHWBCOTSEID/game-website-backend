@@ -58,8 +58,8 @@ impl user::Data {
             .with(user::perfs::fetch(vec![]))
             .exec()
             .await
-            .or(Err(WebErr::Internal(format!("error finding user"))))?
-            .unwrap();
+            .or(Err(WebErr::Internal(format!("error finding user {}", self.username))))?
+            .ok_or(WebErr::NotFound(format!("could not find user {}", self.username)))?;
 
         Ok(())
     }

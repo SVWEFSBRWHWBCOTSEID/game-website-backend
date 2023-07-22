@@ -80,12 +80,11 @@ pub enum Country {
     Mn,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum FriendRequest {
-    Out,
-    In,
-    Friend,
+    Pending,
+    Accepted,
 }
 
 #[derive(Deserialize, Serialize, PartialEq)]
