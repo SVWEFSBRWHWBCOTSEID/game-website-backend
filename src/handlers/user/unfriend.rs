@@ -1,10 +1,15 @@
+use std::sync::Mutex;
 use actix_session::Session;
+use actix_web::web::Data;
 use actix_web::{web, HttpResponse, HttpRequest, post};
 
 use crate::common::WebErr;
 use crate::helpers::general::get_username;
+use crate::models::events::{UserEvent, FriendEvent, UserEventType};
+use crate::models::general::FriendRequest;
 use crate::models::res::OK_RES;
 use crate::prisma::{PrismaClient, friend};
+use crate::sse::Broadcaster;
 
 
 // route for creating a new user
@@ -13,6 +18,7 @@ pub async fn unfriend(
     req: HttpRequest,
     client: web::Data<PrismaClient>,
     session: Session,
+    broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
@@ -32,6 +38,11 @@ pub async fn unfriend(
             .await
             .or(Err(WebErr::Internal(format!("error deleting friend relation from {} to {}", username, other_name))))?;
     }
+    broadcaster.lock().unwrap().user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
+        r#type: UserEventType::Friend,
+        username: username,
+        value: FriendRequest::Removed,
+    }));
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }

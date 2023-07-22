@@ -85,6 +85,7 @@ pub enum Country {
 pub enum FriendRequest {
     Pending,
     Accepted,
+    Removed,
 }
 
 #[derive(Deserialize, Serialize, PartialEq)]

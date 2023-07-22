@@ -39,6 +39,7 @@ impl FriendRequest {
         match self {
             FriendRequest::Pending => "Pending",
             FriendRequest::Accepted => "Accepted",
+            FriendRequest::Removed => "Remove",
         }.to_string()
     }
 
@@ -46,6 +47,7 @@ impl FriendRequest {
         match string {
             "Pending" => Ok(FriendRequest::Pending),
             "Accepted" => Ok(FriendRequest::Accepted),
+            "Remove" => Ok(FriendRequest::Removed),
             _ => Err(WebErr::NotFound(format!("provided friend request string does not match an enum variant"))),
         }
     }

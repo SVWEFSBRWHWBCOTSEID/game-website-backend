@@ -1,11 +1,15 @@
+use std::sync::Mutex;
 use actix_session::Session;
+use actix_web::web::Data;
 use actix_web::{web, HttpResponse, HttpRequest, post};
 
 use crate::common::WebErr;
 use crate::helpers::general::get_username;
+use crate::models::events::{UserEvent, FriendEvent, UserEventType};
 use crate::models::general::FriendRequest;
 use crate::models::res::OK_RES;
 use crate::prisma::{PrismaClient, user, friend};
+use crate::sse::Broadcaster;
 
 
 // route for creating a new user
@@ -14,6 +18,7 @@ pub async fn friend_request(
     req: HttpRequest,
     client: web::Data<PrismaClient>,
     session: Session,
+    broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
@@ -52,6 +57,12 @@ pub async fn friend_request(
             .exec()
             .await
             .or(Err(WebErr::Internal(format!("error creating friend request from {} to {}", username, other_name))))?;
+
+        broadcaster.lock().unwrap().user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
+            r#type: UserEventType::Friend,
+            username: username,
+            value: FriendRequest::Accepted,
+        }));
     } else {
         client
             .friend()
@@ -64,6 +75,12 @@ pub async fn friend_request(
             .exec()
             .await
             .or(Err(WebErr::Internal(format!("error creating friend request from {} to {}", username, other_name))))?;
+
+        broadcaster.lock().unwrap().user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
+            r#type: UserEventType::Friend,
+            username: username,
+            value: FriendRequest::Pending,
+        }));
     };
 
     Ok(HttpResponse::Ok().json(OK_RES))
