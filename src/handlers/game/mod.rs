@@ -1,4 +1,5 @@
 mod create_game;
+mod cancel_game;
 mod get_game;
 mod get_lobbies;
 mod add_move;
@@ -8,6 +9,7 @@ mod send_chat;
 mod timeout;
 
 pub use create_game::*;
+pub use cancel_game::*;
 pub use get_game::*;
 pub use get_lobbies::*;
 pub use add_move::*;
