@@ -1,5 +1,4 @@
 use std::env;
-
 use actix_web::web;
 use strum::IntoEnumIterator;
 
@@ -7,6 +6,7 @@ use crate::common::WebErr;
 use crate::models::general::{GameKey, GamePerf, Profile};
 use crate::prisma::{user, PrismaClient, perf};
 use crate::models::req::CreateUserReq;
+use super::general::get_user_with_relations;
 
 
 impl CreateUserReq {
@@ -26,7 +26,7 @@ impl CreateUserReq {
 
         let hashed_pass = bcrypt::hash(&self.password, bcrypt::DEFAULT_COST).unwrap();
 
-        let user = client
+        client
             .user()
             .create(
                 self.username.clone(),
@@ -48,7 +48,7 @@ impl CreateUserReq {
             .create_many(
                 GameKey::iter().map(|k|
                     perf::create_unchecked(
-                        user.username.clone(),
+                        self.username.clone(),
                         k.to_string(),
                         GamePerf::default().games,
                         GamePerf::default().rating,
@@ -63,14 +63,7 @@ impl CreateUserReq {
             .await
             .or(Err(WebErr::Internal(format!("error creating perfs for user {}", self.username))))?;
 
-        let new_user = client
-            .user()
-            .find_unique(user::username::equals(user.username))
-            .with(user::perfs::fetch(vec![]))
-            .exec()
-            .await
-            .or(Err(WebErr::Internal(format!("error fetching user {} after adding perfs", self.username))))?
-            .unwrap();
+        let new_user = get_user_with_relations(client, &self.username).await?;
 
         Ok(new_user)
     }
