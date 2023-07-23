@@ -3,7 +3,7 @@ use rand::Rng;
 use strum::IntoEnumIterator;
 
 use crate::models::general::{MatchPlayer, Profile, Country, Side, GameKey, GamePerf};
-use crate::models::res::UserResponse;
+use crate::models::res::{UserResponse, GameResponse};
 use crate::models::req::CreateGameReq;
 use crate::prisma::{user, PrismaClient};
 use crate::common::WebErr;
@@ -67,6 +67,8 @@ impl user::Data {
     // method to construct response from prisma user struct
     pub fn to_user_res(&self) -> Result<UserResponse, WebErr> {
         let perfs = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
+        let mut games = self.first_user_games().or(Err(WebErr::Internal(format!("first_user_games not fetched"))))?.clone();
+        games.extend(self.second_user_games().or(Err(WebErr::Internal(format!("second_user_games not fetched"))))?.clone());
 
         Ok(UserResponse {
             username: self.username.clone(),
@@ -81,6 +83,7 @@ impl user::Data {
             },
             url: self.url.clone(),
             playing: self.playing.clone(),
+            games: games.iter().map(|g| Ok::<GameResponse, WebErr>(g.to_game_res()?)).flatten().collect(),
         })
     }
 

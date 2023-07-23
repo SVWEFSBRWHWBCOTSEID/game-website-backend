@@ -47,6 +47,7 @@ pub struct UserResponse {
     pub profile: Profile,
     pub url: String,
     pub playing: Option<String>,
+    pub games: Vec<GameResponse>,
 }
 
 #[derive(Deserialize, Serialize, Copy, Clone)]
