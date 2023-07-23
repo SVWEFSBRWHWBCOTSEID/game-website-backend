@@ -132,4 +132,14 @@ impl Visibility {
             _ => Err(WebErr::NotFound(format!("provided visibility string {} does not match an enum variant", string))),
         }
     }
+
+    pub fn caps_to_pascal(string: &String) -> Result<String, WebErr> {
+        match string.as_str() {
+            "PLAYER" => Ok("Player".to_string()),
+            "SPECTATOR" => Ok("Spectator".to_string()),
+            "TEAM1" => Ok("Team1".to_string()),
+            "TEAM2" => Ok("Team2".to_string()),
+            _ => Err(WebErr::NotFound(format!("provided visibility string {} does not match an all caps enum variant", string))),
+        }
+    }
 }

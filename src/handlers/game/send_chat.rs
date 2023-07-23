@@ -23,7 +23,9 @@ pub async fn send_chat(
     let username: String = get_username(&session)?;
     let chat_message_req = data.into_inner();
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
-    let visibility: String = req.match_info().get("visibility").unwrap().parse().unwrap();
+    let visibility: String = Visibility::caps_to_pascal(
+        &req.match_info().get("visibility").unwrap().parse().unwrap()
+    )?;
 
     client
         .message()
