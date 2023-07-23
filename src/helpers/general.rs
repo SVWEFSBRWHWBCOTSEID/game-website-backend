@@ -51,8 +51,8 @@ pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str)
     match client
         .game()
         .find_unique(game::id::equals(id.to_string()))
-        .with(game::first_user::fetch())
-        .with(game::second_user::fetch())
+        .with(game::first_user::fetch().with(user::perfs::fetch(vec![])))
+        .with(game::second_user::fetch().with(user::perfs::fetch(vec![])))
         .with(game::chat::fetch(vec![message::game_id::equals(id.to_string())]))
         .exec()
         .await
