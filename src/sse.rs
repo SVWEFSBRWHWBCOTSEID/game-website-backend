@@ -9,7 +9,7 @@ use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tokio::time::{interval_at, Instant};
 
 use crate::common::WebErr;
-use crate::models::events::{GameEvent, UserEvent};
+use crate::models::events::{GameEvent, UserEvent, Event};
 
 
 pub struct Client(Receiver<Bytes>);
@@ -69,22 +69,22 @@ impl Broadcaster {
         self.game_clients.retain(|_, v| v.len() != 0);
     }
 
-    pub fn new_user_client(&mut self, username: String) -> Client {
+    pub fn new_user_client(&mut self, username: String) -> (Client, Sender<Bytes>) {
         let (tx, rx) = channel(100);
 
         self.user_clients.entry(username)
             .and_modify(|v| v.push(tx.clone()))
-            .or_insert(vec![tx]);
-        Client(rx)
+            .or_insert(vec![tx.clone()]);
+        (Client(rx), tx)
     }
 
-    pub fn new_game_client(&mut self, game_id: String) -> Client {
+    pub fn new_game_client(&mut self, game_id: String) -> (Client, Sender<Bytes>) {
         let (tx, rx) = channel(100);
 
         self.game_clients.entry(game_id)
             .and_modify(|v| v.push(tx.clone()))
-            .or_insert(vec![tx]);
-        Client(rx)
+            .or_insert(vec![tx.clone()]);
+        (Client(rx), tx)
     }
 
     pub fn user_send(&self, username: &str, msg: UserEvent) {
@@ -101,5 +101,11 @@ impl Broadcaster {
         for client in self.game_clients.get(game_id).unwrap().iter() {
             client.clone().try_send(msg.clone()).unwrap_or(());
         }
+    }
+
+    pub fn send_single(&self, client: &Sender<Bytes>, msg: Event) {
+        let msg = Bytes::from(["data: ", &msg.to_string(), "\n\n"].concat());
+
+        client.try_send(msg.clone()).unwrap_or(());
     }
 }

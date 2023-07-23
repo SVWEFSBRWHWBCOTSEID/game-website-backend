@@ -3,6 +3,20 @@ use serde::{Deserialize, Serialize};
 use super::general::{GameStatus, TimeControl, Player, GameType, WinType, DrawOffer, GameKey, FriendRequest};
 
 
+pub enum Event {
+    UserEvent(UserEvent),
+    GameEvent(GameEvent),
+}
+
+impl Event {
+    pub fn to_string(&self) -> String {
+        match self {
+            Event::UserEvent(e) => e.to_string(),
+            Event::GameEvent(e) => e.to_string(),
+        }
+    }
+}
+
 pub enum GameEvent {
     ChatMessageEvent(ChatMessageEvent),
     GameStateEvent(GameStateEvent),
