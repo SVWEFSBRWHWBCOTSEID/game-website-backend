@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
 
 
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MatchPlayer {
     pub username: String,
     pub provisional: bool,

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{general::{GameType, TimeControl, Player, Profile, Perfs}, events::GameState};
+use super::{general::{GameType, TimeControl, Player, Profile, Perfs, MatchPlayer}, events::GameState};
 
 
 #[derive(Deserialize, Serialize)]
@@ -26,6 +26,16 @@ pub struct GameResponse {
     pub created_at: String,
     pub first: Option<Player>,
     pub second: Option<Player>,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LobbyResponse {
+    pub id: String,
+    pub rated: bool,
+    pub user: MatchPlayer,
+    pub game: GameType,
+    pub time_control: TimeControl,
 }
 
 #[derive(Deserialize, Serialize)]

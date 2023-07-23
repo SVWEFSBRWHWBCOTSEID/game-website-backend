@@ -1,7 +1,7 @@
 use std::cmp::max;
 use actix_web::web;
 
-use crate::{models::{res::{CreateGameResponse, GameResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey, WinType}, events::{GameState, GameFullEvent, GameEventType, Visibility, ChatMessage}}, prisma::{game, PrismaClient, user}, common::WebErr};
+use crate::{models::{res::{CreateGameResponse, GameResponse, LobbyResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey, WinType, MatchPlayer}, events::{GameState, GameFullEvent, GameEventType, Visibility, ChatMessage}}, prisma::{game, PrismaClient, user}, common::WebErr};
 use super::general::time_millis;
 
 
@@ -137,6 +137,42 @@ impl game::Data {
         })
     }
 
+    pub fn to_lobby_res(&self) -> Result<LobbyResponse, WebErr> {
+        Ok(LobbyResponse {
+            id: self.id.clone(),
+            rated: self.rated,
+            user: match self.first_user().or(Err(WebErr::Internal(format!("user perfs not fetched"))))? {
+                Some(u) => MatchPlayer {
+                    username: u.username.clone(),
+                    provisional: u.get_provisional(&self.game_key)?,
+                    rating: u.get_rating(&self.game_key)?,
+                    rating_min: self.rating_min,
+                    rating_max: self.rating_max,
+                    first: true,
+                },
+                None => {
+                    let u = self.second_user().or(Err(WebErr::Internal(format!("user perfs not fetched"))))?.unwrap();
+                    MatchPlayer {
+                        username: u.username.clone(),
+                        provisional: u.get_provisional(&self.game_key)?,
+                        rating: u.get_rating(&self.game_key)?,
+                        rating_min: self.rating_min,
+                        rating_max: self.rating_max,
+                        first: false,
+                    }
+                },
+            },
+            game: GameType {
+                key: self.game_key.clone(),
+                name: GameKey::get_game_name(&self.game_key)?,
+            },
+            time_control: TimeControl {
+                initial: self.clock_initial,
+                increment: self.clock_increment,
+            },
+        })
+    }
+
     // helpers to get updated first and second times
     pub fn get_new_first_time(&self) -> Option<i32> {
         match self.first_time {
@@ -235,15 +271,15 @@ impl game::Data {
     }
 }
 
-pub trait GameVec {
-    fn to_game_res_vec(&self) -> Result<Vec<GameResponse>, WebErr>;
+pub trait LobbyVec {
+    fn to_lobby_vec(&self) -> Result<Vec<LobbyResponse>, WebErr>;
 }
 
-impl GameVec for Vec<game::Data> {
-    // convert vec of games to vec of GameResponse structs
-    fn to_game_res_vec(&self) -> Result<Vec<GameResponse>, WebErr> {
+impl LobbyVec for Vec<game::Data> {
+    // convert vec of games to vec of LobbyResponse structs
+    fn to_lobby_vec(&self) -> Result<Vec<LobbyResponse>, WebErr> {
         Ok(self.iter().map(
-            |g| g.to_game_res().expect("Err in to_game_res_vec")
-        ).collect())
+            |g| Ok::<LobbyResponse, WebErr>(g.to_lobby_res()?)
+        ).flatten().collect())
     }
 }

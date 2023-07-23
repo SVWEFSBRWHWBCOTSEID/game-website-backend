@@ -2,12 +2,12 @@ use actix_web::{web::Data, get, HttpResponse};
 
 use crate::prisma::PrismaClient;
 use crate::common::WebErr;
-use crate::helpers::game::GameVec;
+use crate::helpers::game::LobbyVec;
 
 
 // route for getting all games
-#[get("/api/games")]
-pub async fn get_all_games(
+#[get("/api/lobbies")]
+pub async fn get_lobbies(
     client: Data<PrismaClient>,
 ) -> Result<HttpResponse, WebErr> {
 
@@ -18,5 +18,5 @@ pub async fn get_all_games(
         .await
         .or(Err(WebErr::Internal(format!("error fetching all games"))))?;
 
-    Ok(HttpResponse::Ok().json(games.to_game_res_vec()?))
+    Ok(HttpResponse::Ok().json(games.to_lobby_vec()?))
 }
