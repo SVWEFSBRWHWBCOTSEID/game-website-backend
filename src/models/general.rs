@@ -63,7 +63,6 @@ pub struct Profile {
 }
 
 #[derive(Deserialize, Serialize, EnumIter)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum GameKey {
     TTT,
     UTTT,
