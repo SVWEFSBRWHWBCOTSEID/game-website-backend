@@ -68,6 +68,8 @@ pub async fn get_user_with_relations(client: &web::Data<PrismaClient>, username:
         .user()
         .find_unique(user::username::equals(username.to_string()))
         .with(user::perfs::fetch(vec![]))
+        .with(user::first_user_games::fetch(vec![]))
+        .with(user::second_user_games::fetch(vec![]))
         .exec()
         .await
         .unwrap()
