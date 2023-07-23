@@ -1,3 +1,5 @@
+use std::env;
+
 use actix_session::Session;
 use actix_web::cookie::{Cookie, SameSite};
 use actix_web::{web, HttpResponse, post};
@@ -29,7 +31,11 @@ pub async fn login(
     let mut cookie = Cookie::new("username", &user.username);
     cookie.set_same_site(SameSite::None);
     cookie.set_path("/");
-
+    if let Ok(x) = env::var("DOMAIN") {
+        if x != "http://localhost:3000" {
+            cookie.set_domain(x);
+        }
+    }
     let mut res = HttpResponse::Ok().json(user.to_user_res()?);
     res.add_cookie(&cookie).or(Err(WebErr::Internal(format!("error adding cookie for username"))))?;
     Ok(res)
