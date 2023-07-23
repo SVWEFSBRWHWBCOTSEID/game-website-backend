@@ -129,7 +129,7 @@ impl Visibility {
             "Spectator" => Ok(Self::Spectator),
             "Team1" => Ok(Self::Team1),
             "Team2" => Ok(Self::Team2),
-            _ => Err(WebErr::NotFound(format!("provided visibility string does not match an enum variant"))),
+            _ => Err(WebErr::NotFound(format!("provided visibility string {} does not match an enum variant", string))),
         }
     }
 }
