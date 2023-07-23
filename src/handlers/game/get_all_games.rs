@@ -18,5 +18,5 @@ pub async fn get_all_games(
         .await
         .or(Err(WebErr::Internal(format!("error fetching all games"))))?;
 
-    Ok(HttpResponse::Ok().json(games.to_game_res_vec(&client).await?))
+    Ok(HttpResponse::Ok().json(games.to_game_res_vec()?))
 }
