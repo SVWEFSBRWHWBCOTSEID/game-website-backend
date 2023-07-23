@@ -155,20 +155,24 @@ impl CreateGameReq {
         }
         let game = filtered_games.min_by_key(|g| g.created_at).unwrap();
 
-        broadcaster.lock().unwrap().user_send(&player.username, UserEvent::GameStartEvent(GameStartEvent {
-            r#type: UserEventType::GameStart,
-            game: GameKey::from_str(game_key)?,
-            id: game.id.clone(),
-        }));
-        broadcaster.lock().unwrap().user_send(if player.first {
-            game.second_username.as_ref().unwrap()
-        } else {
-            game.first_username.as_ref().unwrap()
-        }, UserEvent::GameStartEvent(GameStartEvent {
-            r#type: UserEventType::GameStart,
-            game: GameKey::from_str(game_key)?,
-            id: game.id.clone(),
-        }));
+        broadcaster.lock()
+            .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
+            .user_send(&player.username, UserEvent::GameStartEvent(GameStartEvent {
+                r#type: UserEventType::GameStart,
+                game: GameKey::from_str(game_key)?,
+                id: game.id.clone(),
+            }));
+        broadcaster.lock()
+            .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
+            .user_send(if player.first {
+                game.second_username.as_ref().unwrap()
+            } else {
+                game.first_username.as_ref().unwrap()
+            }, UserEvent::GameStartEvent(GameStartEvent {
+                r#type: UserEventType::GameStart,
+                game: GameKey::from_str(game_key)?,
+                id: game.id.clone(),
+            }));
 
         Ok(Some(
             client

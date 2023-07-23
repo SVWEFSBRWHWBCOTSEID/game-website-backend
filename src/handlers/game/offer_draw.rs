@@ -25,15 +25,17 @@ pub async fn offer_draw(
     let value: bool = req.match_info().get("value").unwrap().parse().unwrap();
     let game = get_game_validate(&client, &game_id, &username).await?;
 
-    broadcaster.lock().unwrap().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
-        r#type: GameEventType::GameState,
-        ftime: game.get_new_first_time(),
-        stime: game.get_new_second_time(),
-        moves: game.get_moves_vec(),
-        status: game.get_draw_game_status(&value, &username),
-        win_type: None,
-        draw_offer: game.get_new_draw_offer(&value, &username),
-    }));
+    broadcaster.lock()
+        .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
+        .game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
+            r#type: GameEventType::GameState,
+            ftime: game.get_new_first_time(),
+            stime: game.get_new_second_time(),
+            moves: game.get_moves_vec(),
+            status: game.get_draw_game_status(&value, &username),
+            win_type: None,
+            draw_offer: game.get_new_draw_offer(&value, &username),
+        }));
 
     if game.get_new_draw_offer(&value, &username) != DrawOffer::None {
         set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;

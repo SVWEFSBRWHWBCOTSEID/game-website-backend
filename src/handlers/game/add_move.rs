@@ -34,26 +34,28 @@ pub async fn add_move(
         return Err(WebErr::Forbidden(format!("new move is invalid or not player's turn")));
     }
 
-    broadcaster.lock().unwrap().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
-        r#type: GameEventType::GameState,
-        ftime: game.get_new_first_time(),
-        stime: game.get_new_second_time(),
-        moves: vec![new_move.clone()],
-        status: match game.new_move_outcome(&new_move) {
-            MoveOutcome::None => GameStatus::Started,
-            MoveOutcome::FirstWin => GameStatus::FirstWon,
-            MoveOutcome::SecondWin => GameStatus::SecondWon,
-            _ => GameStatus::Draw,
-        },
-        win_type: match game.new_move_outcome(&new_move) {
-            MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(WinType::Normal),
-            _ => None,
-        },
-        draw_offer: match game.new_move_outcome(&new_move) {
-            MoveOutcome::None => DrawOffer::from_bool(&game.draw_offer),
-            _ => DrawOffer::None,
-        },
-    }));
+    broadcaster.lock()
+        .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
+        .game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
+            r#type: GameEventType::GameState,
+            ftime: game.get_new_first_time(),
+            stime: game.get_new_second_time(),
+            moves: vec![new_move.clone()],
+            status: match game.new_move_outcome(&new_move) {
+                MoveOutcome::None => GameStatus::Started,
+                MoveOutcome::FirstWin => GameStatus::FirstWon,
+                MoveOutcome::SecondWin => GameStatus::SecondWon,
+                _ => GameStatus::Draw,
+            },
+            win_type: match game.new_move_outcome(&new_move) {
+                MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(WinType::Normal),
+                _ => None,
+            },
+            draw_offer: match game.new_move_outcome(&new_move) {
+                MoveOutcome::None => DrawOffer::from_bool(&game.draw_offer),
+                _ => DrawOffer::None,
+            },
+        }));
 
     if game.new_move_outcome(&new_move) != MoveOutcome::None {
         set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;

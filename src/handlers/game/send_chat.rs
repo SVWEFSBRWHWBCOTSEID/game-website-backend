@@ -40,12 +40,14 @@ pub async fn send_chat(
         .await
         .or(Err(WebErr::Internal(format!(""))))?;
 
-    broadcaster.lock().unwrap().game_send(&game_id, GameEvent::ChatMessageEvent(ChatMessageEvent {
-        r#type: GameEventType::ChatMessage,
-        text: chat_message_req.message,
-        username,
-        visibility: Visibility::from_str(&visibility)?,
-    }));
+    broadcaster.lock()
+        .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
+        .game_send(&game_id, GameEvent::ChatMessageEvent(ChatMessageEvent {
+            r#type: GameEventType::ChatMessage,
+            text: chat_message_req.message,
+            username,
+            visibility: Visibility::from_str(&visibility)?,
+        }));
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }
