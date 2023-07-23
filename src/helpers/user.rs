@@ -7,6 +7,7 @@ use crate::models::res::{UserResponse, GameResponse};
 use crate::models::req::CreateGameReq;
 use crate::prisma::{user, PrismaClient};
 use crate::common::WebErr;
+use super::general::get_user_with_relations;
 use super::perf::PerfVec;
 
 
@@ -52,14 +53,7 @@ impl user::Data {
                     .or(Err(WebErr::Internal(format!("error updating perfs"))))?;
             }
         }
-        *self = client
-            .user()
-            .find_unique(user::username::equals(self.username.clone()))
-            .with(user::perfs::fetch(vec![]))
-            .exec()
-            .await
-            .or(Err(WebErr::Internal(format!("error finding user {}", self.username))))?
-            .ok_or(WebErr::NotFound(format!("could not find user {}", self.username)))?;
+        *self = get_user_with_relations(client, &self.username).await?;
 
         Ok(())
     }
