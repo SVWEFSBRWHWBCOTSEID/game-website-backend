@@ -2,7 +2,7 @@ use crate::models::general::MoveOutcome;
 
 
 pub fn validate_ttt_move(moves: Vec<&str>, new_move: &str) -> bool {
-    moves.contains(&new_move)
+    !moves.contains(&new_move)
 }
 
 pub fn ttt_move_outcome(moves: Vec<&str>, new_move: &str) -> MoveOutcome {
