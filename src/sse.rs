@@ -9,7 +9,7 @@ use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tokio::time::{interval_at, Instant};
 
 use crate::common::WebErr;
-use crate::models::events::{GameEvent, UserEvent, Event};
+use crate::models::events::{GameEvent, UserEvent, Event, LobbyEvent};
 
 
 pub struct Client(Receiver<Bytes>);
@@ -29,6 +29,7 @@ impl Stream for Client {
 pub struct Broadcaster {
     user_clients: HashMap<String, Vec<Sender<Bytes>>>,
     game_clients: HashMap<String, Vec<Sender<Bytes>>>,
+    lobby_clients: Vec<Sender<Bytes>>,
 }
 
 impl Broadcaster {
@@ -43,6 +44,7 @@ impl Broadcaster {
         Broadcaster {
             user_clients: HashMap::new(),
             game_clients: HashMap::new(),
+            lobby_clients: Vec::new(),
         }
     }
 
@@ -87,25 +89,39 @@ impl Broadcaster {
         (Client(rx), tx)
     }
 
-    pub fn user_send(&self, username: &str, msg: UserEvent) {
-        let msg = Bytes::from(["data: ", &msg.to_string(), "\n\n"].concat());
+    pub fn new_lobby_client(&mut self) -> (Client, Sender<Bytes>) {
+        let (tx, rx) = channel(100);
+        self.lobby_clients.push(tx.clone());
+        (Client(rx), tx)
+    }
+
+    pub fn user_send(&self, username: &str, event: UserEvent) {
+        let event = Bytes::from(["data: ", &event.to_string(), "\n\n"].concat());
 
         for client in self.user_clients.get(username).unwrap().iter() {
-            client.clone().try_send(msg.clone()).unwrap_or(());
+            client.clone().try_send(event.clone()).unwrap_or(());
         }
     }
 
-    pub fn game_send(&self, game_id: &str, msg: GameEvent) {
-        let msg = Bytes::from(["data: ", &msg.to_string(), "\n\n"].concat());
+    pub fn game_send(&self, game_id: &str, event: GameEvent) {
+        let event = Bytes::from(["data: ", &event.to_string(), "\n\n"].concat());
 
         for client in self.game_clients.get(game_id).unwrap().iter() {
-            client.clone().try_send(msg.clone()).unwrap_or(());
+            client.clone().try_send(event.clone()).unwrap_or(());
         }
     }
 
-    pub fn send_single(&self, client: &Sender<Bytes>, msg: Event) {
-        let msg = Bytes::from(["data: ", &msg.to_string(), "\n\n"].concat());
+    pub fn lobby_send(&self, event: LobbyEvent) {
+        let event = Bytes::from(["data: ", &event.to_string(), "\n\n"].concat());
 
-        client.try_send(msg.clone()).unwrap_or(());
+        for client in self.lobby_clients.iter() {
+            client.clone().try_send(event.clone()).unwrap_or(());
+        }
+    }
+
+    pub fn send_single(&self, client: &Sender<Bytes>, event: Event) {
+        let event = Bytes::from(["data: ", &event.to_string(), "\n\n"].concat());
+
+        client.try_send(event.clone()).unwrap_or(());
     }
 }

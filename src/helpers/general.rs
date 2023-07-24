@@ -1,6 +1,7 @@
 use std::time::SystemTime;
 use actix_session::Session;
 use actix_web::web;
+use prisma_client_rust::or;
 
 use crate::common::WebErr;
 use crate::models::general::GameStatus;
@@ -61,6 +62,20 @@ pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str)
         Some(g) => Ok(g),
         None => Err(WebErr::NotFound(format!("could not find game with id {}", id))),
     }
+}
+
+pub async fn get_unmatched_games(client: &web::Data<PrismaClient>) -> Result<Vec<game::Data>, WebErr> {
+    Ok(client
+        .game()
+        .find_many(vec![or![
+            game::first_username::equals(None),
+            game::second_username::equals(None),
+        ]])
+        .with(game::first_user::fetch().with(user::perfs::fetch(vec![])))
+        .with(game::second_user::fetch().with(user::perfs::fetch(vec![])))
+        .exec()
+        .await
+        .or(Err(WebErr::NotFound(format!("error getting all unmatched games"))))?)
 }
 
 pub async fn get_user_with_relations(client: &web::Data<PrismaClient>, username: &str) -> Result<user::Data, WebErr> {

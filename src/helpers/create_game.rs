@@ -1,16 +1,17 @@
 use std::env;
 use std::sync::Mutex;
-use actix_web::web::{self, Data};
+use actix_web::web;
 use nanoid::nanoid;
 
 use crate::common::WebErr;
-use crate::models::events::{UserEvent, GameStartEvent, UserEventType};
+use crate::models::events::{UserEvent, GameStartEvent, UserEventType, LobbyEvent, NewLobbyEvent, LobbyEventType};
 use crate::models::general::{GameStatus, MatchPlayer, GameKey};
 use crate::models::req::CreateGameReq;
 use crate::prisma::PrismaClient;
 use crate::prisma::{game, user};
 use crate::sse::Broadcaster;
-use super::general::set_user_playing;
+use super::game::LobbyVec;
+use super::general::{set_user_playing, get_unmatched_games};
 
 
 impl CreateGameReq {
@@ -40,23 +41,24 @@ impl CreateGameReq {
         client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
-        broadcaster: &Data<Mutex<Broadcaster>>,
+        broadcaster: &web::Data<Mutex<Broadcaster>>,
     ) -> Result<game::Data, WebErr> {
 
         if !self.validate(client, player).await? {
             return Err(WebErr::Forbidden(format!("user {} does not meet requirements to join this game", player.username)));
         }
         Ok(match self.match_if_possible(
-            &client,
-            &game_key,
-            &player,
-            &broadcaster,
+            client,
+            game_key,
+            player,
+            broadcaster,
         ).await? {
             Some(g) => g,
             None => self.create_game(
-                &client,
-                &game_key,
-                &player,
+                client,
+                game_key,
+                player,
+                broadcaster,
             ).await?,
         })
     }
@@ -67,6 +69,7 @@ impl CreateGameReq {
         client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
+        broadcaster: &web::Data<Mutex<Broadcaster>>,
     ) -> Result<game::Data, WebErr> {
         let alphabet: [char; 62] = [
             '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
@@ -89,6 +92,13 @@ impl CreateGameReq {
         }
 
         set_user_playing(&client, &player.username, Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
+
+        broadcaster.lock()
+            .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
+            .lobby_send(LobbyEvent::NewLobbyEvent(NewLobbyEvent {
+                r#type: LobbyEventType::NewLobby,
+                lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
+            }));
 
         Ok(client
             .game()
@@ -126,7 +136,7 @@ impl CreateGameReq {
         client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
-        broadcaster: &Data<Mutex<Broadcaster>>,
+        broadcaster: &web::Data<Mutex<Broadcaster>>,
     ) -> Result<Option<game::Data>, WebErr> {
         let games: Vec<game::Data> = client
             .game()
@@ -174,23 +184,30 @@ impl CreateGameReq {
                 id: game.id.clone(),
             }));
 
-        Ok(Some(
-            client
-                .game()
-                .update(
-                    game::id::equals(game.id.clone()),
-                    vec![
-                        if player.first {
-                            game::first_user::connect(user::username::equals(player.username.clone()))
-                        } else {
-                            game::second_user::connect(user::username::equals(player.username.clone()))
-                        },
-                        game::status::set(GameStatus::Started.to_string()),
-                    ],
-                )
-                .exec()
-                .await
-                .unwrap(),
-        ))
+        let updated_game = client
+            .game()
+            .update(
+                game::id::equals(game.id.clone()),
+                vec![
+                    if player.first {
+                        game::first_user::connect(user::username::equals(player.username.clone()))
+                    } else {
+                        game::second_user::connect(user::username::equals(player.username.clone()))
+                    },
+                    game::status::set(GameStatus::Started.to_string()),
+                ],
+            )
+            .exec()
+            .await
+            .or(Err(WebErr::Internal(format!("error updating game with id {}", game.id))))?;
+
+        broadcaster.lock()
+            .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
+            .lobby_send(LobbyEvent::NewLobbyEvent(NewLobbyEvent {
+                r#type: LobbyEventType::NewLobby,
+                lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
+            }));
+
+        Ok(Some(updated_game))
     }
 }

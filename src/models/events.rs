@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::general::{GameStatus, TimeControl, Player, GameType, WinType, DrawOffer, GameKey, FriendRequest};
+use super::{general::{GameStatus, TimeControl, Player, GameType, WinType, DrawOffer, GameKey, FriendRequest}, res::LobbyResponse};
 
 
 pub enum Event {
@@ -33,8 +33,6 @@ impl GameEvent {
     }
 }
 
-#[derive(Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub enum UserEvent {
     GameStartEvent(GameStartEvent),
     FriendEvent(FriendEvent),
@@ -45,6 +43,18 @@ impl UserEvent {
         match self {
             UserEvent::GameStartEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::FriendEvent(e) => serde_json::to_string(e).unwrap(),
+        }
+    }
+}
+
+pub enum LobbyEvent {
+    NewLobbyEvent(NewLobbyEvent),
+}
+
+impl LobbyEvent {
+    pub fn to_string(&self) -> String {
+        match self {
+            LobbyEvent::NewLobbyEvent(e) => serde_json::to_string(e).unwrap(),
         }
     }
 }
@@ -120,6 +130,13 @@ pub struct FriendEvent {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NewLobbyEvent {
+    pub r#type: LobbyEventType,
+    pub lobbies: Vec<LobbyResponse>,
+}
+
+#[derive(Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum UserEventType {
     GameStart,
@@ -132,6 +149,12 @@ pub enum GameEventType {
     ChatMessage,
     GameState,
     GameFull,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum LobbyEventType {
+    NewLobby,
 }
 
 #[derive(Deserialize, Serialize)]
