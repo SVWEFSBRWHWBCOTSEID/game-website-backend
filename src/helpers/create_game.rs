@@ -4,14 +4,13 @@ use actix_web::web;
 use nanoid::nanoid;
 
 use crate::common::WebErr;
-use crate::models::events::{UserEvent, GameStartEvent, UserEventType, LobbyEvent, AllLobbiesEvent, LobbyEventType};
+use crate::models::events::{UserEvent, GameStartEvent, UserEventType};
 use crate::models::general::{GameStatus, MatchPlayer, GameKey};
 use crate::models::req::CreateGameReq;
 use crate::prisma::PrismaClient;
 use crate::prisma::{game, user};
 use crate::sse::Broadcaster;
-use super::game::LobbyVec;
-use super::general::{set_user_playing, get_unmatched_games};
+use super::general::{set_user_playing, send_lobby_event};
 
 
 impl CreateGameReq {
@@ -120,12 +119,7 @@ impl CreateGameReq {
             .await
             .or(Err(WebErr::Internal(format!("error creating game"))))?;
 
-        broadcaster.lock()
-            .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
-            .lobby_send(LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
-                r#type: LobbyEventType::AllLobbies,
-                lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
-            }));
+        send_lobby_event(&client, &broadcaster).await?;
 
         Ok(game)
     }
@@ -212,12 +206,7 @@ impl CreateGameReq {
             .await
             .or(Err(WebErr::Internal(format!("error updating game with id {}", game.id))))?;
 
-        broadcaster.lock()
-            .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
-            .lobby_send(LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
-                r#type: LobbyEventType::AllLobbies,
-                lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
-            }));
+        send_lobby_event(&client, &broadcaster).await?;
 
         Ok(Some(updated_game))
     }

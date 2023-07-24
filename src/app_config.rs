@@ -7,6 +7,7 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
     cfg
         .service(game::create_game)
         .service(game::cancel_game)
+        .service(game::join_game)
         .service(game::get_game)
         .service(game::get_lobbies)
         .service(game::add_move)

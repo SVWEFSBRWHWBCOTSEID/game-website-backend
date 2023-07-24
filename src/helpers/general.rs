@@ -1,11 +1,15 @@
+use std::sync::Mutex;
 use std::time::SystemTime;
 use actix_session::Session;
 use actix_web::web;
 use prisma_client_rust::or;
 
 use crate::common::WebErr;
+use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType};
 use crate::models::general::GameStatus;
 use crate::prisma::{user, PrismaClient, message, game};
+use crate::sse::Broadcaster;
+use super::game::LobbyVec;
 
 
 pub fn get_username(session: &Session) -> Result<String, WebErr> {
@@ -76,6 +80,16 @@ pub async fn get_unmatched_games(client: &web::Data<PrismaClient>) -> Result<Vec
         .exec()
         .await
         .or(Err(WebErr::NotFound(format!("error getting all unmatched games"))))?)
+}
+
+pub async fn send_lobby_event(client: &web::Data<PrismaClient>, broadcaster: &web::Data<Mutex<Broadcaster>>) -> Result<(), WebErr> {
+    broadcaster.lock()
+        .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
+        .lobby_send(LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
+            r#type: LobbyEventType::AllLobbies,
+            lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
+        }));
+    Ok(())
 }
 
 pub async fn get_user_with_relations(client: &web::Data<PrismaClient>, username: &str) -> Result<user::Data, WebErr> {
