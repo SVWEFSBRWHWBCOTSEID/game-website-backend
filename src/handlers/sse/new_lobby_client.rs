@@ -1,10 +1,8 @@
 use std::sync::Mutex;
-use actix_session::Session;
 use actix_web::web::Data;
 use actix_web::{HttpResponse, get};
 
 use crate::common::WebErr;
-use crate::helpers::general::get_username;
 use crate::sse::Broadcaster;
 
 

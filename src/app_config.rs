@@ -22,5 +22,6 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
         .service(user::login)
         .service(user::logout)
         .service(sse::new_user_client)
-        .service(sse::new_game_client);
+        .service(sse::new_game_client)
+        .service(sse::new_lobby_client);
 }
