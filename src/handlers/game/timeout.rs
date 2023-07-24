@@ -36,7 +36,7 @@ pub async fn timeout(
             r#type: GameEventType::GameState,
             ftime: game.get_new_first_time(),
             stime: game.get_new_second_time(),
-            moves: game.get_moves_vec(),
+            moves: vec![],
             status: game.get_timeout_game_status(&username)?,
             win_type: Some(WinType::Timeout),
             draw_offer: DrawOffer::None,

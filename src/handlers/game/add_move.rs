@@ -81,6 +81,20 @@ pub async fn add_move(
                 game::first_time::set(game.get_new_first_time()),
                 game::second_time::set(game.get_new_second_time()),
                 game::last_move_time::set(time_millis()),
+                game::status::set(match game.new_move_outcome(&new_move) {
+                    MoveOutcome::None => GameStatus::Started,
+                    MoveOutcome::FirstWin => GameStatus::FirstWon,
+                    MoveOutcome::SecondWin => GameStatus::SecondWon,
+                    _ => GameStatus::Draw,
+                }.to_string()),
+                game::win_type::set(match game.new_move_outcome(&new_move) {
+                    MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(WinType::Normal.to_string()),
+                    _ => None,
+                }),
+                game::draw_offer::set(match game.new_move_outcome(&new_move) {
+                    MoveOutcome::None => game.draw_offer,
+                    _ => DrawOffer::None.to_bool(),
+                }),
             ],
         )
         .exec()

@@ -31,7 +31,7 @@ pub async fn offer_draw(
             r#type: GameEventType::GameState,
             ftime: game.get_new_first_time(),
             stime: game.get_new_second_time(),
-            moves: game.get_moves_vec(),
+            moves: vec![],
             status: game.get_draw_game_status(&value, &username)?,
             win_type: None,
             draw_offer: game.get_new_draw_offer(&value, &username),
