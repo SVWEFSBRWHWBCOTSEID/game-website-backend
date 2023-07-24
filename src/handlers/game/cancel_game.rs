@@ -4,7 +4,9 @@ use actix_web::{HttpResponse, post};
 use prisma_client_rust::or;
 
 use crate::common::WebErr;
-use crate::helpers::general::get_username;
+use crate::helpers::game::LobbyVec;
+use crate::helpers::general::{get_username, get_unmatched_games};
+use crate::models::events::{AllLobbiesEvent, LobbyEvent, LobbyEventType};
 use crate::models::res::OK_RES;
 use crate::prisma::{PrismaClient, game, SortOrder};
 
@@ -14,6 +16,7 @@ use crate::prisma::{PrismaClient, game, SortOrder};
 pub async fn cancel_game(
     client: Data<PrismaClient>,
     session: Session,
+    broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
@@ -37,6 +40,13 @@ pub async fn cancel_game(
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error deleting game with id {}", game.id))))?;
+
+    broadcaster.lock()
+        .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
+        .lobby_send(LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
+            r#type: LobbyEventType::AllLobbies,
+            lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
+        }));
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }
