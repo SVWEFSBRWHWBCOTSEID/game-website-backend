@@ -69,6 +69,8 @@ impl Broadcaster {
             vec.retain(|x| x.clone().try_send(Bytes::from("event: internal_status\ndata: ping\n\n")).is_ok());
         }
         self.game_clients.retain(|_, v| v.len() != 0);
+
+        self.lobby_clients.retain(|x| x.clone().try_send(Bytes::from("event: internal_status\ndata: ping\n\n")).is_ok());
     }
 
     pub fn new_user_client(&mut self, username: String) -> (Client, Sender<Bytes>) {

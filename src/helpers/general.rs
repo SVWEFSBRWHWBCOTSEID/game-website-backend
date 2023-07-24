@@ -2,6 +2,7 @@ use std::sync::Mutex;
 use std::time::SystemTime;
 use actix_session::Session;
 use actix_web::web;
+use prisma_client_rust::or;
 
 use crate::common::WebErr;
 use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType};
@@ -68,24 +69,17 @@ pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str)
 }
 
 pub async fn get_unmatched_games(client: &web::Data<PrismaClient>) -> Result<Vec<game::Data>, WebErr> {
-    let mut games = client
+    Ok(client
         .game()
-        .find_many(vec![game::first_username::equals(None)])
+        .find_many(vec![or![
+            game::first_username::equals(None),
+            game::second_username::equals(None),
+        ]])
         .with(game::first_user::fetch().with(user::perfs::fetch(vec![])))
         .with(game::second_user::fetch().with(user::perfs::fetch(vec![])))
         .exec()
         .await
-        .or(Err(WebErr::NotFound(format!("error getting all unmatched games"))))?;
-    games.extend(client
-        .game()
-        .find_many(vec![game::second_username::equals(None)])
-        .with(game::first_user::fetch().with(user::perfs::fetch(vec![])))
-        .with(game::second_user::fetch().with(user::perfs::fetch(vec![])))
-        .exec()
-        .await
-        .or(Err(WebErr::NotFound(format!("error getting all unmatched games"))))?
-    );
-    Ok(games)
+        .or(Err(WebErr::NotFound(format!("error getting all unmatched games"))))?)
 }
 
 pub async fn send_lobby_event(client: &web::Data<PrismaClient>, broadcaster: &web::Data<Mutex<Broadcaster>>) -> Result<(), WebErr> {
