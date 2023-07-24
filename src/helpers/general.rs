@@ -87,7 +87,7 @@ pub async fn send_lobby_event(client: &web::Data<PrismaClient>, broadcaster: &we
         .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
         .lobby_send(LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
             r#type: LobbyEventType::AllLobbies,
-            lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
+            lobbies: vec![],
         }));
     Ok(())
 }
