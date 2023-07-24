@@ -26,7 +26,7 @@ pub async fn new_lobby_client(
         .send_single(&tx, Event::LobbyEvent(
             LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
                 r#type: LobbyEventType::AllLobbies,
-                lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
+                lobbies: vec![],
             })
         ));
 
