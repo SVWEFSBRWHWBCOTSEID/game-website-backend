@@ -1206,6 +1206,7 @@ dependencies = [
  "futures",
  "log",
  "nanoid",
+ "parking_lot 0.12.1",
  "prisma-client-rust",
  "rand 0.8.5",
  "serde",

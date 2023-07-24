@@ -1,4 +1,4 @@
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
 use actix_web::web::Data;
 use actix_web::{HttpResponse, get, HttpRequest};
 
@@ -19,14 +19,14 @@ pub async fn new_game_client(
 ) -> Result<HttpResponse, WebErr> {
 
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
-    let (rx, tx) = broadcaster.lock().await.new_game_client(game_id.clone());
+    let (rx, tx) = broadcaster.lock().new_game_client(game_id.clone());
 
     let game = get_game_with_relations(&client, &game_id).await?;
     if GameStatus::from_str(&game.status)? == GameStatus::Waiting {
         return Err(WebErr::Forbidden(format!("cannot fetch event stream, game has not started yet")));
     }
 
-    broadcaster.lock().await.send_single(&tx, Event::GameEvent(
+    broadcaster.lock().send_single(&tx, Event::GameEvent(
         GameEvent::GameFullEvent(game.to_game_full_event()?)
     ));
 

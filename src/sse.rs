@@ -1,6 +1,6 @@
 use actix_web::web::{Bytes, Data};
 use futures::Stream;
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
 use std::pin::Pin;
 use std::time::Duration;
 use std::task::{Context, Poll};
@@ -54,7 +54,7 @@ impl Broadcaster {
             let mut interval = interval_at(Instant::now(), Duration::from_secs(10));
             loop {
                 interval.tick().await;
-                me.lock().await.remove_stale_clients();
+                me.lock().remove_stale_clients();
             }
         });
     }

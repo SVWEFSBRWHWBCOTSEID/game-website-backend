@@ -1,4 +1,4 @@
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
@@ -24,7 +24,7 @@ pub async fn resign(
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let game = get_game_validate(&client, &game_id, &username).await?;
 
-    broadcaster.lock().await.game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
+    broadcaster.lock().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
         ftime: game.get_new_first_time()?,
         stime: game.get_new_second_time()?,

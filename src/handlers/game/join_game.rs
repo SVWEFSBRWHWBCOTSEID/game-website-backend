@@ -1,5 +1,5 @@
 use std::env;
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::web::Data;
 use actix_web::{HttpRequest, HttpResponse, post};
@@ -50,12 +50,12 @@ pub async fn join_game(
         .await
         .or(Err(WebErr::Internal(format!("error updating game with id {}", game_id))))?;
 
-    broadcaster.lock().await.user_send(&updated_game.first_username.clone().unwrap(), UserEvent::GameStartEvent(GameStartEvent {
+    broadcaster.lock().user_send(&updated_game.first_username.clone().unwrap(), UserEvent::GameStartEvent(GameStartEvent {
         r#type: UserEventType::GameStart,
         game: GameKey::from_str(&updated_game.game_key)?,
         id: game.id.clone(),
     }));
-    broadcaster.lock().await.user_send(&updated_game.second_username.clone().unwrap(), UserEvent::GameStartEvent(GameStartEvent {
+    broadcaster.lock().user_send(&updated_game.second_username.clone().unwrap(), UserEvent::GameStartEvent(GameStartEvent {
         r#type: UserEventType::GameStart,
         game: GameKey::from_str(&updated_game.game_key)?,
         id: game.id.clone(),

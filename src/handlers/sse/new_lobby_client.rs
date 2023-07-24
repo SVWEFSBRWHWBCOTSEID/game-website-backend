@@ -1,4 +1,4 @@
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
 use actix_web::web::Data;
 use actix_web::{HttpResponse, get};
 
@@ -16,9 +16,10 @@ pub async fn new_lobby_client(
     client: Data<PrismaClient>,
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, WebErr> {
-    let (rx, tx) = broadcaster.lock().await.new_lobby_client();
+    
+    let (rx, tx) = broadcaster.lock().new_lobby_client();
 
-    broadcaster.lock().await.send_single(&tx, Event::LobbyEvent(
+    broadcaster.lock().send_single(&tx, Event::LobbyEvent(
         LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
             r#type: LobbyEventType::AllLobbies,
             lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,

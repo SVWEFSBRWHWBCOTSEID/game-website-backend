@@ -1,4 +1,4 @@
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::web::{Json, Data};
 use actix_web::{HttpRequest, HttpResponse, post};

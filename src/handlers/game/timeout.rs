@@ -1,4 +1,4 @@
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
@@ -30,7 +30,7 @@ pub async fn timeout(
         _ => return Err(WebErr::Forbidden(format!("cannot time out in untimed game"))),
     }
 
-    broadcaster.lock().await.game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
+    broadcaster.lock().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
         ftime: game.get_new_first_time()?,
         stime: game.get_new_second_time()?,

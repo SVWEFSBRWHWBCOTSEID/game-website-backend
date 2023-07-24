@@ -1,4 +1,4 @@
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::{Data, Json}, HttpResponse};
 
@@ -40,7 +40,7 @@ pub async fn send_chat(
         .await
         .or(Err(WebErr::Internal(format!(""))))?;
 
-    broadcaster.lock().await.game_send(&game_id, GameEvent::ChatMessageEvent(ChatMessageEvent {
+    broadcaster.lock().game_send(&game_id, GameEvent::ChatMessageEvent(ChatMessageEvent {
         r#type: GameEventType::ChatMessage,
         text: chat_message_req.message,
         username,

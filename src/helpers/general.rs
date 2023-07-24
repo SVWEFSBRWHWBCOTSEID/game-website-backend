@@ -1,4 +1,4 @@
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
 use std::time::SystemTime;
 use actix_session::Session;
 use actix_web::web;
@@ -83,7 +83,7 @@ pub async fn get_unmatched_games(client: &web::Data<PrismaClient>) -> Result<Vec
 }
 
 pub async fn send_lobby_event(client: &web::Data<PrismaClient>, broadcaster: &web::Data<Mutex<Broadcaster>>) -> Result<(), WebErr> {
-    broadcaster.lock().await.lobby_send(LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
+    broadcaster.lock().lobby_send(LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
         r#type: LobbyEventType::AllLobbies,
         lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
     }));

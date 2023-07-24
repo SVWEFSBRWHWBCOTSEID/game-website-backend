@@ -1,4 +1,4 @@
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::web::Data;
 use actix_web::{HttpResponse, get};
@@ -16,7 +16,7 @@ pub async fn new_user_client(
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
-    let (rx, _) = broadcaster.lock().await.new_user_client(username);
+    let (rx, _) = broadcaster.lock().new_user_client(username);
 
     Ok(HttpResponse::Ok()
         .append_header(("content-type", "text/event-stream"))

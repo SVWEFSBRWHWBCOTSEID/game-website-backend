@@ -1,4 +1,4 @@
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
@@ -34,7 +34,7 @@ pub async fn add_move(
         return Err(WebErr::Forbidden(format!("new move is invalid or not player's turn")));
     }
 
-    broadcaster.lock().await.game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
+    broadcaster.lock().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
         ftime: game.get_new_first_time()?,
         stime: game.get_new_second_time()?,
