@@ -102,6 +102,7 @@ impl CreateGameReq {
                 "".to_string(),
                 0,
                 GameStatus::Waiting.to_string(),
+                player.random,
                 vec![
                     game::clock_initial::set(self.time),
                     game::clock_increment::set(self.increment),

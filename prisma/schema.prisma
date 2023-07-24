@@ -31,6 +31,7 @@ model Game {
     status          String
     winType         String?
     drawOffer       Boolean?
+    randomSide      Boolean
 }
 
 model User {

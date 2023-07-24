@@ -1,7 +1,11 @@
 use std::cmp::max;
 use actix_web::web;
 
-use crate::{models::{res::{CreateGameResponse, GameResponse, LobbyResponse}, general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey, WinType, MatchPlayer}, events::{GameState, GameFullEvent, GameEventType, Visibility, ChatMessage}}, prisma::{game, PrismaClient, user}, common::WebErr};
+use crate::models::res::{CreateGameResponse, GameResponse, LobbyResponse};
+use crate::models::general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey, WinType, Side};
+use crate::models::events::{GameState, GameFullEvent, GameEventType, Visibility, ChatMessage};
+use crate::prisma::{game, PrismaClient, user};
+use crate::common::WebErr;
 use super::general::time_millis;
 
 
@@ -137,28 +141,31 @@ impl game::Data {
         })
     }
 
-    pub fn to_lobby_res(&self) -> Result<LobbyResponse, WebErr> {
+    pub fn to_lobby_res(&self, random: bool) -> Result<LobbyResponse, WebErr> {
         Ok(LobbyResponse {
             id: self.id.clone(),
             rated: self.rated,
+            rating_min: self.rating_min,
+            rating_max: self.rating_max,
+            side: if random {
+                Side::Random
+            } else if self.first_username.is_some() {
+                Side::First
+            } else {
+                Side::Second
+            },
             user: match self.first_user().or(Err(WebErr::Internal(format!("user perfs not fetched"))))? {
-                Some(u) => MatchPlayer {
+                Some(u) => Player {
                     username: u.username.clone(),
                     provisional: u.get_provisional(&self.game_key)?,
                     rating: u.get_rating(&self.game_key)?,
-                    rating_min: self.rating_min,
-                    rating_max: self.rating_max,
-                    first: true,
                 },
                 None => {
                     let u = self.second_user().or(Err(WebErr::Internal(format!("user perfs not fetched"))))?.unwrap();
-                    MatchPlayer {
+                    Player {
                         username: u.username.clone(),
                         provisional: u.get_provisional(&self.game_key)?,
                         rating: u.get_rating(&self.game_key)?,
-                        rating_min: self.rating_min,
-                        rating_max: self.rating_max,
-                        first: false,
                     }
                 },
             },
@@ -279,7 +286,7 @@ impl LobbyVec for Vec<game::Data> {
     // convert vec of games to vec of LobbyResponse structs
     fn to_lobby_vec(&self) -> Result<Vec<LobbyResponse>, WebErr> {
         Ok(self.iter().map(
-            |g| Ok::<LobbyResponse, WebErr>(g.to_lobby_res()?)
+            |g| Ok::<LobbyResponse, WebErr>(g.to_lobby_res(g.random_side)?)
         ).flatten().collect())
     }
 }

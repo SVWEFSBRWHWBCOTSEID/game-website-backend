@@ -11,6 +11,7 @@ pub struct MatchPlayer {
     pub rating_min: i32,
     pub rating_max: i32,
     pub first: bool,
+    pub random: bool,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -126,7 +127,7 @@ pub enum MoveOutcome {
     Stalemate,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Side {
     First,

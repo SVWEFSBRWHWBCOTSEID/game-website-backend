@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{general::{GameType, TimeControl, Player, Profile, Perfs, MatchPlayer}, events::GameState};
+use super::{general::{GameType, TimeControl, Player, Profile, Perfs, Side}, events::GameState};
 
 
 #[derive(Deserialize, Serialize)]
@@ -33,7 +33,10 @@ pub struct GameResponse {
 pub struct LobbyResponse {
     pub id: String,
     pub rated: bool,
-    pub user: MatchPlayer,
+    pub rating_min: i32,
+    pub rating_max: i32,
+    pub side: Side,
+    pub user: Player,
     pub game: GameType,
     pub time_control: TimeControl,
 }

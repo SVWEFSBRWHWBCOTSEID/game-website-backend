@@ -96,6 +96,7 @@ impl user::Data {
                 Side::Second => false,
                 Side::Random => rng.gen_range(0..1) == 0,
             },
+            random: req.side == Side::Random,
         }
     }
 }
