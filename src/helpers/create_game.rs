@@ -91,16 +91,7 @@ impl CreateGameReq {
             }
         }
 
-        set_user_playing(&client, &player.username, Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
-
-        broadcaster.lock()
-            .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
-            .lobby_send(LobbyEvent::NewLobbyEvent(NewLobbyEvent {
-                r#type: LobbyEventType::NewLobby,
-                lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
-            }));
-
-        Ok(client
+        let game = client
             .game()
             .create(
                 id,
@@ -127,7 +118,16 @@ impl CreateGameReq {
             )
             .exec()
             .await
-            .or(Err(WebErr::Internal(format!("error creating game"))))?)
+            .or(Err(WebErr::Internal(format!("error creating game"))))?;
+
+        broadcaster.lock()
+            .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
+            .lobby_send(LobbyEvent::NewLobbyEvent(NewLobbyEvent {
+                r#type: LobbyEventType::NewLobby,
+                lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
+            }));
+
+        Ok(game)
     }
 
     // method to match player with an existing game if criteria are met
@@ -164,6 +164,17 @@ impl CreateGameReq {
             return Ok(None);
         }
         let game = filtered_games.min_by_key(|g| g.created_at).unwrap();
+
+        set_user_playing(&client, &player.username, Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), game.id.clone()].concat())).await?;
+        set_user_playing(
+            &client,
+            if player.first {
+                game.second_username.as_ref().unwrap()
+            } else {
+                game.first_username.as_ref().unwrap()
+            },
+            Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), game.id.clone()].concat()),
+        ).await?;
 
         broadcaster.lock()
             .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
