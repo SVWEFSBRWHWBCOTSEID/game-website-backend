@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 use actix_session::Session;
 use actix_web::web::Data;
 use actix_web::{web, HttpResponse, HttpRequest, post};
@@ -26,7 +26,6 @@ pub async fn friend_request(
     if username == other_name {
         return Err(WebErr::Forbidden(format!("cannot friend reqeust yourself")));
     }
-    let guard = broadcaster.lock().or(Err(WebErr::Internal(format!("poisoned mutex"))))?;
 
     let user = client
         .user()
@@ -59,7 +58,7 @@ pub async fn friend_request(
             .await
             .or(Err(WebErr::Internal(format!("error creating friend request from {} to {}", username, other_name))))?;
 
-        guard.user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
+        broadcaster.lock().await.user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
             r#type: UserEventType::Friend,
             username: username,
             value: FriendRequest::Accepted,
@@ -77,7 +76,7 @@ pub async fn friend_request(
             .await
             .or(Err(WebErr::Internal(format!("error creating friend request from {} to {}", username, other_name))))?;
 
-        guard.user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
+        broadcaster.lock().await.user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
             r#type: UserEventType::Friend,
             username: username,
             value: FriendRequest::Pending,

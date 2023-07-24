@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
@@ -24,17 +24,15 @@ pub async fn resign(
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let game = get_game_validate(&client, &game_id, &username).await?;
 
-    broadcaster.lock()
-        .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
-        .game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
-            r#type: GameEventType::GameState,
-            ftime: game.get_new_first_time(),
-            stime: game.get_new_second_time(),
-            moves: vec![],
-            status: game.get_resign_game_status(&username),
-            win_type: Some(WinType::Resign),
-            draw_offer: DrawOffer::None,
-        }));
+    broadcaster.lock().await.game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
+        r#type: GameEventType::GameState,
+        ftime: game.get_new_first_time(),
+        stime: game.get_new_second_time(),
+        moves: vec![],
+        status: game.get_resign_game_status(&username),
+        win_type: Some(WinType::Resign),
+        draw_offer: DrawOffer::None,
+    }));
 
     set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
     set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;

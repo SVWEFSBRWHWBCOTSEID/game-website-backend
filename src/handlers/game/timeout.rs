@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 use actix_session::Session;
 use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
@@ -30,17 +30,15 @@ pub async fn timeout(
         _ => return Err(WebErr::Forbidden(format!("cannot time out in untimed game"))),
     }
 
-    broadcaster.lock()
-        .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
-        .game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
-            r#type: GameEventType::GameState,
-            ftime: game.get_new_first_time(),
-            stime: game.get_new_second_time(),
-            moves: vec![],
-            status: game.get_timeout_game_status(&username)?,
-            win_type: Some(WinType::Timeout),
-            draw_offer: DrawOffer::None,
-        }));
+    broadcaster.lock().await.game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
+        r#type: GameEventType::GameState,
+        ftime: game.get_new_first_time(),
+        stime: game.get_new_second_time(),
+        moves: vec![],
+        status: game.get_timeout_game_status(&username)?,
+        win_type: Some(WinType::Timeout),
+        draw_offer: DrawOffer::None,
+    }));
 
     set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
     set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;

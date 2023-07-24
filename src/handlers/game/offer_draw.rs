@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 use actix_session::Session;
 use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
@@ -25,17 +25,15 @@ pub async fn offer_draw(
     let value: bool = req.match_info().get("value").unwrap().parse().unwrap();
     let game = get_game_validate(&client, &game_id, &username).await?;
 
-    broadcaster.lock()
-        .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
-        .game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
-            r#type: GameEventType::GameState,
-            ftime: game.get_new_first_time(),
-            stime: game.get_new_second_time(),
-            moves: vec![],
-            status: game.get_draw_game_status(&value, &username)?,
-            win_type: None,
-            draw_offer: game.get_new_draw_offer(&value, &username),
-        }));
+    broadcaster.lock().await.game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
+        r#type: GameEventType::GameState,
+        ftime: game.get_new_first_time(),
+        stime: game.get_new_second_time(),
+        moves: vec![],
+        status: game.get_draw_game_status(&value, &username)?,
+        win_type: None,
+        draw_offer: game.get_new_draw_offer(&value, &username),
+    }));
 
     if game.get_new_draw_offer(&value, &username) != DrawOffer::None {
         set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;

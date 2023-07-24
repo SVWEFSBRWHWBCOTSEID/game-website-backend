@@ -1,5 +1,5 @@
 use std::env;
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 use actix_web::web;
 use nanoid::nanoid;
 
@@ -171,13 +171,12 @@ impl CreateGameReq {
             Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), game.id.clone()].concat()),
         ).await?;
 
-        let guard = broadcaster.lock().or(Err(WebErr::Internal(format!("poisoned mutex"))))?;
-        guard.user_send(&player.username, UserEvent::GameStartEvent(GameStartEvent {
+        broadcaster.lock().await.user_send(&player.username, UserEvent::GameStartEvent(GameStartEvent {
             r#type: UserEventType::GameStart,
             game: GameKey::from_str(game_key)?,
             id: game.id.clone(),
         }));
-        guard.user_send(if player.first {
+        broadcaster.lock().await.user_send(if player.first {
             game.second_username.as_ref().unwrap()
         } else {
             game.first_username.as_ref().unwrap()

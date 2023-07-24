@@ -1,5 +1,4 @@
 use std::env;
-
 use actix_session::Session;
 use actix_web::cookie::{Cookie, SameSite};
 use actix_web::{web, HttpResponse, post};

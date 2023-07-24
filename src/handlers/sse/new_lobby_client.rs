@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 use actix_web::web::Data;
 use actix_web::{HttpResponse, get};
 
@@ -16,11 +16,9 @@ pub async fn new_lobby_client(
     client: Data<PrismaClient>,
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, WebErr> {
+    let (rx, tx) = broadcaster.lock().await.new_lobby_client();
 
-    let mut guard = broadcaster.lock().or(Err(WebErr::Internal(format!("poisoned mutex"))))?;
-    let (rx, tx) = guard.new_lobby_client();
-
-    guard.send_single(&tx, Event::LobbyEvent(
+    broadcaster.lock().await.send_single(&tx, Event::LobbyEvent(
         LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
             r#type: LobbyEventType::AllLobbies,
             lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,

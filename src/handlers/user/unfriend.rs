@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 use actix_session::Session;
 use actix_web::web::Data;
 use actix_web::{web, HttpResponse, HttpRequest, post};
@@ -38,7 +38,7 @@ pub async fn unfriend(
             .await
             .or(Err(WebErr::Internal(format!("error deleting friend relation from {} to {}", username, other_name))))?;
     }
-    broadcaster.lock().unwrap().user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
+    broadcaster.lock().await.user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
         r#type: UserEventType::Friend,
         username: username,
         value: FriendRequest::Removed,

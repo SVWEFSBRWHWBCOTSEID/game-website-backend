@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::{Data, Json}, HttpResponse};
 
@@ -40,14 +40,12 @@ pub async fn send_chat(
         .await
         .or(Err(WebErr::Internal(format!(""))))?;
 
-    broadcaster.lock()
-        .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
-        .game_send(&game_id, GameEvent::ChatMessageEvent(ChatMessageEvent {
-            r#type: GameEventType::ChatMessage,
-            text: chat_message_req.message,
-            username,
-            visibility: Visibility::from_str(&visibility)?,
-        }));
+    broadcaster.lock().await.game_send(&game_id, GameEvent::ChatMessageEvent(ChatMessageEvent {
+        r#type: GameEventType::ChatMessage,
+        text: chat_message_req.message,
+        username,
+        visibility: Visibility::from_str(&visibility)?,
+    }));
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }
