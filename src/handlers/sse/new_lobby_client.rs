@@ -17,18 +17,15 @@ pub async fn new_lobby_client(
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, WebErr> {
 
-    let (rx, tx) = broadcaster.lock()
-        .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
-        .new_lobby_client();
+    let mut guard = broadcaster.lock().or(Err(WebErr::Internal(format!("poisoned mutex"))))?;
+    let (rx, tx) = guard.new_lobby_client();
 
-    broadcaster.lock()
-        .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
-        .send_single(&tx, Event::LobbyEvent(
-            LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
-                r#type: LobbyEventType::AllLobbies,
-                lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
-            })
-        ));
+    guard.send_single(&tx, Event::LobbyEvent(
+        LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
+            r#type: LobbyEventType::AllLobbies,
+            lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
+        })
+    ));
 
     Ok(HttpResponse::Ok()
         .append_header(("content-type", "text/event-stream"))
