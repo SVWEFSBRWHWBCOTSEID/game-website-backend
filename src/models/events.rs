@@ -50,13 +50,13 @@ impl UserEvent {
 }
 
 pub enum LobbyEvent {
-    NewLobbyEvent(NewLobbyEvent),
+    AllLobbiesEvent(AllLobbiesEvent),
 }
 
 impl LobbyEvent {
     pub fn to_string(&self) -> String {
         match self {
-            LobbyEvent::NewLobbyEvent(e) => serde_json::to_string(e).unwrap(),
+            LobbyEvent::AllLobbiesEvent(e) => serde_json::to_string(e).unwrap(),
         }
     }
 }
@@ -133,7 +133,7 @@ pub struct FriendEvent {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct NewLobbyEvent {
+pub struct AllLobbiesEvent {
     pub r#type: LobbyEventType,
     pub lobbies: Vec<LobbyResponse>,
 }
@@ -156,7 +156,7 @@ pub enum GameEventType {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum LobbyEventType {
-    NewLobby,
+    AllLobbies,
 }
 
 #[derive(Deserialize, Serialize)]

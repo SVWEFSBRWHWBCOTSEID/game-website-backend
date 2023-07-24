@@ -4,7 +4,7 @@ use actix_web::web;
 use nanoid::nanoid;
 
 use crate::common::WebErr;
-use crate::models::events::{UserEvent, GameStartEvent, UserEventType, LobbyEvent, NewLobbyEvent, LobbyEventType};
+use crate::models::events::{UserEvent, GameStartEvent, UserEventType, LobbyEvent, AllLobbiesEvent, LobbyEventType};
 use crate::models::general::{GameStatus, MatchPlayer, GameKey};
 use crate::models::req::CreateGameReq;
 use crate::prisma::PrismaClient;
@@ -122,8 +122,8 @@ impl CreateGameReq {
 
         broadcaster.lock()
             .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
-            .lobby_send(LobbyEvent::NewLobbyEvent(NewLobbyEvent {
-                r#type: LobbyEventType::NewLobby,
+            .lobby_send(LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
+                r#type: LobbyEventType::AllLobbies,
                 lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
             }));
 
@@ -214,8 +214,8 @@ impl CreateGameReq {
 
         broadcaster.lock()
             .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
-            .lobby_send(LobbyEvent::NewLobbyEvent(NewLobbyEvent {
-                r#type: LobbyEventType::NewLobby,
+            .lobby_send(LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
+                r#type: LobbyEventType::AllLobbies,
                 lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
             }));
 
