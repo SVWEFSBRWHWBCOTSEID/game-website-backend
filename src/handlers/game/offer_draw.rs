@@ -32,7 +32,7 @@ pub async fn offer_draw(
             ftime: game.get_new_first_time(),
             stime: game.get_new_second_time(),
             moves: game.get_moves_vec(),
-            status: game.get_draw_game_status(&value, &username),
+            status: game.get_draw_game_status(&value, &username)?,
             win_type: None,
             draw_offer: game.get_new_draw_offer(&value, &username),
         }));
@@ -47,7 +47,7 @@ pub async fn offer_draw(
         .update(
             game::id::equals(game_id.clone()),
             vec![
-                game::status::set(game.get_draw_game_status(&value, &username).to_string()),
+                game::status::set(game.get_draw_game_status(&value, &username)?.to_string()),
                 game::draw_offer::set(game.get_new_draw_offer(&value, &username).to_bool()),
             ],
         )

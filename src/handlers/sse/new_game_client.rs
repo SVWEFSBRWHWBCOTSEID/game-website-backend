@@ -23,7 +23,7 @@ pub async fn new_game_client(
         .or(Err(WebErr::Internal(format!("poisoned mutex"))))?
         .new_game_client(game_id.clone());
     let game = get_game_with_relations(&client, &game_id).await?;
-    if GameStatus::from_str(&game.status) == GameStatus::Waiting {
+    if GameStatus::from_str(&game.status)? == GameStatus::Waiting {
         return Err(WebErr::Forbidden(format!("cannot fetch event stream, game has not started yet")));
     }
 

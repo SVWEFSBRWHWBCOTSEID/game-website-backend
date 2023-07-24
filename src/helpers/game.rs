@@ -52,7 +52,7 @@ impl game::Data {
                 ftime: self.get_new_first_time(),
                 stime: self.get_new_second_time(),
                 moves: self.get_moves_vec(),
-                status: GameStatus::from_str(&self.status),
+                status: GameStatus::from_str(&self.status)?,
                 win_type: None,
                 draw_offer: DrawOffer::None,
             },
@@ -127,7 +127,7 @@ impl game::Data {
                 } else {
                     vec![]
                 },
-                status: GameStatus::from_str(&self.status),
+                status: GameStatus::from_str(&self.status)?,
                 win_type: match &self.win_type {
                     Some(wt) => Some(WinType::from_str(wt)?),
                     None => None,
@@ -222,8 +222,8 @@ impl game::Data {
         }
     }
 
-    pub fn get_draw_game_status(&self, value: &bool, username: &str) -> GameStatus {
-        match (
+    pub fn get_draw_game_status(&self, value: &bool, username: &str) -> Result<GameStatus, WebErr> {
+        Ok(match (
             self.first_username.clone().unwrap() == username,
             value,
             self.draw_offer,
@@ -232,8 +232,8 @@ impl game::Data {
             (false, true, Some(true)) => GameStatus::Draw,
             (true, false, Some(false)) => GameStatus::Started,
             (false, false, Some(true)) => GameStatus::Started,
-            _ => GameStatus::from_str(&self.status),
-        }
+            _ => GameStatus::from_str(&self.status)?,
+        })
     }
 
     pub fn get_resign_game_status(&self, username: &str) -> GameStatus {
@@ -244,14 +244,14 @@ impl game::Data {
         }
     }
 
-    pub fn get_timeout_game_status(&self, username: &str) -> GameStatus {
-        if self.first_username.clone().unwrap() == username && self.get_new_first_time().unwrap() <= 0 {
+    pub fn get_timeout_game_status(&self, username: &str) -> Result<GameStatus, WebErr> {
+        Ok(if self.first_username.clone().unwrap() == username && self.get_new_first_time().unwrap() <= 0 {
             GameStatus::SecondWon
         } else if self.second_username.clone().unwrap() == username && self.get_new_second_time().unwrap() <= 0 {
             GameStatus::FirstWon
         } else {
-            GameStatus::from_str(&self.status)
-        }
+            GameStatus::from_str(&self.status)?
+        })
     }
 
     pub fn get_new_draw_offer(&self, value: &bool, username: &str) -> DrawOffer {

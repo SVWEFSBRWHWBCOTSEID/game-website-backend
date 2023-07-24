@@ -37,7 +37,7 @@ pub async fn timeout(
             ftime: game.get_new_first_time(),
             stime: game.get_new_second_time(),
             moves: game.get_moves_vec(),
-            status: game.get_timeout_game_status(&username),
+            status: game.get_timeout_game_status(&username)?,
             win_type: Some(WinType::Timeout),
             draw_offer: DrawOffer::None,
         }));
@@ -50,7 +50,7 @@ pub async fn timeout(
         .update(
             game::id::equals(game_id.clone()),
             vec![
-                game::status::set(game.get_timeout_game_status(&username).to_string()),
+                game::status::set(game.get_timeout_game_status(&username)?.to_string()),
                 game::win_type::set(Some(WinType::Timeout.to_string())),
                 game::draw_offer::set(DrawOffer::None.to_bool()),
             ],

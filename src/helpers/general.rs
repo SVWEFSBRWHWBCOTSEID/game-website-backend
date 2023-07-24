@@ -37,7 +37,7 @@ pub async fn get_game_validate(client: &web::Data<PrismaClient>, id: &str, usern
         .await
         .unwrap()
     {
-        Some(g) => if GameStatus::from_str(&g.status) != GameStatus::Started ||
+        Some(g) => if GameStatus::from_str(&g.status)? != GameStatus::Started ||
             g.first_username.clone().unwrap() != username && g.second_username.clone().unwrap() != username {
                 Err(WebErr::Forbidden(format!("could not validate, game not started or not a player")))
         } else {
@@ -134,14 +134,14 @@ impl GameStatus {
         }.to_string()
     }
 
-    pub fn from_str(string: &str) -> Self {
+    pub fn from_str(string: &str) -> Result<Self, WebErr> {
         match string {
-            "Waiting" => Self::Waiting,
-            "Started" => Self::Started,
-            "FirstWon" => Self::FirstWon,
-            "SecondWon" => Self::SecondWon,
-            "Draw" => Self::Draw,
-            _ => Self::Waiting,
+            "Waiting" => Ok(Self::Waiting),
+            "Started" => Ok(Self::Started),
+            "FirstWon" => Ok(Self::FirstWon),
+            "SecondWon" => Ok(Self::SecondWon),
+            "Draw" => Ok(Self::Draw),
+            _ => Err(WebErr::NotFound(format!("string {} does not match any enum variant on GameStatus", string))),
         }
     }
 }
