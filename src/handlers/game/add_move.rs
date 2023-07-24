@@ -36,8 +36,8 @@ pub async fn add_move(
 
     broadcaster.lock().await.game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
-        ftime: game.get_new_first_time(),
-        stime: game.get_new_second_time(),
+        ftime: game.get_new_first_time()?,
+        stime: game.get_new_second_time()?,
         moves: vec![new_move.clone()],
         status: match game.new_move_outcome(&new_move) {
             MoveOutcome::None => GameStatus::Started,
@@ -76,8 +76,8 @@ pub async fn add_move(
                     }
                     moves
                 }),
-                game::first_time::set(game.get_new_first_time()),
-                game::second_time::set(game.get_new_second_time()),
+                game::first_time::set(game.get_new_first_time()?),
+                game::second_time::set(game.get_new_second_time()?),
                 game::last_move_time::set(time_millis()),
                 game::status::set(match game.new_move_outcome(&new_move) {
                     MoveOutcome::None => GameStatus::Started,

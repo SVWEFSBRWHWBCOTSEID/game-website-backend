@@ -27,8 +27,8 @@ pub async fn offer_draw(
 
     broadcaster.lock().await.game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
-        ftime: game.get_new_first_time(),
-        stime: game.get_new_second_time(),
+        ftime: game.get_new_first_time()?,
+        stime: game.get_new_second_time()?,
         moves: vec![],
         status: game.get_draw_game_status(&value, &username)?,
         win_type: None,

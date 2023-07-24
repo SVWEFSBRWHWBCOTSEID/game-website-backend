@@ -23,7 +23,7 @@ pub async fn timeout(
     let username: String = get_username(&session)?;
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let game = get_game_validate(&client, &game_id, &username).await?;
-    match (game.get_new_first_time(), game.get_new_second_time()) {
+    match (game.get_new_first_time()?, game.get_new_second_time()?) {
         (Some(f), Some(s)) => if f > 0 && s > 0 {
             return Err(WebErr::Forbidden(format!("neither player has timed out on server")))
         },
@@ -32,8 +32,8 @@ pub async fn timeout(
 
     broadcaster.lock().await.game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
-        ftime: game.get_new_first_time(),
-        stime: game.get_new_second_time(),
+        ftime: game.get_new_first_time()?,
+        stime: game.get_new_second_time()?,
         moves: vec![],
         status: game.get_timeout_game_status(&username)?,
         win_type: Some(WinType::Timeout),

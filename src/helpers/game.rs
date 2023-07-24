@@ -53,8 +53,8 @@ impl game::Data {
             },
             start_pos: self.start_pos.clone(),
             game_state: GameState {
-                ftime: self.get_new_first_time(),
-                stime: self.get_new_second_time(),
+                ftime: self.get_new_first_time()?,
+                stime: self.get_new_second_time()?,
                 moves: self.get_moves_vec(),
                 status: GameStatus::from_str(&self.status)?,
                 win_type: None,
@@ -124,8 +124,8 @@ impl game::Data {
                 visibility: Visibility::from_str(&x.visibility)?,
             })).flatten().collect(),
             state: GameState {
-                ftime: self.get_new_first_time(),
-                stime: self.get_new_second_time(),
+                ftime: self.get_new_first_time()?,
+                stime: self.get_new_second_time()?,
                 moves: if self.moves.len() > 0 {
                     self.moves.split(" ").map(|s| s.to_string()).collect()
                 } else {
@@ -181,25 +181,31 @@ impl game::Data {
     }
 
     // helpers to get updated first and second times
-    pub fn get_new_first_time(&self) -> Option<i32> {
-        match self.first_time {
+    pub fn get_new_first_time(&self) -> Result<Option<i32>, WebErr> {
+        if GameStatus::from_str(&self.status)? != GameStatus::Started {
+            return Ok(self.first_time);
+        }
+        Ok(match self.first_time {
             Some(t) => if self.num_moves() >= 2 && self.num_moves() % 2 == 0 {
                 Some(max(0, t - (time_millis() - self.last_move_time) as i32))
             } else {
                 Some(t)
             },
             None => None,
-        }
+        })
     }
 
-    pub fn get_new_second_time(&self) -> Option<i32> {
+    pub fn get_new_second_time(&self) -> Result<Option<i32>, WebErr> {
+        if GameStatus::from_str(&self.status)? != GameStatus::Started {
+            return Ok(self.first_time);
+        }
         match self.second_time {
             Some(t) => if self.num_moves() >= 2 && self.num_moves() % 2 == 1 {
-                Some(max(0, t - (time_millis() - self.last_move_time) as i32))
+                Ok(Some(max(0, t - (time_millis() - self.last_move_time) as i32)))
             } else {
-                Some(t)
+                Ok(Some(t))
             },
-            None => None,
+            None => Ok(None),
         }
     }
 
@@ -252,9 +258,9 @@ impl game::Data {
     }
 
     pub fn get_timeout_game_status(&self, username: &str) -> Result<GameStatus, WebErr> {
-        Ok(if self.first_username.clone().unwrap() == username && self.get_new_first_time().unwrap() <= 0 {
+        Ok(if self.first_username.clone().unwrap() == username && self.get_new_first_time()?.unwrap() <= 0 {
             GameStatus::SecondWon
-        } else if self.second_username.clone().unwrap() == username && self.get_new_second_time().unwrap() <= 0 {
+        } else if self.second_username.clone().unwrap() == username && self.get_new_second_time()?.unwrap() <= 0 {
             GameStatus::FirstWon
         } else {
             GameStatus::from_str(&self.status)?
