@@ -6,6 +6,7 @@ use super::{general::{GameStatus, TimeControl, Player, GameType, WinType, DrawOf
 pub enum Event {
     UserEvent(UserEvent),
     GameEvent(GameEvent),
+    LobbyEvent(LobbyEvent),
 }
 
 impl Event {
@@ -13,6 +14,7 @@ impl Event {
         match self {
             Event::UserEvent(e) => e.to_string(),
             Event::GameEvent(e) => e.to_string(),
+            Event::LobbyEvent(e) => e.to_string(),
         }
     }
 }
