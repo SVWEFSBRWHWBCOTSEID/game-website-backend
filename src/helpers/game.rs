@@ -187,7 +187,7 @@ impl game::Data {
         }
         Ok(match self.first_time {
             Some(t) => if self.num_moves() >= 2 && self.num_moves() % 2 == 0 {
-                Some(max(0, t - (time_millis() - self.last_move_time) as i32))
+                Some(max(0, t - (time_millis() - self.last_move_time) as i32 + self.clock_increment.unwrap()))
             } else {
                 Some(t)
             },
@@ -201,7 +201,7 @@ impl game::Data {
         }
         match self.second_time {
             Some(t) => if self.num_moves() >= 2 && self.num_moves() % 2 == 1 {
-                Ok(Some(max(0, t - (time_millis() - self.last_move_time) as i32)))
+                Ok(Some(max(0, t - (time_millis() - self.last_move_time) as i32 + self.clock_increment.unwrap())))
             } else {
                 Ok(Some(t))
             },
