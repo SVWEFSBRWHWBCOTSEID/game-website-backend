@@ -1,3 +1,4 @@
+use std::sync::Mutex;
 use actix_session::Session;
 use actix_web::web::Data;
 use actix_web::{HttpResponse, post};
@@ -9,6 +10,7 @@ use crate::helpers::general::{get_username, get_unmatched_games};
 use crate::models::events::{AllLobbiesEvent, LobbyEvent, LobbyEventType};
 use crate::models::res::OK_RES;
 use crate::prisma::{PrismaClient, game, SortOrder};
+use crate::sse::Broadcaster;
 
 
 // route for canceling a new game
