@@ -154,14 +154,14 @@ impl game::Data {
             } else {
                 Side::Second
             },
-            user: match self.first_user().or(Err(WebErr::Internal(format!("user perfs not fetched"))))? {
+            user: match self.first_user().or(Err(WebErr::Internal(format!("first_user not fetched"))))? {
                 Some(u) => Player {
                     username: u.username.clone(),
                     provisional: u.get_provisional(&self.game_key)?,
                     rating: u.get_rating(&self.game_key)?,
                 },
                 None => {
-                    let u = self.second_user().or(Err(WebErr::Internal(format!("user perfs not fetched"))))?.unwrap();
+                    let u = self.second_user().or(Err(WebErr::Internal(format!("second_user not fetched"))))?.unwrap();
                     Player {
                         username: u.username.clone(),
                         provisional: u.get_provisional(&self.game_key)?,
