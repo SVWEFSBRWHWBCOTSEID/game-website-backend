@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{general::{GameStatus, TimeControl, Player, GameType, WinType, DrawOffer, GameKey, FriendRequest}, res::LobbyResponse};
+use super::{general::{GameStatus, TimeControl, Player, GameType, WinType, Offer, GameKey, FriendRequest}, res::LobbyResponse};
 
 
 pub enum Event {
@@ -23,6 +23,7 @@ pub enum GameEvent {
     ChatMessageEvent(ChatMessageEvent),
     GameStateEvent(GameStateEvent),
     GameFullEvent(GameFullEvent),
+    RematchEvent(RematchEvent),
 }
 
 impl GameEvent {
@@ -31,6 +32,7 @@ impl GameEvent {
             GameEvent::ChatMessageEvent(e) => serde_json::to_string(e).unwrap(),
             GameEvent::GameStateEvent(e) => serde_json::to_string(e).unwrap(),
             GameEvent::GameFullEvent(e) => serde_json::to_string(e).unwrap(),
+            GameEvent::RematchEvent(e) => serde_json::to_string(e).unwrap(),
         }
     }
 }
@@ -79,7 +81,7 @@ pub struct GameStateEvent {
     pub moves: Vec<String>,
     pub status: GameStatus,
     pub win_type: Option<WinType>,
-    pub draw_offer: DrawOffer,
+    pub draw_offer: Offer,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -98,13 +100,21 @@ pub struct GameFullEvent {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct RematchEvent {
+    pub r#type: GameEventType,
+    pub rematch_offer: Offer,
+    pub id: Option<String>,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GameState {
     pub ftime: Option<i32>,
     pub stime: Option<i32>,
     pub moves: Vec<String>,
     pub status: GameStatus,
     pub win_type: Option<WinType>,
-    pub draw_offer: DrawOffer,
+    pub draw_offer: Offer,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -151,6 +161,7 @@ pub enum GameEventType {
     ChatMessage,
     GameState,
     GameFull,
+    Rematch,
 }
 
 #[derive(Deserialize, Serialize)]

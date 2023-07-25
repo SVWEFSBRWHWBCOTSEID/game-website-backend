@@ -30,7 +30,8 @@ model Game {
     lastMoveTime    BigInt
     status          String
     winType         String?
-    drawOffer       Boolean?
+    drawOffer       String
+    rematchOffer    String
     randomSide      Boolean
 }
 

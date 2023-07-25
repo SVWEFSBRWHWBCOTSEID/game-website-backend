@@ -4,7 +4,7 @@ use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 use log::info;
 
 use crate::helpers::general::{get_username, get_game_by_id, time_millis, set_user_playing};
-use crate::models::general::{WinType, DrawOffer, MoveOutcome};
+use crate::models::general::{WinType, Offer, MoveOutcome};
 use crate::prisma::{PrismaClient, game};
 use crate::sse::Broadcaster;
 use crate::common::WebErr;
@@ -52,8 +52,8 @@ pub async fn add_move(
             _ => None,
         },
         draw_offer: match game.new_move_outcome(&new_move) {
-            MoveOutcome::None => DrawOffer::from_bool(&game.draw_offer),
-            _ => DrawOffer::None,
+            MoveOutcome::None => Offer::from_str(&game.draw_offer)?,
+            _ => Offer::None,
         },
     }));
 
@@ -93,7 +93,7 @@ pub async fn add_move(
                 }),
                 game::draw_offer::set(match game.new_move_outcome(&new_move) {
                     MoveOutcome::None => game.draw_offer,
-                    _ => DrawOffer::None.to_bool(),
+                    _ => Offer::None.to_string(),
                 }),
             ],
         )

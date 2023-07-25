@@ -4,6 +4,7 @@ use actix_session::Session;
 use actix_web::web;
 use log::info;
 use prisma_client_rust::or;
+use nanoid::nanoid;
 
 use crate::common::WebErr;
 use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType};
@@ -128,6 +129,29 @@ pub async fn set_user_playing(client: &web::Data<PrismaClient>, username: &str, 
         .await
         .or(Err(WebErr::Internal(format!("error setting 'playing' field on user {}", username))))?;
     Ok(())
+}
+
+pub async fn gen_nanoid(client: &web::Data<PrismaClient>) -> String {
+    let alphabet: [char; 62] = [
+        '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    ];
+    let mut id: String;
+    loop {
+        id = nanoid!{6, &alphabet};
+        if client
+            .game()
+            .find_unique(game::id::equals(id.clone()))
+            .exec()
+            .await
+            .unwrap()
+            .is_none()
+        {
+            break;
+        }
+    }
+    id
 }
 
 pub fn time_millis() -> i64 {

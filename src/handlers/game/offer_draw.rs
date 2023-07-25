@@ -5,7 +5,7 @@ use log::info;
 
 use crate::helpers::general::{get_username, get_game_validate, set_user_playing};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent};
-use crate::models::general::DrawOffer;
+use crate::models::general::Offer;
 use crate::prisma::{PrismaClient, game};
 use crate::common::WebErr;
 use crate::models::res::OK_RES;
@@ -34,13 +34,8 @@ pub async fn offer_draw(
         moves: vec![],
         status: game.get_draw_game_status(&value, &username)?,
         win_type: None,
-        draw_offer: game.get_new_draw_offer(&value, &username),
+        draw_offer: game.get_new_draw_offer(&value, &username)?,
     }));
-
-    if game.get_new_draw_offer(&value, &username) != DrawOffer::None {
-        set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
-        set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
-    }
 
     client
         .game()
@@ -48,12 +43,17 @@ pub async fn offer_draw(
             game::id::equals(game_id.clone()),
             vec![
                 game::status::set(game.get_draw_game_status(&value, &username)?.to_string()),
-                game::draw_offer::set(game.get_new_draw_offer(&value, &username).to_bool()),
+                game::draw_offer::set(game.get_new_draw_offer(&value, &username)?.to_string()),
             ],
         )
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error updating game with id {} to offer draw", game_id))))?;
+
+    if game.get_new_draw_offer(&value, &username)? == Offer::Agreed {
+        set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
+        set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
+    }
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }

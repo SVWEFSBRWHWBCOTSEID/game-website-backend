@@ -5,7 +5,7 @@ use log::info;
 
 use crate::helpers::general::{get_username, get_game_validate, set_user_playing};
 use crate::models::events::{GameEvent, GameStateEvent, GameEventType};
-use crate::models::general::{WinType, DrawOffer};
+use crate::models::general::{WinType, Offer};
 use crate::prisma::{PrismaClient, game};
 use crate::common::WebErr;
 use crate::models::res::OK_RES;
@@ -33,7 +33,7 @@ pub async fn resign(
         moves: vec![],
         status: game.get_resign_game_status(&username),
         win_type: Some(WinType::Resign),
-        draw_offer: DrawOffer::None,
+        draw_offer: Offer::None,
     }));
 
     set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
@@ -46,7 +46,7 @@ pub async fn resign(
             vec![
                 game::status::set(game.get_resign_game_status(&username).to_string()),
                 game::win_type::set(Some(WinType::Resign.to_string())),
-                game::draw_offer::set(DrawOffer::None.to_bool()),
+                game::draw_offer::set(Offer::None.to_string()),
             ],
         )
         .exec()

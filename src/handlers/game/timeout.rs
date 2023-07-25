@@ -5,7 +5,7 @@ use log::info;
 
 use crate::helpers::general::{get_username, get_game_validate, set_user_playing};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent};
-use crate::models::general::{WinType, DrawOffer};
+use crate::models::general::{WinType, Offer};
 use crate::prisma::{PrismaClient, game};
 use crate::common::WebErr;
 use crate::models::res::OK_RES;
@@ -39,7 +39,7 @@ pub async fn timeout(
         moves: vec![],
         status: game.get_timeout_game_status(&username)?,
         win_type: Some(WinType::Timeout),
-        draw_offer: DrawOffer::None,
+        draw_offer: Offer::None,
     }));
 
     set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
@@ -52,7 +52,7 @@ pub async fn timeout(
             vec![
                 game::status::set(game.get_timeout_game_status(&username)?.to_string()),
                 game::win_type::set(Some(WinType::Timeout.to_string())),
-                game::draw_offer::set(DrawOffer::None.to_bool()),
+                game::draw_offer::set(Offer::None.to_string()),
             ],
         )
         .exec()

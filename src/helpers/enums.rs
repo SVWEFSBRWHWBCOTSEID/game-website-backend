@@ -1,5 +1,5 @@
 use crate::common::WebErr;
-use crate::models::general::{WinType, DrawOffer, Country, GameKey, FriendRequest};
+use crate::models::general::{WinType, Offer, Country, GameKey, FriendRequest};
 use crate::models::events::Visibility;
 
 
@@ -74,20 +74,23 @@ impl WinType {
     }
 }
 
-impl DrawOffer {
-    pub fn to_bool(&self) -> Option<bool> {
+impl Offer {
+    pub fn to_string(&self) -> String {
         match self {
-            Self::None => None,
-            Self::First => Some(true),
-            Self::Second => Some(false),
-        }
+            Self::None => "None",
+            Self::First => "First",
+            Self::Second => "Second",
+            Self::Agreed => "Agreed",
+        }.to_string()
     }
 
-    pub fn from_bool(bool: &Option<bool>) -> Self {
-        match bool {
-            None => Self::None,
-            Some(true) => Self::First,
-            Some(false) => Self::Second,
+    pub fn from_str(string: &str) -> Result<Self, WebErr> {
+        match string {
+            "None" => Ok(Self::None),
+            "First" => Ok(Self::First),
+            "Second" => Ok(Self::Second),
+            "Agreed" => Ok(Self::Second),
+            _ => Err(WebErr::NotFound(format!("provided offer string does not match an enum variant"))),
         }
     }
 }

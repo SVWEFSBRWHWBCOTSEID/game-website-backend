@@ -111,10 +111,11 @@ pub enum WinType {
 
 #[derive(Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum DrawOffer {
+pub enum Offer {
     None,
     First,
     Second,
+    Agreed,
 }
 
 #[derive(Deserialize, Serialize, PartialEq)]

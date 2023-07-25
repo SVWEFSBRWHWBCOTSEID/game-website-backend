@@ -6,6 +6,7 @@ mod get_lobbies;
 mod add_move;
 mod resign;
 mod offer_draw;
+mod offer_rematch;
 mod send_chat;
 mod timeout;
 
@@ -17,5 +18,6 @@ pub use get_lobbies::*;
 pub use add_move::*;
 pub use resign::*;
 pub use offer_draw::*;
+pub use offer_rematch::*;
 pub use send_chat::*;
 pub use timeout::*;

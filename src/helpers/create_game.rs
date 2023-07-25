@@ -2,16 +2,15 @@ use std::env;
 use parking_lot::Mutex;
 use actix_web::web;
 use log::info;
-use nanoid::nanoid;
 
 use crate::common::WebErr;
 use crate::models::events::{UserEvent, GameStartEvent, UserEventType};
-use crate::models::general::{GameStatus, MatchPlayer, GameKey};
+use crate::models::general::{GameStatus, MatchPlayer, GameKey, Offer};
 use crate::models::req::CreateGameReq;
 use crate::prisma::PrismaClient;
 use crate::prisma::{game, user};
 use crate::sse::Broadcaster;
-use super::general::{set_user_playing, send_lobby_event};
+use super::general::{set_user_playing, send_lobby_event, gen_nanoid};
 
 
 impl CreateGameReq {
@@ -71,25 +70,7 @@ impl CreateGameReq {
         player: &MatchPlayer,
         broadcaster: &web::Data<Mutex<Broadcaster>>,
     ) -> Result<game::Data, WebErr> {
-        let alphabet: [char; 62] = [
-            '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-        ];
-        let mut id: String;
-        loop {
-            id = nanoid!{6, &alphabet};
-            if client
-                .game()
-                .find_unique(game::id::equals(id.clone()))
-                .exec()
-                .await
-                .unwrap()
-                .is_none()
-            {
-                break;
-            }
-        }
+        let id = gen_nanoid(client).await;
 
         let game = client
             .game()
@@ -103,6 +84,8 @@ impl CreateGameReq {
                 "".to_string(),
                 0,
                 GameStatus::Waiting.to_string(),
+                Offer::None.to_string(),
+                Offer::None.to_string(),
                 player.random,
                 vec![
                     game::clock_initial::set(self.time),

@@ -3,7 +3,7 @@ use actix_web::web;
 use log::info;
 
 use crate::models::res::{CreateGameResponse, GameResponse, LobbyResponse};
-use crate::models::general::{TimeControl, Player, GameStatus, GameType, DrawOffer, GameKey, WinType, Side};
+use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, WinType, Side};
 use crate::models::events::{GameState, GameFullEvent, GameEventType, Visibility, ChatMessage};
 use crate::prisma::{game, PrismaClient, user};
 use crate::common::WebErr;
@@ -59,7 +59,7 @@ impl game::Data {
                 moves: self.get_moves_vec(),
                 status: GameStatus::from_str(&self.status)?,
                 win_type: None,
-                draw_offer: DrawOffer::None,
+                draw_offer: Offer::None,
             },
         })
     }
@@ -137,7 +137,7 @@ impl game::Data {
                     Some(wt) => Some(WinType::from_str(wt)?),
                     None => None,
                 },
-                draw_offer: DrawOffer::from_bool(&self.draw_offer),
+                draw_offer: Offer::from_str(&self.draw_offer)?,
             },
         })
     }
@@ -240,12 +240,12 @@ impl game::Data {
         Ok(match (
             self.first_username.clone().unwrap() == username,
             value,
-            self.draw_offer,
+            Offer::from_str(&self.draw_offer)?,
         ) {
-            (true, true, Some(false)) => GameStatus::Draw,
-            (false, true, Some(true)) => GameStatus::Draw,
-            (true, false, Some(false)) => GameStatus::Started,
-            (false, false, Some(true)) => GameStatus::Started,
+            (true, true, Offer::Second) => GameStatus::Draw,
+            (false, true, Offer::First) => GameStatus::Draw,
+            (true, false, Offer::Second) => GameStatus::Started,
+            (false, false, Offer::First) => GameStatus::Started,
             _ => GameStatus::from_str(&self.status)?,
         })
     }
@@ -268,20 +268,36 @@ impl game::Data {
         })
     }
 
-    pub fn get_new_draw_offer(&self, value: &bool, username: &str) -> DrawOffer {
-        match (
+    pub fn get_new_draw_offer(&self, value: &bool, username: &str) -> Result<Offer, WebErr> {
+        Ok(match (
             self.first_username.clone().unwrap() == username,
             value,
-            self.draw_offer,
+            Offer::from_str(&self.draw_offer)?,
         ) {
-            (true, true, None) => DrawOffer::First,
-            (false, true, None) => DrawOffer::Second,
-            (true, true, Some(false)) => DrawOffer::None,
-            (false, true, Some(true)) => DrawOffer::None,
-            (true, false, Some(false)) => DrawOffer::None,
-            (false, false, Some(true)) => DrawOffer::None,
-            _ => DrawOffer::from_bool(&self.draw_offer),
-        }
+            (true, true, Offer::None) => Offer::First,
+            (false, true, Offer::None) => Offer::Second,
+            (true, true, Offer::Second) => Offer::Agreed,
+            (false, true, Offer::First) => Offer::Agreed,
+            (true, false, Offer::Second) => Offer::None,
+            (false, false, Offer::First) => Offer::None,
+            _ => Offer::from_str(&self.draw_offer)?,
+        })
+    }
+
+    pub fn get_new_rematch_offer(&self, value: &bool, username: &str) -> Result<Offer, WebErr> {
+        Ok(match (
+            self.first_username.clone().unwrap() == username,
+            value,
+            Offer::from_str(&self.rematch_offer)?,
+        ) {
+            (true, true, Offer::None) => Offer::First,
+            (false, true, Offer::None) => Offer::Second,
+            (true, true, Offer::Second) => Offer::Agreed,
+            (false, true, Offer::First) => Offer::Agreed,
+            (true, false, Offer::Second) => Offer::None,
+            (false, false, Offer::First) => Offer::None,
+            _ => Offer::from_str(&self.rematch_offer)?,
+        })
     }
 }
 
