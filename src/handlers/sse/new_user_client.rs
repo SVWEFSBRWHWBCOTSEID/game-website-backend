@@ -20,6 +20,7 @@ pub async fn new_user_client(
 
     info!("locking broadcaster in new_user_client");
     let (rx, _) = broadcaster.lock().new_user_client(username);
+    info!("unlocked in new_user_client");
 
     Ok(HttpResponse::Ok()
         .append_header(("content-type", "text/event-stream"))

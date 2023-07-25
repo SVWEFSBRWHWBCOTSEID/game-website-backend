@@ -57,6 +57,7 @@ impl Broadcaster {
                 interval.tick().await;
                 info!("locking in spawn_ping");
                 me.lock().remove_stale_clients();
+                info!("unlocked in spawn_ping");
             }
         });
     }

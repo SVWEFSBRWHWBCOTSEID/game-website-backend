@@ -70,6 +70,7 @@ pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str)
 }
 
 pub async fn get_unmatched_games(client: &web::Data<PrismaClient>) -> Result<Vec<game::Data>, WebErr> {
+    info!("in get_unmatched_games");
     Ok(client
         .game()
         .find_many(vec![or![
