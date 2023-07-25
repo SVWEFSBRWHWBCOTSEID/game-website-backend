@@ -16,7 +16,7 @@ pub async fn new_lobby_client(
     client: Data<PrismaClient>,
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, WebErr> {
-    
+
     let (rx, tx) = broadcaster.lock().new_lobby_client();
 
     broadcaster.lock().send_single(&tx, Event::LobbyEvent(

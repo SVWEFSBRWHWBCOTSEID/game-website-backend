@@ -1,7 +1,7 @@
 use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::web::Data;
-use actix_web::{web, HttpResponse, HttpRequest, post};
+use actix_web::{HttpResponse, HttpRequest, post};
 
 use crate::common::WebErr;
 use crate::helpers::general::get_username;
@@ -16,7 +16,7 @@ use crate::sse::Broadcaster;
 #[post("/api/unfriend/{username}")]
 pub async fn unfriend(
     req: HttpRequest,
-    client: web::Data<PrismaClient>,
+    client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, WebErr> {
@@ -40,7 +40,7 @@ pub async fn unfriend(
     }
     broadcaster.lock().user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
         r#type: UserEventType::Friend,
-        username: username,
+        username,
         value: FriendRequest::Removed,
     }));
 

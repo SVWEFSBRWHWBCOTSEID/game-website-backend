@@ -10,7 +10,7 @@ use super::general::time_millis;
 
 
 impl game::Data {
-    // method to construct reponse from prisma game struct
+    // method to construct response from prisma game struct
     pub async fn to_create_game_res(&self, client: &web::Data<PrismaClient>) -> Result<CreateGameResponse, WebErr> {
         // get game from table to get user relations
         let game = client

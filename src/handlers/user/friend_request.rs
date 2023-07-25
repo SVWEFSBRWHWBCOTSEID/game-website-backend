@@ -1,7 +1,7 @@
 use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::web::Data;
-use actix_web::{web, HttpResponse, HttpRequest, post};
+use actix_web::{HttpResponse, HttpRequest, post};
 
 use crate::common::WebErr;
 use crate::helpers::general::get_username;
@@ -16,7 +16,7 @@ use crate::sse::Broadcaster;
 #[post("/api/friend/{username}")]
 pub async fn friend_request(
     req: HttpRequest,
-    client: web::Data<PrismaClient>,
+    client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, WebErr> {
@@ -24,7 +24,7 @@ pub async fn friend_request(
     let username: String = get_username(&session)?;
     let other_name: String = req.match_info().get("username").unwrap().parse().unwrap();
     if username == other_name {
-        return Err(WebErr::Forbidden(format!("cannot friend reqeust yourself")));
+        return Err(WebErr::Forbidden(format!("cannot friend request yourself")));
     }
 
     let user = client
@@ -60,7 +60,7 @@ pub async fn friend_request(
 
         broadcaster.lock().user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
             r#type: UserEventType::Friend,
-            username: username,
+            username,
             value: FriendRequest::Accepted,
         }));
     } else {
@@ -78,7 +78,7 @@ pub async fn friend_request(
 
         broadcaster.lock().user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
             r#type: UserEventType::Friend,
-            username: username,
+            username,
             value: FriendRequest::Pending,
         }));
     };

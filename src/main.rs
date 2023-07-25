@@ -22,7 +22,7 @@ async fn main() -> std::io::Result<()> {
     let redis_store = RedisSessionStore::new(env::var("REDIS_URL").unwrap()).await.unwrap();
     let broadcaster = Broadcaster::create();
 
-    std::env::set_var("RUST_LOG", "debug");
+    env::set_var("RUST_LOG", "debug");
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
     log::info!("starting HTTP server at {}:{}", host, port);
 

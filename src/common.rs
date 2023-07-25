@@ -30,13 +30,6 @@ impl Display for WebErr {
 impl Error for WebErr {}
 
 impl ResponseError for WebErr {
-
-    fn error_response(&self) -> HttpResponse {
-        HttpResponse::build(self.status_code())
-            .insert_header(ContentType::html())
-            .body(self.to_string())
-    }
-
     fn status_code(&self) -> StatusCode {
         match *self {
             WebErr::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
@@ -46,5 +39,11 @@ impl ResponseError for WebErr {
             WebErr::NotFound(_) => StatusCode::NOT_FOUND,
             WebErr::Timeout(_) => StatusCode::GATEWAY_TIMEOUT,
         }
+    }
+
+    fn error_response(&self) -> HttpResponse {
+        HttpResponse::build(self.status_code())
+            .insert_header(ContentType::html())
+            .body(self.to_string())
     }
 }

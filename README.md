@@ -33,7 +33,7 @@ HOST="127.0.0.1"
 PORT=8080
 POSTGRES_URL="postgres://[username]:[password]@localhost:5432/game-db"
 REDIS_URL="redis://127.0.0.1:6379"
-
+DOMAIN="127.0.0.1"
 ```
 To regenerate the Prisma schema with the new config, run
 ```shell

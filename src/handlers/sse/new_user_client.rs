@@ -15,8 +15,10 @@ pub async fn new_user_client(
     broadcaster: Data<Mutex<Broadcaster>>,
 ) -> Result<HttpResponse, WebErr> {
 
+    let mut broadcaster_guard = broadcaster.lock();
+
     let username: String = get_username(&session)?;
-    let (rx, _) = broadcaster.lock().new_user_client(username);
+    let (rx, _) = broadcaster_guard.new_user_client(username);
 
     Ok(HttpResponse::Ok()
         .append_header(("content-type", "text/event-stream"))
