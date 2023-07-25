@@ -36,7 +36,7 @@ impl CreateUserReq {
                 Profile::default().bio,
                 Profile::default().first_name,
                 Profile::default().last_name,
-                [env::var("DOMAIN").unwrap(), "/user/".to_string(), self.username.clone()].concat(),
+                [env::var("DOMAIN").unwrap(), "/profile/".to_string(), self.username.clone()].concat(),
                 vec![],
             )
             .exec()
