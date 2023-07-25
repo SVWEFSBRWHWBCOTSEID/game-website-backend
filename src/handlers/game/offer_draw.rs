@@ -1,6 +1,7 @@
 use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{HttpRequest, post, web::Data, HttpResponse};
+use log::info;
 
 use crate::helpers::general::{get_username, get_game_validate, set_user_playing};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent};
@@ -25,6 +26,7 @@ pub async fn offer_draw(
     let value: bool = req.match_info().get("value").unwrap().parse().unwrap();
     let game = get_game_validate(&client, &game_id, &username).await?;
 
+    info!("locking broadcaster in offer_draw");
     broadcaster.lock().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
         ftime: game.get_new_first_time()?,

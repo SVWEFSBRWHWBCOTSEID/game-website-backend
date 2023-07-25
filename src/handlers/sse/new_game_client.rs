@@ -1,6 +1,7 @@
 use parking_lot::Mutex;
 use actix_web::web::Data;
 use actix_web::{HttpResponse, get, HttpRequest};
+use log::info;
 
 use crate::common::WebErr;
 use crate::helpers::general::get_game_with_relations;
@@ -19,6 +20,8 @@ pub async fn new_game_client(
 ) -> Result<HttpResponse, WebErr> {
 
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
+
+    info!("locking broadcaster in new_game_client");
     let (rx, tx) = broadcaster.lock().new_game_client(game_id.clone());
 
     let game = get_game_with_relations(&client, &game_id).await?;
@@ -26,6 +29,7 @@ pub async fn new_game_client(
         return Err(WebErr::Forbidden(format!("cannot fetch event stream, game has not started yet")));
     }
 
+    info!("locking broadcaster again in new_game_client");
     broadcaster.lock().send_single(&tx, Event::GameEvent(
         GameEvent::GameFullEvent(game.to_game_full_event()?)
     ));

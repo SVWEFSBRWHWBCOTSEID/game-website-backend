@@ -1,6 +1,7 @@
 use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
+use log::info;
 
 use crate::helpers::general::{get_username, get_game_by_id, time_millis, set_user_playing};
 use crate::models::general::{WinType, DrawOffer, MoveOutcome};
@@ -34,6 +35,7 @@ pub async fn add_move(
         return Err(WebErr::Forbidden(format!("new move is invalid or not player's turn")));
     }
 
+    info!("locking broadcaster in add_move");
     broadcaster.lock().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
         ftime: game.get_new_first_time()?,

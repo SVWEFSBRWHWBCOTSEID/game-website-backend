@@ -2,6 +2,7 @@ use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::web::Data;
 use actix_web::{HttpResponse, HttpRequest, post};
+use log::info;
 
 use crate::common::WebErr;
 use crate::helpers::general::get_username;
@@ -58,6 +59,7 @@ pub async fn friend_request(
             .await
             .or(Err(WebErr::Internal(format!("error creating friend request from {} to {}", username, other_name))))?;
 
+        info!("locking broadcaster in friend_request");
         broadcaster.lock().user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
             r#type: UserEventType::Friend,
             username,
@@ -76,6 +78,7 @@ pub async fn friend_request(
             .await
             .or(Err(WebErr::Internal(format!("error creating friend request from {} to {}", username, other_name))))?;
 
+        info!("locking broadcaster in friend_request");
         broadcaster.lock().user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
             r#type: UserEventType::Friend,
             username,

@@ -17,7 +17,7 @@ pub async fn login(
     data: web::Json<LoginReq>,
 ) -> Result<HttpResponse, WebErr> {
 
-    let login_req: LoginReq = data.into_inner();
+    let login_req = data.into_inner();
     let user = get_user_with_relations(&client, &login_req.username).await?;
 
     if !bcrypt::verify(&login_req.password, &user.password).unwrap() {
