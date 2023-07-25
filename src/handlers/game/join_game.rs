@@ -3,7 +3,6 @@ use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::web::Data;
 use actix_web::{HttpRequest, HttpResponse, post};
-use log::info;
 
 use crate::common::WebErr;
 use crate::helpers::general::{get_username, send_lobby_event, set_user_playing};
@@ -51,13 +50,11 @@ pub async fn join_game(
         .await
         .or(Err(WebErr::Internal(format!("error updating game with id {}", game_id))))?;
 
-    info!("locking broadcaster in join_game");
     broadcaster.lock().user_send(&updated_game.first_username.clone().unwrap(), UserEvent::GameStartEvent(GameStartEvent {
         r#type: UserEventType::GameStart,
         game: GameKey::from_str(&updated_game.game_key)?,
         id: game.id.clone(),
     }));
-    info!("locking broadcaster again in join_game");
     broadcaster.lock().user_send(&updated_game.second_username.clone().unwrap(), UserEvent::GameStartEvent(GameStartEvent {
         r#type: UserEventType::GameStart,
         game: GameKey::from_str(&updated_game.game_key)?,

@@ -2,7 +2,6 @@ use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::web::Data;
 use actix_web::{HttpResponse, HttpRequest, post};
-use log::info;
 
 use crate::common::WebErr;
 use crate::helpers::general::get_username;
@@ -40,7 +39,6 @@ pub async fn unfriend(
             .or(Err(WebErr::Internal(format!("error deleting friend relation from {} to {}", username, other_name))))?;
     }
 
-    info!("locking broadcaster in unfriend");
     broadcaster.lock().user_send(&other_name, UserEvent::FriendEvent(FriendEvent {
         r#type: UserEventType::Friend,
         username,

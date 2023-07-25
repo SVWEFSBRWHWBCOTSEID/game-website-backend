@@ -1,6 +1,5 @@
 use std::cmp::max;
 use actix_web::web;
-use log::info;
 
 use crate::models::res::{CreateGameResponse, GameResponse, LobbyResponse};
 use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, WinType, Side};
@@ -308,7 +307,6 @@ pub trait LobbyVec {
 impl LobbyVec for Vec<game::Data> {
     // convert vec of games to vec of LobbyResponse structs
     fn to_lobby_vec(&self) -> Result<Vec<LobbyResponse>, WebErr> {
-        info!("in to_lobby_vec");
         Ok(self.iter().map(
             |g| Ok::<LobbyResponse, WebErr>(g.to_lobby_res(g.random_side)?)
         ).flatten().collect())

@@ -1,7 +1,6 @@
 use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::{Data, Json}, HttpResponse};
-use log::info;
 
 use crate::{prisma::{PrismaClient, game}, helpers::general::get_username};
 use crate::models::req::ChatMessageReq;
@@ -41,7 +40,6 @@ pub async fn send_chat(
         .await
         .or(Err(WebErr::Internal(format!(""))))?;
 
-    info!("locking broadcaster in send_chat");
     broadcaster.lock().game_send(&game_id, GameEvent::ChatMessageEvent(ChatMessageEvent {
         r#type: GameEventType::ChatMessage,
         text: chat_message_req.message,

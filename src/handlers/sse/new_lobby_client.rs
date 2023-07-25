@@ -1,7 +1,6 @@
 use parking_lot::Mutex;
 use actix_web::web::Data;
 use actix_web::{HttpResponse, get};
-use log::info;
 
 use crate::common::WebErr;
 use crate::helpers::game::LobbyVec;
@@ -21,14 +20,12 @@ pub async fn new_lobby_client(
     let (rx, tx) = broadcaster.lock().new_lobby_client();
     let unmatched_games = get_unmatched_games(&client).await?;
 
-    info!("locking broadcaster in new_lobby_client");
     broadcaster.lock().send_single(&tx, Event::LobbyEvent(
         LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
             r#type: LobbyEventType::AllLobbies,
             lobbies: unmatched_games.to_lobby_vec()?,
         })
     ));
-    info!("unlocked in new_lobby_client");
 
     Ok(HttpResponse::Ok()
         .append_header(("content-type", "text/event-stream"))

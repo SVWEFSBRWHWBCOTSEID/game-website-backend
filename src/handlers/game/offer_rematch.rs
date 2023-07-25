@@ -1,6 +1,4 @@
 use std::env;
-
-use log::info;
 use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::web::Data;
@@ -77,14 +75,12 @@ pub async fn offer_rematch(
         set_user_playing(&client, &game.first_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
         set_user_playing(&client, &game.second_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
 
-        info!("locking broadcaster in offer_rematch");
         broadcaster.lock().game_send(&game.id, GameEvent::RematchEvent(RematchEvent {
             r#type: GameEventType::Rematch,
             rematch_offer: Offer::Agreed,
             id: Some(id),
         }))
     } else {
-        info!("locking broadcaster in offer_rematch");
         broadcaster.lock().game_send(&game.id, GameEvent::RematchEvent(RematchEvent {
             r#type: GameEventType::Rematch,
             rematch_offer: new_rematch_offer,

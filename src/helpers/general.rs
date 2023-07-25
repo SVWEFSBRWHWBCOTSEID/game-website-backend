@@ -2,7 +2,6 @@ use parking_lot::Mutex;
 use std::time::SystemTime;
 use actix_session::Session;
 use actix_web::web;
-use log::info;
 use prisma_client_rust::or;
 use nanoid::nanoid;
 
@@ -71,7 +70,6 @@ pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str)
 }
 
 pub async fn get_unmatched_games(client: &web::Data<PrismaClient>) -> Result<Vec<game::Data>, WebErr> {
-    info!("in get_unmatched_games");
     Ok(client
         .game()
         .find_many(vec![or![
@@ -86,7 +84,6 @@ pub async fn get_unmatched_games(client: &web::Data<PrismaClient>) -> Result<Vec
 }
 
 pub async fn send_lobby_event(client: &web::Data<PrismaClient>, broadcaster: &web::Data<Mutex<Broadcaster>>) -> Result<(), WebErr> {
-    info!("locking broadcaster in send_lobby_event");
     broadcaster.lock().lobby_send(LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
         r#type: LobbyEventType::AllLobbies,
         lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,

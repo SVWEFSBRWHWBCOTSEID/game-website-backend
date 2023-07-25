@@ -1,7 +1,6 @@
 use std::env;
 use parking_lot::Mutex;
 use actix_web::web;
-use log::info;
 
 use crate::common::WebErr;
 use crate::models::events::{UserEvent, GameStartEvent, UserEventType};
@@ -155,13 +154,11 @@ impl CreateGameReq {
             Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), game.id.clone()].concat()),
         ).await?;
 
-        info!("locking broadcaster in create_game");
         broadcaster.lock().user_send(&player.username, UserEvent::GameStartEvent(GameStartEvent {
             r#type: UserEventType::GameStart,
             game: GameKey::from_str(game_key)?,
             id: game.id.clone(),
         }));
-        info!("locking broadcaster again in create_game");
         broadcaster.lock().user_send(if player.first {
             game.second_username.as_ref().unwrap()
         } else {

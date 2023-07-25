@@ -5,7 +5,6 @@ use std::pin::Pin;
 use std::time::Duration;
 use std::task::{Context, Poll};
 use std::collections::HashMap;
-use log::info;
 use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tokio::time::{interval_at, Instant};
 
@@ -55,9 +54,7 @@ impl Broadcaster {
             let mut interval = interval_at(Instant::now(), Duration::from_secs(10));
             loop {
                 interval.tick().await;
-                info!("locking in spawn_ping");
                 me.lock().remove_stale_clients();
-                info!("unlocked in spawn_ping");
             }
         });
     }
