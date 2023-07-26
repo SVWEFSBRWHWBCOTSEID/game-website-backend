@@ -31,6 +31,7 @@ impl CreateUserReq {
             .create(
                 self.username.clone(),
                 hashed_pass,
+                false,
                 Profile::default().country.to_string(),
                 Profile::default().location,
                 Profile::default().bio,

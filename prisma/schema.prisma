@@ -39,6 +39,7 @@ model User {
     username        String      @unique
     createdAt       DateTime    @default(now())
     password        String
+    guest           Boolean
     perfs           Perf[]
     country         String
     location        String
