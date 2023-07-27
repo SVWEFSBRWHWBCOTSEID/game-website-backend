@@ -8,7 +8,7 @@ use crate::models::res::OK_RES;
 use crate::prisma::{PrismaClient, user};
 
 
-// route for creating a new user
+// route for updaing user profile
 #[post("/api/profile/update")]
 pub async fn update_profile(
     client: web::Data<PrismaClient>,
