@@ -100,7 +100,7 @@ impl Broadcaster {
     pub fn user_send(&self, username: &str, event: UserEvent) {
         let event = Bytes::from(["data: ", &event.to_string(), "\n\n"].concat());
 
-        for client in self.user_clients.get(username).unwrap().iter() {
+        for client in self.user_clients.get(username).unwrap_or(&vec![] as &Vec<Sender<Bytes>>).iter() {
             client.clone().try_send(event.clone()).unwrap_or(());
         }
     }
@@ -108,7 +108,7 @@ impl Broadcaster {
     pub fn game_send(&self, game_id: &str, event: GameEvent) {
         let event = Bytes::from(["data: ", &event.to_string(), "\n\n"].concat());
 
-        for client in self.game_clients.get(game_id).unwrap().iter() {
+        for client in self.game_clients.get(game_id).unwrap_or(&vec![] as &Vec<Sender<Bytes>>).iter() {
             client.clone().try_send(event.clone()).unwrap_or(());
         }
     }
