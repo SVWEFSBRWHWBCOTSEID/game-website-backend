@@ -17,7 +17,7 @@ impl CreateUserReq {
             .find_unique(user::username::equals(self.username.clone()))
             .exec()
             .await
-            .or(Err(WebErr::Internal(format!("could not find user {}", self.username))))?
+            .or(Err(WebErr::Internal(format!("error trying to fetch user {}", self.username))))?
             .is_none())
     }
 
