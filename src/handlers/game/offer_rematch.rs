@@ -5,7 +5,7 @@ use actix_web::web::Data;
 use actix_web::{HttpRequest, HttpResponse, post};
 
 use crate::common::WebErr;
-use crate::helpers::general::{get_username, get_game_validate, set_user_playing, gen_nanoid};
+use crate::helpers::general::{get_username, set_user_playing, gen_nanoid, get_game_validate_ended};
 use crate::models::events::{GameEvent, GameEventType, RematchEvent};
 use crate::models::general::{Offer, GameStatus};
 use crate::models::res::OK_RES;
@@ -25,7 +25,7 @@ pub async fn offer_rematch(
     let username: String = get_username(&session)?;
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let value: bool = req.match_info().get("value").unwrap().parse().unwrap();
-    let game = get_game_validate(&client, &game_id, &username).await?;
+    let game = get_game_validate_ended(&client, &game_id, &username).await?;
 
     client
         .game()
