@@ -94,7 +94,7 @@ impl user::Data {
             first: match req.side {
                 Side::First => true,
                 Side::Second => false,
-                Side::Random => rng.gen_range(0..1) == 0,
+                Side::Random => rng.gen_range(0..2) == 0,
             },
             random: req.side == Side::Random,
         }
