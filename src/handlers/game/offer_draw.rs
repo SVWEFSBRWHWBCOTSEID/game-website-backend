@@ -2,8 +2,8 @@ use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, get_game_validate, set_user_playing};
-use crate::models::events::{GameEventType, GameStateEvent, GameEvent};
+use crate::helpers::general::{get_username, get_game_validate, set_user_playing, add_chat_game_event};
+use crate::models::events::{GameEventType, GameStateEvent, GameEvent, ChatGameEvent};
 use crate::models::general::Offer;
 use crate::prisma::{PrismaClient, game};
 use crate::common::WebErr;
@@ -34,6 +34,17 @@ pub async fn offer_draw(
         win_type: None,
         draw_offer: game.get_new_draw_offer(&value, &username)?,
     }));
+
+    let chat_game_event = ChatGameEvent {
+        r#type: GameEventType::ChatMessage,
+        message: match game.get_new_draw_offer(&value, &username)? {
+            Offer::None => format!("{} declined the draw offer", username),
+            Offer::First | Offer::Second => format!("{} offered a draw", username),
+            Offer::Agreed => format!("{} accepted the draw offer", username),
+        },
+    };
+    add_chat_game_event(&client, &game_id, &chat_game_event).await?;
+    broadcaster.lock().game_send(&game_id, GameEvent::ChatGameEvent(chat_game_event));
 
     client
         .game()

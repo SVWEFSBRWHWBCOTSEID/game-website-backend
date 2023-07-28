@@ -2,8 +2,8 @@ use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, get_game_validate, set_user_playing};
-use crate::models::events::{GameEvent, GameStateEvent, GameEventType};
+use crate::helpers::general::{get_username, get_game_validate, set_user_playing, add_chat_game_event};
+use crate::models::events::{GameEvent, GameStateEvent, GameEventType, ChatGameEvent};
 use crate::models::general::{WinType, Offer};
 use crate::prisma::{PrismaClient, game};
 use crate::common::WebErr;
@@ -33,6 +33,13 @@ pub async fn resign(
         win_type: Some(WinType::Resign),
         draw_offer: Offer::None,
     }));
+
+    let chat_game_event = ChatGameEvent {
+        r#type: GameEventType::ChatMessage,
+        message: format!("{} resigned", username),
+    };
+    add_chat_game_event(&client, &game_id, &chat_game_event).await?;
+    broadcaster.lock().game_send(&game_id, GameEvent::ChatGameEvent(chat_game_event));
 
     set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
     set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;

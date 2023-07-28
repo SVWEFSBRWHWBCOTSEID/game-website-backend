@@ -5,8 +5,8 @@ use actix_web::web::Data;
 use actix_web::{HttpRequest, HttpResponse, post};
 
 use crate::common::WebErr;
-use crate::helpers::general::{get_username, set_user_playing, gen_nanoid, get_game_validate_ended};
-use crate::models::events::{GameEvent, GameEventType, RematchEvent};
+use crate::helpers::general::{get_username, set_user_playing, gen_nanoid, get_game_validate_ended, add_chat_game_event};
+use crate::models::events::{GameEvent, GameEventType, RematchEvent, ChatGameEvent};
 use crate::models::general::{Offer, GameStatus};
 use crate::models::res::OK_RES;
 use crate::prisma::{PrismaClient, game, user};
@@ -79,13 +79,27 @@ pub async fn offer_rematch(
             r#type: GameEventType::Rematch,
             rematch_offer: Offer::Agreed,
             id: Some(id),
-        }))
+        }));
+
+        let chat_game_event = ChatGameEvent {
+            r#type: GameEventType::ChatMessage,
+            message: format!("{} accepted the rematch", username),
+        };
+        add_chat_game_event(&client, &game_id, &chat_game_event).await?;
+        broadcaster.lock().game_send(&game_id, GameEvent::ChatGameEvent(chat_game_event));
     } else {
         broadcaster.lock().game_send(&game.id, GameEvent::RematchEvent(RematchEvent {
             r#type: GameEventType::Rematch,
             rematch_offer: new_rematch_offer,
             id: None,
-        }))
+        }));
+
+        let chat_game_event = ChatGameEvent {
+            r#type: GameEventType::ChatMessage,
+            message: format!("{} offered a rematch", username),
+        };
+        add_chat_game_event(&client, &game_id, &chat_game_event).await?;
+        broadcaster.lock().game_send(&game_id, GameEvent::ChatGameEvent(chat_game_event));
     }
 
     Ok(HttpResponse::Ok().json(OK_RES))

@@ -1,5 +1,5 @@
 use crate::common::WebErr;
-use crate::models::general::{WinType, Offer, Country, GameKey, FriendRequest};
+use crate::models::general::{WinType, Offer, Country, GameKey, FriendRequest, GameStatus};
 use crate::models::events::Visibility;
 
 
@@ -143,6 +143,29 @@ impl Visibility {
             "TEAM1" => Ok("Team1".to_string()),
             "TEAM2" => Ok("Team2".to_string()),
             _ => Err(WebErr::NotFound(format!("provided visibility string {} does not match an all caps enum variant", string))),
+        }
+    }
+}
+
+impl GameStatus {
+    pub fn to_string(&self) -> String {
+        match self {
+            Self::Waiting => "Waiting",
+            Self::Started => "Started",
+            Self::FirstWon => "FirstWon",
+            Self::SecondWon => "SecondWon",
+            Self::Draw => "Draw",
+        }.to_string()
+    }
+
+    pub fn from_str(string: &str) -> Result<Self, WebErr> {
+        match string {
+            "Waiting" => Ok(Self::Waiting),
+            "Started" => Ok(Self::Started),
+            "FirstWon" => Ok(Self::FirstWon),
+            "SecondWon" => Ok(Self::SecondWon),
+            "Draw" => Ok(Self::Draw),
+            _ => Err(WebErr::NotFound(format!("string {} does not match any enum variant on GameStatus", string))),
         }
     }
 }

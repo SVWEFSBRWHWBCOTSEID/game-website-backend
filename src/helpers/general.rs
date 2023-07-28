@@ -6,7 +6,7 @@ use prisma_client_rust::or;
 use nanoid::nanoid;
 
 use crate::common::WebErr;
-use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType};
+use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType, Visibility, ChatGameEvent};
 use crate::models::general::GameStatus;
 use crate::prisma::{user, PrismaClient, message, game};
 use crate::sse::Broadcaster;
@@ -149,6 +149,23 @@ pub async fn set_user_playing(client: &web::Data<PrismaClient>, username: &str, 
     Ok(())
 }
 
+pub async fn add_chat_game_event(client: &web::Data<PrismaClient>, game_id: &str, event: &ChatGameEvent) -> Result<(), WebErr> {
+    client
+        .message()
+        .create(
+            game::id::equals(game_id.to_string()),
+            "".to_string(),
+            event.message.clone(),
+            Visibility::Player.to_string(),
+            true,
+            vec![],
+        )
+        .exec()
+        .await
+        .or(Err(WebErr::Internal(format!("error adding new chat message in game with id {}", game_id))))?;
+    Ok(())
+}
+
 pub async fn gen_nanoid(client: &web::Data<PrismaClient>) -> String {
     let alphabet: [char; 62] = [
         '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
@@ -178,27 +195,4 @@ pub fn time_millis() -> i64 {
         .unwrap()
         .as_millis()
     as i64
-}
-
-impl GameStatus {
-    pub fn to_string(&self) -> String {
-        match self {
-            Self::Waiting => "Waiting",
-            Self::Started => "Started",
-            Self::FirstWon => "FirstWon",
-            Self::SecondWon => "SecondWon",
-            Self::Draw => "Draw",
-        }.to_string()
-    }
-
-    pub fn from_str(string: &str) -> Result<Self, WebErr> {
-        match string {
-            "Waiting" => Ok(Self::Waiting),
-            "Started" => Ok(Self::Started),
-            "FirstWon" => Ok(Self::FirstWon),
-            "SecondWon" => Ok(Self::SecondWon),
-            "Draw" => Ok(Self::Draw),
-            _ => Err(WebErr::NotFound(format!("string {} does not match any enum variant on GameStatus", string))),
-        }
-    }
 }

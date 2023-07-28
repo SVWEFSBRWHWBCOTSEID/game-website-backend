@@ -21,6 +21,7 @@ impl Event {
 
 pub enum GameEvent {
     ChatMessageEvent(ChatMessageEvent),
+    ChatGameEvent(ChatGameEvent),
     GameStateEvent(GameStateEvent),
     GameFullEvent(GameFullEvent),
     RematchEvent(RematchEvent),
@@ -30,6 +31,7 @@ impl GameEvent {
     pub fn to_string(&self) -> String {
         match self {
             GameEvent::ChatMessageEvent(e) => serde_json::to_string(e).unwrap(),
+            GameEvent::ChatGameEvent(e) => serde_json::to_string(e).unwrap(),
             GameEvent::GameStateEvent(e) => serde_json::to_string(e).unwrap(),
             GameEvent::GameFullEvent(e) => serde_json::to_string(e).unwrap(),
             GameEvent::RematchEvent(e) => serde_json::to_string(e).unwrap(),
@@ -74,6 +76,13 @@ pub struct ChatMessageEvent {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ChatGameEvent {
+    pub r#type: GameEventType,
+    pub message: String,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GameStateEvent {
     pub r#type: GameEventType,
     pub ftime: Option<i32>,
@@ -94,7 +103,7 @@ pub struct GameFullEvent {
     pub created_at: String,
     pub first: Player,
     pub second: Player,
-    pub chat: Vec<ChatMessage>,
+    pub chat: Vec<Chat>,
     pub state: GameState,
 }
 
@@ -118,11 +127,23 @@ pub struct GameState {
 }
 
 #[derive(Deserialize, Serialize)]
+pub enum Chat {
+    ChatMessage(ChatMessage),
+    ChatGame(ChatGame),
+}
+
+#[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
     pub username: String,
     pub text: String,
     pub visibility: Visibility,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChatGame {
+    pub message: String,
 }
 
 #[derive(Deserialize, Serialize)]

@@ -34,6 +34,7 @@ pub async fn send_chat(
             username.clone(),
             chat_message_req.message.clone(),
             visibility.clone(),
+            false,
             vec![],
         )
         .exec()

@@ -83,4 +83,5 @@ model Message {
     username    String
     text        String
     visibility  String
+    gameEvent   Boolean
 }
