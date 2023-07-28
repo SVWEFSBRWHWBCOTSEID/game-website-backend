@@ -66,6 +66,12 @@ impl LobbyEvent {
 }
 
 #[derive(Deserialize, Serialize)]
+pub enum Chat {
+    ChatMessage(ChatMessage),
+    ChatGame(ChatGame),
+}
+
+#[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessageEvent {
     pub r#type: GameEventType,
@@ -124,12 +130,6 @@ pub struct GameState {
     pub status: GameStatus,
     pub win_type: Option<WinType>,
     pub draw_offer: Offer,
-}
-
-#[derive(Deserialize, Serialize)]
-pub enum Chat {
-    ChatMessage(ChatMessage),
-    ChatGame(ChatGame),
 }
 
 #[derive(Deserialize, Serialize)]
