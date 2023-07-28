@@ -41,7 +41,7 @@ pub async fn timeout(
     }));
 
     let chat_game_event = ChatGameEvent {
-        r#type: GameEventType::ChatMessage,
+        r#type: GameEventType::ChatGame,
         message: format!("{} ran out of time", username),
     };
     add_chat_game_event(&client, &game_id, &chat_game_event).await?;

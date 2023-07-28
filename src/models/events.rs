@@ -180,6 +180,7 @@ pub enum UserEventType {
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum GameEventType {
     ChatMessage,
+    ChatGame,
     GameState,
     GameFull,
     Rematch,

@@ -36,7 +36,7 @@ pub async fn offer_draw(
     }));
 
     let chat_game_event = ChatGameEvent {
-        r#type: GameEventType::ChatMessage,
+        r#type: GameEventType::ChatGame,
         message: match game.get_new_draw_offer(&value, &username)? {
             Offer::None => format!("{} declined the draw offer", username),
             Offer::First | Offer::Second => format!("{} offered a draw", username),

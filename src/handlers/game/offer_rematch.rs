@@ -82,7 +82,7 @@ pub async fn offer_rematch(
         }));
 
         let chat_game_event = ChatGameEvent {
-            r#type: GameEventType::ChatMessage,
+            r#type: GameEventType::ChatGame,
             message: format!("{} accepted the rematch", username),
         };
         add_chat_game_event(&client, &game_id, &chat_game_event).await?;
@@ -95,7 +95,7 @@ pub async fn offer_rematch(
         }));
 
         let chat_game_event = ChatGameEvent {
-            r#type: GameEventType::ChatMessage,
+            r#type: GameEventType::ChatGame,
             message: format!("{} offered a rematch", username),
         };
         add_chat_game_event(&client, &game_id, &chat_game_event).await?;
