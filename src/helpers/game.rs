@@ -3,7 +3,7 @@ use actix_web::web;
 
 use crate::models::res::{CreateGameResponse, GameResponse, LobbyResponse};
 use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, WinType, Side};
-use crate::models::events::{GameState, GameFullEvent, GameEventType, Visibility, ChatMessage, ChatGame, Chat};
+use crate::models::events::{GameState, GameFullEvent, GameEventType, Visibility, Chat};
 use crate::prisma::{game, PrismaClient, user};
 use crate::common::WebErr;
 use super::general::time_millis;
@@ -119,15 +119,15 @@ impl game::Data {
                 rating: self.second_user().unwrap().unwrap().get_rating(&self.game_key).unwrap(),
             },
             chat: self.chat.clone().unwrap_or(vec![]).iter().map(|x| Ok::<Chat, WebErr>(if x.game_event {
-                Chat::ChatGame(ChatGame {
+                Chat::ChatGame {
                     message: x.text.clone(),
-                })
+                }
             } else {
-                Chat::ChatMessage(ChatMessage {
+                Chat::ChatMessage {
                     username: x.username.clone(),
                     text: x.text.clone(),
                     visibility: Visibility::from_str(&x.visibility)?,
-                })
+                }
             })).flatten().collect(),
             state: GameState {
                 ftime: self.get_new_first_time()?,
