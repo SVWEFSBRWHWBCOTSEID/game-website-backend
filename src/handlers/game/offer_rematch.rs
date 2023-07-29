@@ -5,7 +5,7 @@ use actix_web::web::Data;
 use actix_web::{HttpRequest, HttpResponse, post};
 
 use crate::common::WebErr;
-use crate::helpers::general::{get_username, set_user_playing, gen_nanoid, get_game_validate_ended, add_chat_game_event};
+use crate::helpers::general::{get_username, set_user_playing, gen_game_nanoid, get_game_validate_ended, add_chat_game_event};
 use crate::models::events::{GameEvent, GameEventType, RematchEvent, ChatGameEvent};
 use crate::models::general::{Offer, GameStatus};
 use crate::models::res::OK_RES;
@@ -41,7 +41,7 @@ pub async fn offer_rematch(
 
     let new_rematch_offer = game.get_new_rematch_offer(&value, &username)?;
     if new_rematch_offer == Offer::Agreed {
-        let id = gen_nanoid(&client).await;
+        let id = gen_game_nanoid(&client).await;
 
         client
             .game()

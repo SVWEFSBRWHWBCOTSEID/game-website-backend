@@ -46,6 +46,7 @@ pub struct LobbyResponse {
 pub struct UserResponse {
     pub username: String,
     pub created_at: String,
+    pub guest: bool,
     pub perfs: Perfs,
     pub profile: Profile,
     pub url: String,

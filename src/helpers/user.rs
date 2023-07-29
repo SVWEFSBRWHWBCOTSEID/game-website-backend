@@ -67,6 +67,7 @@ impl user::Data {
         Ok(UserResponse {
             username: self.username.clone(),
             created_at: self.created_at.to_string(),
+            guest: self.guest,
             perfs: perfs.to_perfs_struct()?,
             profile: Profile {
                 country: Country::from_str(&self.country)?,

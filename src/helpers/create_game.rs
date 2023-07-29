@@ -9,7 +9,7 @@ use crate::models::req::CreateGameReq;
 use crate::prisma::PrismaClient;
 use crate::prisma::{game, user};
 use crate::sse::Broadcaster;
-use super::general::{set_user_playing, send_lobby_event, gen_nanoid};
+use super::general::{set_user_playing, send_lobby_event, gen_game_nanoid};
 
 
 impl CreateGameReq {
@@ -69,7 +69,7 @@ impl CreateGameReq {
         player: &MatchPlayer,
         broadcaster: &web::Data<Mutex<Broadcaster>>,
     ) -> Result<game::Data, WebErr> {
-        let id = gen_nanoid(client).await;
+        let id = gen_game_nanoid(client).await;
 
         let game = client
             .game()

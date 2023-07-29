@@ -1,4 +1,6 @@
 use parking_lot::Mutex;
+use strum::IntoEnumIterator;
+use std::env;
 use std::time::SystemTime;
 use actix_session::Session;
 use actix_web::web;
@@ -7,8 +9,8 @@ use nanoid::nanoid;
 
 use crate::common::WebErr;
 use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType, Visibility, ChatGameEvent};
-use crate::models::general::GameStatus;
-use crate::prisma::{user, PrismaClient, message, game};
+use crate::models::general::{GameStatus, GameKey, Profile, GamePerf};
+use crate::prisma::{user, PrismaClient, message, game, perf};
 use crate::sse::Broadcaster;
 use super::game::LobbyVec;
 
@@ -134,6 +136,50 @@ pub async fn get_user_with_relations(client: &web::Data<PrismaClient>, username:
     }
 }
 
+pub async fn create_guest_user(client: &web::Data<PrismaClient>, username: &str) -> Result<user::Data, WebErr> {
+
+    let name = gen_guest_username(client, username).await;
+    let guest = client
+        .user()
+        .create(
+            name.clone(),
+            "".to_string(),
+            false,
+            Profile::default().country.to_string(),
+            Profile::default().location,
+            Profile::default().bio,
+            Profile::default().first_name,
+            Profile::default().last_name,
+            [&env::var("DOMAIN").unwrap(), "/profile/", username].concat(),
+            vec![],
+        )
+        .exec()
+        .await
+        .or(Err(WebErr::Internal(format!("error creating guest user {}", name))))?;
+
+    client
+        .perf()
+        .create_many(
+            GameKey::iter().map(|k|
+                perf::create_unchecked(
+                    username.to_string(),
+                    k.to_string(),
+                    GamePerf::default().games,
+                    GamePerf::default().rating,
+                    GamePerf::default().rd as f64,
+                    GamePerf::default().prog,
+                    GamePerf::default().prov,
+                    vec![],
+                )
+            ).collect()
+        )
+        .exec()
+        .await
+        .or(Err(WebErr::Internal(format!("error creating perfs for guest user {}", name))))?;
+
+    Ok(guest)
+}
+
 pub async fn set_user_playing(client: &web::Data<PrismaClient>, username: &str, playing: Option<String>) -> Result<(), WebErr> {
     client
         .user()
@@ -166,7 +212,7 @@ pub async fn add_chat_game_event(client: &web::Data<PrismaClient>, game_id: &str
     Ok(())
 }
 
-pub async fn gen_nanoid(client: &web::Data<PrismaClient>) -> String {
+pub async fn gen_game_nanoid(client: &web::Data<PrismaClient>) -> String {
     let alphabet: [char; 62] = [
         '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -187,6 +233,32 @@ pub async fn gen_nanoid(client: &web::Data<PrismaClient>) -> String {
         }
     }
     id
+}
+
+pub async fn gen_guest_username(client: &web::Data<PrismaClient>, username: &str) -> String {
+    let alphabet: [char; 62] = [
+        '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    ];
+    let mut name: String;
+    loop {
+        name = [username, " ", &nanoid!{4, &alphabet}].concat();
+        if let Some(x) = client
+            .user()
+            .find_unique(user::username::equals(name.clone()))
+            .exec()
+            .await
+            .unwrap()
+        {
+            if !x.guest {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+    name
 }
 
 pub fn time_millis() -> i64 {

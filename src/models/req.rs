@@ -31,6 +31,12 @@ pub struct LoginReq {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct CreateGuestReq {
+    pub username: String,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ChatMessageReq {
     pub message: String,
 }
