@@ -3,7 +3,7 @@ use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
 use crate::helpers::general::{get_username, get_game_by_id, time_millis, set_user_playing};
-use crate::models::general::{WinType, Offer, MoveOutcome};
+use crate::models::general::{EndType, Offer, MoveOutcome};
 use crate::prisma::{PrismaClient, game};
 use crate::sse::Broadcaster;
 use crate::common::WebErr;
@@ -45,8 +45,8 @@ pub async fn add_move(
             MoveOutcome::SecondWin => GameStatus::SecondWon,
             _ => GameStatus::Draw,
         },
-        win_type: match game.new_move_outcome(&new_move) {
-            MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(WinType::Normal),
+        end_type: match game.new_move_outcome(&new_move) {
+            MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(EndType::Normal),
             _ => None,
         },
         draw_offer: match game.new_move_outcome(&new_move) {
@@ -86,7 +86,7 @@ pub async fn add_move(
                     _ => GameStatus::Draw,
                 }.to_string()),
                 game::win_type::set(match game.new_move_outcome(&new_move) {
-                    MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(WinType::Normal.to_string()),
+                    MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(EndType::Normal.to_string()),
                     _ => None,
                 }),
                 game::draw_offer::set(match game.new_move_outcome(&new_move) {

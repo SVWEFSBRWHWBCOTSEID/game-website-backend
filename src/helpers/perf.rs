@@ -23,7 +23,9 @@ impl perf::Data {
         GamePerf {
             games: self.games,
             rating: self.rating,
-            rd: self.rd as f32,
+            rd: self.rd,
+            volatility: self.volatility,
+            tau: self.tau,
             prog: self.prog,
             prov: self.prov,
         }

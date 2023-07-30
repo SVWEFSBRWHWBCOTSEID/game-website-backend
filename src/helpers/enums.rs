@@ -1,5 +1,5 @@
 use crate::common::WebErr;
-use crate::models::general::{WinType, Offer, Country, GameKey, FriendRequest, GameStatus};
+use crate::models::general::{EndType, Offer, Country, GameKey, FriendRequest, GameStatus};
 use crate::models::events::Visibility;
 
 
@@ -53,13 +53,14 @@ impl FriendRequest {
     }
 }
 
-impl WinType {
+impl EndType {
     pub fn to_string(&self) -> String {
         match self {
             Self::Normal => "Normal",
             Self::Resign => "Resign",
             Self::Timeout => "Timeout",
             Self::Disconnect => "Disconnect",
+            Self::Stalemate => "Stalemate",
         }.to_string()
     }
 
@@ -69,6 +70,7 @@ impl WinType {
             "Resign" => Ok(Self::Resign),
             "Timeout" => Ok(Self::Timeout),
             "Disconnect" => Ok(Self::Disconnect),
+            "Stalemate" => Ok(Self::Stalemate),
             _ => Err(WebErr::NotFound(format!("provided wintype string does not match an enum variant"))),
         }
     }

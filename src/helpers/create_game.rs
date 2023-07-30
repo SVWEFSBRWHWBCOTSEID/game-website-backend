@@ -29,8 +29,8 @@ impl CreateGameReq {
             .or(Err(WebErr::Internal(format!("could not find user {}", player.username))))?
             .unwrap();
         Ok(self.time.unwrap_or(1) != 0
-            && player.rating > self.rating_min
-            && player.rating < self.rating_max
+            && (player.rating as i32) > self.rating_min
+            && (player.rating as i32) < self.rating_max
             && user.playing == None)
     }
 
@@ -77,7 +77,7 @@ impl CreateGameReq {
                 id,
                 self.rated,
                 game_key.to_string(),
-                player.rating,
+                player.rating as i32,
                 self.rating_min,
                 self.rating_max,
                 "".to_string(),
@@ -135,8 +135,8 @@ impl CreateGameReq {
         let filtered_games = games.iter().filter(|g| {
             player.rating_min < g.rating
                 && player.rating_max > g.rating
-                && g.rating_min < player.rating
-                && g.rating_max > player.rating
+                && g.rating_min < player.rating as i32
+                && g.rating_max > player.rating as i32
         });
         if filtered_games.clone().count() == 0 {
             return Ok(None);

@@ -1,4 +1,5 @@
 use actix_web::web;
+use glicko_2::Tuning;
 use rand::Rng;
 use strum::IntoEnumIterator;
 
@@ -22,12 +23,59 @@ impl user::Data {
     }
 
     // method to get rating for game
-    pub fn get_rating(&self, game_key: &str) -> Result<i32, WebErr> {
+    pub fn get_rating(&self, game_key: &str) -> Result<f64, WebErr> {
         let perfs = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
 
         Ok(perfs.iter().find(|p| p.game_key == game_key)
             .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
             .rating)
+    }
+
+    // method to get rating deviation for game
+    pub fn get_rd(&self, game_key: &str) -> Result<f64, WebErr> {
+        let perfs = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
+
+        Ok(perfs.iter().find(|p| p.game_key == game_key)
+            .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
+            .rd)
+    }
+
+    // method to get volatility for game
+    pub fn get_volatility(&self, game_key: &str) -> Result<f64, WebErr> {
+        let perfs = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
+
+        Ok(perfs.iter().find(|p| p.game_key == game_key)
+            .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
+            .volatility)
+    }
+
+    // method to get change constraint for game
+    pub fn get_tau(&self, game_key: &str) -> Result<f64, WebErr> {
+        let perfs = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
+
+        Ok(perfs.iter().find(|p| p.game_key == game_key)
+            .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
+            .tau)
+    }
+
+    // method to get glicko 2 tuning struct for game
+    pub fn get_tuning(&self, game_key: &str) -> Result<Tuning, WebErr> {
+        let perfs = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
+
+        Ok(Tuning::new(
+            perfs.iter().find(|p| p.game_key == game_key)
+                .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
+                .rating,
+            perfs.iter().find(|p| p.game_key == game_key)
+                .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
+                .rd,
+            perfs.iter().find(|p| p.game_key == game_key)
+                .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
+                .volatility,
+            perfs.iter().find(|p| p.game_key == game_key)
+                .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
+                .tau,
+        ))
     }
 
     // method to add perfs if user is missing perfs for new games
@@ -43,7 +91,9 @@ impl user::Data {
                         k.to_string(),
                         GamePerf::default().games,
                         GamePerf::default().rating,
-                        GamePerf::default().rd as f64,
+                        GamePerf::default().rd,
+                        GamePerf::default().volatility,
+                        GamePerf::default().tau,
                         GamePerf::default().prog,
                         GamePerf::default().prov,
                         vec![],

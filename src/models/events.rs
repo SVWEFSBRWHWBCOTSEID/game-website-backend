@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{general::{GameStatus, TimeControl, Player, GameType, WinType, Offer, GameKey, FriendRequest}, res::LobbyResponse};
+use super::{general::{GameStatus, TimeControl, Player, GameType, EndType, Offer, GameKey, FriendRequest}, res::LobbyResponse};
 
 
 pub enum Event {
@@ -102,7 +102,7 @@ pub struct GameStateEvent {
     pub stime: Option<i32>,
     pub moves: Vec<String>,
     pub status: GameStatus,
-    pub win_type: Option<WinType>,
+    pub end_type: Option<EndType>,
     pub draw_offer: Offer,
 }
 
@@ -135,7 +135,7 @@ pub struct GameState {
     pub stime: Option<i32>,
     pub moves: Vec<String>,
     pub status: GameStatus,
-    pub win_type: Option<WinType>,
+    pub end_type: Option<EndType>,
     pub draw_offer: Offer,
 }
 

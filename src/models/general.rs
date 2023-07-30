@@ -7,7 +7,7 @@ use strum_macros::EnumIter;
 pub struct MatchPlayer {
     pub username: String,
     pub provisional: bool,
-    pub rating: i32,
+    pub rating: f64,
     pub rating_min: i32,
     pub rating_max: i32,
     pub first: bool,
@@ -49,9 +49,11 @@ pub struct Perfs {
 #[serde(rename_all = "camelCase")]
 pub struct GamePerf {
     pub games: i32,
-    pub rating: i32,
-    pub rd: f32,
-    pub prog: i32,
+    pub rating: f64,
+    pub rd: f64,
+    pub volatility: f64,
+    pub tau: f64,
+    pub prog: f64,
     pub prov: bool,
 }
 
@@ -102,11 +104,12 @@ pub enum GameStatus {
 
 #[derive(Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum WinType {
+pub enum EndType {
     Normal,
     Resign,
     Timeout,
     Disconnect,
+    Stalemate,
 }
 
 #[derive(Deserialize, Serialize, PartialEq)]

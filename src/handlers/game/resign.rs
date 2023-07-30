@@ -4,7 +4,7 @@ use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
 use crate::helpers::general::{get_username, get_game_validate, set_user_playing, add_chat_game_event};
 use crate::models::events::{GameEvent, GameStateEvent, GameEventType, ChatGameEvent};
-use crate::models::general::{WinType, Offer};
+use crate::models::general::{EndType, Offer};
 use crate::prisma::{PrismaClient, game};
 use crate::common::WebErr;
 use crate::models::res::OK_RES;
@@ -30,7 +30,7 @@ pub async fn resign(
         stime: game.get_new_second_time()?,
         moves: vec![],
         status: game.get_resign_game_status(&username),
-        win_type: Some(WinType::Resign),
+        end_type: Some(EndType::Resign),
         draw_offer: Offer::None,
     }));
 
@@ -50,7 +50,7 @@ pub async fn resign(
             game::id::equals(game_id.clone()),
             vec![
                 game::status::set(game.get_resign_game_status(&username).to_string()),
-                game::win_type::set(Some(WinType::Resign.to_string())),
+                game::win_type::set(Some(EndType::Resign.to_string())),
                 game::draw_offer::set(Offer::None.to_string()),
             ],
         )

@@ -4,7 +4,7 @@ use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
 use crate::helpers::general::{get_username, get_game_validate, set_user_playing, add_chat_game_event};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent, ChatGameEvent};
-use crate::models::general::{WinType, Offer};
+use crate::models::general::{EndType, Offer};
 use crate::prisma::{PrismaClient, game};
 use crate::common::WebErr;
 use crate::models::res::OK_RES;
@@ -36,7 +36,7 @@ pub async fn timeout(
         stime: game.get_new_second_time()?,
         moves: vec![],
         status: game.get_timeout_game_status(&username)?,
-        win_type: Some(WinType::Timeout),
+        end_type: Some(EndType::Timeout),
         draw_offer: Offer::None,
     }));
 
@@ -56,7 +56,7 @@ pub async fn timeout(
             game::id::equals(game_id.clone()),
             vec![
                 game::status::set(game.get_timeout_game_status(&username)?.to_string()),
-                game::win_type::set(Some(WinType::Timeout.to_string())),
+                game::win_type::set(Some(EndType::Timeout.to_string())),
                 game::draw_offer::set(Offer::None.to_string()),
             ],
         )
