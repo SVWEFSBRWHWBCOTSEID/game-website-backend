@@ -1204,6 +1204,7 @@ dependencies = [
  "dotenv",
  "env_logger",
  "futures",
+ "glicko_2",
  "log",
  "nanoid",
  "parking_lot 0.12.1",
@@ -1263,6 +1264,12 @@ name = "gimli"
 version = "0.27.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b6c80984affa11d98d1b88b66ac8853f143217b399d3c74116778ff8fdb4ed2e"
+
+[[package]]
+name = "glicko_2"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1bcb3e05b4992bfd359912c8240121663d5e689b777683f20eefa29e24137c8a"
 
 [[package]]
 name = "graphql-parser"

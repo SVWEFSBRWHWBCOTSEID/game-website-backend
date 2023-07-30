@@ -1,10 +1,12 @@
 use std::cmp::max;
 use actix_web::web;
+use glicko_2::game::compete;
+use glicko_2::Rating;
 
 use crate::models::res::{CreateGameResponse, GameResponse, LobbyResponse};
 use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, EndType, Side};
 use crate::models::events::{GameState, GameFullEvent, GameEventType, Visibility, Chat};
-use crate::prisma::{game, PrismaClient, user};
+use crate::prisma::{game, PrismaClient, user, perf};
 use crate::common::WebErr;
 use super::general::time_millis;
 
@@ -303,6 +305,50 @@ impl game::Data {
             (false, false, Offer::First) => Offer::None,
             _ => Offer::from_str(&self.rematch_offer)?,
         })
+    }
+
+    pub async fn handle_game_end(&self, client: &web::Data<PrismaClient>) -> Result<(), WebErr> {
+        let first_user = self.first_user().or(Err(WebErr::Internal(format!("first user not fetched"))))?.unwrap();
+        let second_user = self.first_user().or(Err(WebErr::Internal(format!("second user not fetched"))))?.unwrap();
+        let first_tuning = first_user.get_tuning(&self.game_key)?;
+        let second_tuning = second_user.get_tuning(&self.game_key)?;
+        let mut first_rating = Rating::new(&first_tuning);
+        let mut second_rating = Rating::new(&second_tuning);
+
+        match GameStatus::from_str(&self.status)? {
+            GameStatus::FirstWon => compete(&mut first_rating, &mut second_rating, false),
+            GameStatus::SecondWon => compete(&mut second_rating, &mut first_rating, false),
+            GameStatus::Draw => compete(&mut first_rating, &mut second_rating, true),
+            _ => {},
+        }
+
+        client
+            .perf()
+            .update(
+                perf::username_game_key(self.first_username.clone().unwrap(), self.game_key.clone()),
+                vec![
+                    perf::rating::set(first_rating.mu),
+                    perf::rd::set(first_rating.phi),
+                    perf::volatility::set(first_rating.sigma),
+                ],
+            )
+            .exec()
+            .await
+            .or(Err(WebErr::Internal(format!("error updating perfs for user {}", self.first_username.clone().unwrap()))))?;
+        client
+            .perf()
+            .update(
+                perf::username_game_key(self.second_username.clone().unwrap(), self.game_key.clone()),
+                vec![
+                    perf::rating::set(second_rating.mu),
+                    perf::rd::set(second_rating.phi),
+                    perf::volatility::set(second_rating.sigma),
+                ],
+            )
+            .exec()
+            .await
+            .or(Err(WebErr::Internal(format!("error updating perfs for user {}", self.second_username.clone().unwrap()))))?;
+        Ok(())
     }
 }
 
