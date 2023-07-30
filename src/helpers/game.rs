@@ -4,7 +4,7 @@ use glicko_2::game::compete;
 use glicko_2::Rating;
 
 use crate::models::res::{CreateGameResponse, GameResponse, LobbyResponse};
-use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, EndType, Side, MoveOutcome};
+use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, EndType, Side, MoveOutcome, GamePerf};
 use crate::models::events::{GameState, GameFullEvent, GameEventType, Visibility, Chat};
 use crate::prisma::{game, PrismaClient, user, perf};
 use crate::common::WebErr;
@@ -350,6 +350,8 @@ impl game::Data {
         let second_tuning = second_user.get_tuning(&self.game_key)?;
         let mut first_rating = Rating::new(&first_tuning);
         let mut second_rating = Rating::new(&second_tuning);
+        let first_old = first_rating.mu;
+        let second_old = second_rating.mu;
 
         match new_status {
             GameStatus::FirstWon => compete(&mut first_rating, &mut second_rating, false),
@@ -357,6 +359,13 @@ impl game::Data {
             GameStatus::Draw => compete(&mut first_rating, &mut second_rating, true),
             _ => {},
         }
+
+        let mut first_prog = GamePerf::prog_from_str(&first_user.get_prog(&self.game_key)?)?;
+        let mut second_prog = GamePerf::prog_from_str(&second_user.get_prog(&self.game_key)?)?;
+        first_prog.push(first_rating.mu - first_old);
+        second_prog.push(second_rating.mu - second_old);
+        first_prog.remove(0);
+        second_prog.remove(0);
 
         client
             .perf()
@@ -366,6 +375,7 @@ impl game::Data {
                     perf::rating::set(first_rating.mu),
                     perf::rd::set(first_rating.phi),
                     perf::volatility::set(first_rating.sigma),
+                    perf::prog::set(GamePerf::stringify_prog(first_prog)),
                 ],
             )
             .exec()
@@ -379,6 +389,7 @@ impl game::Data {
                     perf::rating::set(second_rating.mu),
                     perf::rd::set(second_rating.phi),
                     perf::volatility::set(second_rating.sigma),
+                    perf::prog::set(GamePerf::stringify_prog(second_prog)),
                 ],
             )
             .exec()

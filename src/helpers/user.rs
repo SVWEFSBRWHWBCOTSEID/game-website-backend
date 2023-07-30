@@ -78,6 +78,15 @@ impl user::Data {
         ))
     }
 
+    // method to get rating progression for game
+    pub fn get_prog(&self, game_key: &str) -> Result<String, WebErr> {
+        let perfs: &Vec<crate::prisma::perf::Data> = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
+
+        Ok(perfs.iter().find(|p| p.game_key == game_key)
+            .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
+            .prog.clone())
+    }
+
     // method to add perfs if user is missing perfs for new games
     pub async fn update_perfs(&mut self, client: &web::Data<PrismaClient>) -> Result<(), WebErr> {
         for k in GameKey::iter() {
@@ -94,7 +103,7 @@ impl user::Data {
                         GamePerf::default().rd,
                         GamePerf::default().volatility,
                         GamePerf::default().tau,
-                        GamePerf::default().prog,
+                        GamePerf::stringify_prog(GamePerf::default().prog),
                         GamePerf::default().prov,
                         vec![],
                     )

@@ -56,7 +56,7 @@ impl CreateUserReq {
                         GamePerf::default().rd,
                         GamePerf::default().volatility,
                         GamePerf::default().tau,
-                        GamePerf::default().prog,
+                        GamePerf::stringify_prog(GamePerf::default().prog),
                         GamePerf::default().prov,
                         vec![],
                     )

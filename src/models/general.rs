@@ -45,7 +45,7 @@ pub struct Perfs {
     pub pc: GamePerf,
 }
 
-#[derive(Deserialize, Serialize, Copy, Clone)]
+#[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GamePerf {
     pub games: i32,
@@ -53,7 +53,7 @@ pub struct GamePerf {
     pub rd: f64,
     pub volatility: f64,
     pub tau: f64,
-    pub prog: f64,
+    pub prog: Vec<f64>,
     pub prov: bool,
 }
 

@@ -72,7 +72,7 @@ model Perf {
     rd          Float
     volatility  Float
     tau         Float
-    prog        Float
+    prog        String
     prov        Boolean
     @@unique([username, gameKey])
 }
