@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize, Serializer};
-use serde::ser::{SerializeStruct, SerializeStructVariant};
+use serde::ser::SerializeStruct;
 
 use super::{general::{GameStatus, TimeControl, Player, GameType, EndType, Offer, GameKey, FriendRequest}, res::LobbyResponse};
 
