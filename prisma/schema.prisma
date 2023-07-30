@@ -64,14 +64,15 @@ model Friend {
 }
 
 model Perf {
-    id          String  @id @default(uuid())
     user        User    @relation(fields: [username], references: [username])
     username    String
     gameKey     String
     games       Int
-    rating      Int
+    rating      Float
     rd          Float
-    prog        Int
+    volatility  Float
+    tau         Float
+    prog        Float
     prov        Boolean
     @@unique([username, gameKey])
 }
