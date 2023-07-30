@@ -2,7 +2,7 @@ use std::cmp::max;
 use actix_web::web;
 
 use crate::models::res::{CreateGameResponse, GameResponse, LobbyResponse};
-use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, WinType, Side};
+use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, EndType, Side};
 use crate::models::events::{GameState, GameFullEvent, GameEventType, Visibility, Chat};
 use crate::prisma::{game, PrismaClient, user};
 use crate::common::WebErr;
@@ -39,7 +39,7 @@ impl game::Data {
                 Some(u) => Some(Player {
                     username: u.username.clone(),
                     provisional: u.get_provisional(&self.game_key)?,
-                    rating: u.get_rating(&self.game_key)?,
+                    rating: u.get_rating(&self.game_key)? as i32,
                 }),
                 None => None,
             },
@@ -47,7 +47,7 @@ impl game::Data {
                 Some(u) => Some(Player {
                     username: u.username.clone(),
                     provisional: u.get_provisional(&self.game_key)?,
-                    rating: u.get_rating(&self.game_key)?,
+                    rating: u.get_rating(&self.game_key)? as i32,
                 }),
                 None => None,
             },
@@ -57,7 +57,7 @@ impl game::Data {
                 stime: self.get_new_second_time()?,
                 moves: self.get_moves_vec(),
                 status: GameStatus::from_str(&self.status)?,
-                win_type: None,
+                end_type: None,
                 draw_offer: Offer::None,
             },
         })
@@ -80,7 +80,7 @@ impl game::Data {
                 Some(u) => Some(Player {
                     username: u.username.clone(),
                     provisional: u.get_provisional(&self.game_key)?,
-                    rating: u.get_rating(&self.game_key)?,
+                    rating: u.get_rating(&self.game_key)? as i32,
                 }),
                 None => None,
             },
@@ -88,7 +88,7 @@ impl game::Data {
                 Some(u) => Some(Player {
                     username: u.username.clone(),
                     provisional: u.get_provisional(&self.game_key)?,
-                    rating: u.get_rating(&self.game_key)?,
+                    rating: u.get_rating(&self.game_key)? as i32,
                 }),
                 None => None,
             },
@@ -111,15 +111,15 @@ impl game::Data {
             first: Player {
                 username: self.first_username.clone().unwrap(),
                 provisional: self.first_user().unwrap().unwrap().get_provisional(&self.game_key).unwrap(),
-                rating: self.first_user().unwrap().unwrap().get_rating(&self.game_key).unwrap(),
+                rating: self.first_user().unwrap().unwrap().get_rating(&self.game_key).unwrap() as i32,
             },
             second: Player {
                 username: self.second_username.clone().unwrap(),
                 provisional: self.second_user().unwrap().unwrap().get_provisional(&self.game_key).unwrap(),
-                rating: self.second_user().unwrap().unwrap().get_rating(&self.game_key).unwrap(),
+                rating: self.second_user().unwrap().unwrap().get_rating(&self.game_key).unwrap() as i32,
             },
             chat: self.chat.clone().unwrap_or(vec![]).iter().map(|x| Ok::<Chat, WebErr>(if x.game_event {
-                Chat::ChatGame {
+                Chat::ChatAlert {
                     message: x.text.clone(),
                 }
             } else {
@@ -138,8 +138,8 @@ impl game::Data {
                     vec![]
                 },
                 status: GameStatus::from_str(&self.status)?,
-                win_type: match &self.win_type {
-                    Some(wt) => Some(WinType::from_str(wt)?),
+                end_type: match &self.win_type {
+                    Some(wt) => Some(EndType::from_str(wt)?),
                     None => None,
                 },
                 draw_offer: Offer::from_str(&self.draw_offer)?,
@@ -164,14 +164,14 @@ impl game::Data {
                 Some(u) => Player {
                     username: u.username.clone(),
                     provisional: u.get_provisional(&self.game_key)?,
-                    rating: u.get_rating(&self.game_key)?,
+                    rating: u.get_rating(&self.game_key)? as i32,
                 },
                 None => {
                     let u = self.second_user().or(Err(WebErr::Internal(format!("second_user not fetched"))))?.unwrap();
                     Player {
                         username: u.username.clone(),
                         provisional: u.get_provisional(&self.game_key)?,
-                        rating: u.get_rating(&self.game_key)?,
+                        rating: u.get_rating(&self.game_key)? as i32,
                     }
                 },
             },

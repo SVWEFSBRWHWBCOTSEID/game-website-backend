@@ -1,5 +1,4 @@
 use actix_web::web;
-use glicko_2::Tuning;
 use rand::Rng;
 use strum::IntoEnumIterator;
 
@@ -56,26 +55,6 @@ impl user::Data {
         Ok(perfs.iter().find(|p| p.game_key == game_key)
             .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
             .tau)
-    }
-
-    // method to get glicko 2 tuning struct for game
-    pub fn get_tuning(&self, game_key: &str) -> Result<Tuning, WebErr> {
-        let perfs = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
-
-        Ok(Tuning::new(
-            perfs.iter().find(|p| p.game_key == game_key)
-                .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
-                .rating,
-            perfs.iter().find(|p| p.game_key == game_key)
-                .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
-                .rd,
-            perfs.iter().find(|p| p.game_key == game_key)
-                .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
-                .volatility,
-            perfs.iter().find(|p| p.game_key == game_key)
-                .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
-                .tau,
-        ))
     }
 
     // method to add perfs if user is missing perfs for new games

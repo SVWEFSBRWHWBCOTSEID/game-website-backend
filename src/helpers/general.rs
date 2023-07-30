@@ -6,7 +6,7 @@ use prisma_client_rust::or;
 use nanoid::nanoid;
 
 use crate::common::WebErr;
-use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType, Visibility, ChatGameEvent};
+use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType, Visibility, ChatAlertEvent};
 use crate::models::general::GameStatus;
 use crate::prisma::{user, PrismaClient, message, game};
 use crate::sse::Broadcaster;
@@ -149,7 +149,7 @@ pub async fn set_user_playing(client: &web::Data<PrismaClient>, username: &str, 
     Ok(())
 }
 
-pub async fn add_chat_game_event(client: &web::Data<PrismaClient>, game_id: &str, event: &ChatGameEvent) -> Result<(), WebErr> {
+pub async fn add_chat_alert_event(client: &web::Data<PrismaClient>, game_id: &str, event: &ChatAlertEvent) -> Result<(), WebErr> {
     client
         .message()
         .create(

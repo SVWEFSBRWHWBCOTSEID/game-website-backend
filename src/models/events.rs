@@ -1,4 +1,5 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Serializer};
+use serde::ser::{SerializeStruct, SerializeStructVariant};
 
 use super::{general::{GameStatus, TimeControl, Player, GameType, EndType, Offer, GameKey, FriendRequest}, res::LobbyResponse};
 
@@ -21,7 +22,7 @@ impl Event {
 
 pub enum GameEvent {
     ChatMessageEvent(ChatMessageEvent),
-    ChatGameEvent(ChatGameEvent),
+    ChatAlertEvent(ChatAlertEvent),
     GameStateEvent(GameStateEvent),
     GameFullEvent(GameFullEvent),
     RematchEvent(RematchEvent),
@@ -31,7 +32,7 @@ impl GameEvent {
     pub fn to_string(&self) -> String {
         match self {
             GameEvent::ChatMessageEvent(e) => serde_json::to_string(e).unwrap(),
-            GameEvent::ChatGameEvent(e) => serde_json::to_string(e).unwrap(),
+            GameEvent::ChatAlertEvent(e) => serde_json::to_string(e).unwrap(),
             GameEvent::GameStateEvent(e) => serde_json::to_string(e).unwrap(),
             GameEvent::GameFullEvent(e) => serde_json::to_string(e).unwrap(),
             GameEvent::RematchEvent(e) => serde_json::to_string(e).unwrap(),
@@ -65,7 +66,7 @@ impl LobbyEvent {
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum Chat {
     ChatMessage {
@@ -73,9 +74,28 @@ pub enum Chat {
         text: String,
         visibility: Visibility,
     },
-    ChatGame {
+    ChatAlert {
         message: String,
     },
+}
+
+impl Serialize for Chat {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+        match self {
+            Chat::ChatMessage { username, text, visibility } => {
+                let mut state = serializer.serialize_struct("ChatMessage", 3)?;
+                state.serialize_field("username", username)?;
+                state.serialize_field("text", text)?;
+                state.serialize_field("visibility", visibility)?;
+                state.end()
+            }
+            Chat::ChatAlert { message } => {
+                let mut state = serializer.serialize_struct("ChatAlert", 1)?;
+                state.serialize_field("message", message)?;
+                state.end()
+            }
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize)]
@@ -89,7 +109,7 @@ pub struct ChatMessageEvent {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ChatGameEvent {
+pub struct ChatAlertEvent {
     pub r#type: GameEventType,
     pub message: String,
 }
@@ -173,7 +193,7 @@ pub enum UserEventType {
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum GameEventType {
     ChatMessage,
-    ChatGame,
+    ChatAlert,
     GameState,
     GameFull,
     Rematch,
