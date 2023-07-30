@@ -307,7 +307,7 @@ impl game::Data {
         })
     }
 
-    pub async fn handle_game_end(&self, client: &web::Data<PrismaClient>) -> Result<(), WebErr> {
+    pub async fn update_ratings(&self, client: &web::Data<PrismaClient>) -> Result<(), WebErr> {
         let first_user = self.first_user().or(Err(WebErr::Internal(format!("first user not fetched"))))?.unwrap();
         let second_user = self.first_user().or(Err(WebErr::Internal(format!("second user not fetched"))))?.unwrap();
         let first_tuning = first_user.get_tuning(&self.game_key)?;

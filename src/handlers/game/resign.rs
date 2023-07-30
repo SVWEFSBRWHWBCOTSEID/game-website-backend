@@ -41,9 +41,6 @@ pub async fn resign(
     add_chat_alert_event(&client, &game_id, &chat_alert_event).await?;
     broadcaster.lock().game_send(&game_id, GameEvent::ChatAlertEvent(chat_alert_event));
 
-    set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
-    set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
-
     client
         .game()
         .update(
@@ -57,6 +54,10 @@ pub async fn resign(
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error updating game with id {} to resign", game_id))))?;
+
+    set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
+    set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
+    game.update_ratings(&client).await?;
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }

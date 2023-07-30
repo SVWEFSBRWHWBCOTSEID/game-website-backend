@@ -62,6 +62,7 @@ pub async fn offer_draw(
     if game.get_new_draw_offer(&value, &username)? == Offer::Agreed {
         set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
         set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
+        game.update_ratings(&client).await?;
     }
 
     Ok(HttpResponse::Ok().json(OK_RES))

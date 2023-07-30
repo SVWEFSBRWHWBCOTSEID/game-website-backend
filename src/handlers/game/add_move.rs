@@ -55,11 +55,6 @@ pub async fn add_move(
         },
     }));
 
-    if game.new_move_outcome(&new_move) != MoveOutcome::None {
-        set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
-        set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
-    }
-
     client
         .game()
         .update(
@@ -90,7 +85,7 @@ pub async fn add_move(
                     _ => None,
                 }),
                 game::draw_offer::set(match game.new_move_outcome(&new_move) {
-                    MoveOutcome::None => game.draw_offer,
+                    MoveOutcome::None => game.draw_offer.clone(),
                     _ => Offer::None.to_string(),
                 }),
             ],
@@ -98,6 +93,12 @@ pub async fn add_move(
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error updating game with id {} to add move", game_id))))?;
+
+    if game.new_move_outcome(&new_move) != MoveOutcome::None {
+        set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
+        set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
+        game.update_ratings(&client).await?;
+    }
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }
