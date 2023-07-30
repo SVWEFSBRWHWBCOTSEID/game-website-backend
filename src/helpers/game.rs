@@ -4,7 +4,7 @@ use glicko_2::game::compete;
 use glicko_2::Rating;
 
 use crate::models::res::{CreateGameResponse, GameResponse, LobbyResponse};
-use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, EndType, Side};
+use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, EndType, Side, MoveOutcome};
 use crate::models::events::{GameState, GameFullEvent, GameEventType, Visibility, Chat};
 use crate::prisma::{game, PrismaClient, user, perf};
 use crate::common::WebErr;
@@ -61,6 +61,8 @@ impl game::Data {
                 status: GameStatus::from_str(&self.status)?,
                 end_type: None,
                 draw_offer: Offer::None,
+                frating_diff: self.get_rating_diffs(GameStatus::from_str(&self.status)?)?.0,
+                srating_diff: self.get_rating_diffs(GameStatus::from_str(&self.status)?)?.1,
             },
         })
     }
@@ -145,6 +147,8 @@ impl game::Data {
                     None => None,
                 },
                 draw_offer: Offer::from_str(&self.draw_offer)?,
+                frating_diff: self.get_rating_diffs(GameStatus::from_str(&self.status)?)?.0,
+                srating_diff: self.get_rating_diffs(GameStatus::from_str(&self.status)?)?.1,
             },
         })
     }
@@ -243,6 +247,15 @@ impl game::Data {
         }
     }
 
+    pub fn get_new_move_status(&self, new_move: &str) -> Result<GameStatus, WebErr> {
+        Ok(match self.new_move_outcome(new_move) {
+            MoveOutcome::None => GameStatus::Started,
+            MoveOutcome::FirstWin => GameStatus::FirstWon,
+            MoveOutcome::SecondWin => GameStatus::SecondWon,
+            _ => GameStatus::Draw,
+        })
+    }
+
     pub fn get_draw_game_status(&self, value: &bool, username: &str) -> Result<GameStatus, WebErr> {
         Ok(match (
             self.first_username.clone().unwrap() == username,
@@ -306,8 +319,31 @@ impl game::Data {
             _ => Offer::from_str(&self.rematch_offer)?,
         })
     }
+    
+    pub fn get_rating_diffs(&self, new_status: GameStatus) -> Result<(Option<i32>, Option<i32>), WebErr> {
+        if !self.rated {
+            return Ok((None, None));
+        }
 
-    pub async fn update_ratings(&self, client: &web::Data<PrismaClient>) -> Result<(), WebErr> {
+        let first_user = self.first_user().or(Err(WebErr::Internal(format!("first user not fetched"))))?.unwrap();
+        let second_user = self.first_user().or(Err(WebErr::Internal(format!("second user not fetched"))))?.unwrap();
+        let first_tuning = first_user.get_tuning(&self.game_key)?;
+        let second_tuning = second_user.get_tuning(&self.game_key)?;
+        let mut first_rating = Rating::new(&first_tuning);
+        let mut second_rating = Rating::new(&second_tuning);
+        let first_old = first_rating.mu;
+        let second_old = second_rating.mu;
+
+        match new_status {
+            GameStatus::FirstWon => compete(&mut first_rating, &mut second_rating, false),
+            GameStatus::SecondWon => compete(&mut second_rating, &mut first_rating, false),
+            GameStatus::Draw => compete(&mut first_rating, &mut second_rating, true),
+            _ => {},
+        }
+        Ok((Some((first_rating.mu - first_old) as i32), Some((second_rating.mu - second_old) as i32)))
+    }
+
+    pub async fn update_ratings(&self, client: &web::Data<PrismaClient>, new_status: GameStatus) -> Result<(), WebErr> {
         let first_user = self.first_user().or(Err(WebErr::Internal(format!("first user not fetched"))))?.unwrap();
         let second_user = self.first_user().or(Err(WebErr::Internal(format!("second user not fetched"))))?.unwrap();
         let first_tuning = first_user.get_tuning(&self.game_key)?;
@@ -315,7 +351,7 @@ impl game::Data {
         let mut first_rating = Rating::new(&first_tuning);
         let mut second_rating = Rating::new(&second_tuning);
 
-        match GameStatus::from_str(&self.status)? {
+        match new_status {
             GameStatus::FirstWon => compete(&mut first_rating, &mut second_rating, false),
             GameStatus::SecondWon => compete(&mut second_rating, &mut first_rating, false),
             GameStatus::Draw => compete(&mut first_rating, &mut second_rating, true),

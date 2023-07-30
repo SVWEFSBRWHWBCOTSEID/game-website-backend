@@ -124,6 +124,8 @@ pub struct GameStateEvent {
     pub status: GameStatus,
     pub end_type: Option<EndType>,
     pub draw_offer: Offer,
+    pub frating_diff: Option<i32>,
+    pub srating_diff: Option<i32>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -157,6 +159,8 @@ pub struct GameState {
     pub status: GameStatus,
     pub end_type: Option<EndType>,
     pub draw_offer: Offer,
+    pub frating_diff: Option<i32>,
+    pub srating_diff: Option<i32>,
 }
 
 #[derive(Deserialize, Serialize)]

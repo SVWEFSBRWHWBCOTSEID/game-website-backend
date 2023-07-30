@@ -39,12 +39,7 @@ pub async fn add_move(
         ftime: game.get_new_first_time()?,
         stime: game.get_new_second_time()?,
         moves: vec![new_move.clone()],
-        status: match game.new_move_outcome(&new_move) {
-            MoveOutcome::None => GameStatus::Started,
-            MoveOutcome::FirstWin => GameStatus::FirstWon,
-            MoveOutcome::SecondWin => GameStatus::SecondWon,
-            _ => GameStatus::Draw,
-        },
+        status: game.get_new_move_status(&new_move)?,
         end_type: match game.new_move_outcome(&new_move) {
             MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(EndType::Normal),
             _ => None,
@@ -53,7 +48,15 @@ pub async fn add_move(
             MoveOutcome::None => Offer::from_str(&game.draw_offer)?,
             _ => Offer::None,
         },
+        frating_diff: game.get_rating_diffs(game.get_new_move_status(&new_move)?)?.0,
+        srating_diff: game.get_rating_diffs(game.get_new_move_status(&new_move)?)?.1,
     }));
+
+    if game.new_move_outcome(&new_move) != MoveOutcome::None {
+        set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
+        set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
+        game.update_ratings(&client, game.get_new_move_status(&new_move)?).await?;
+    }
 
     client
         .game()
@@ -93,12 +96,6 @@ pub async fn add_move(
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error updating game with id {} to add move", game_id))))?;
-
-    if game.new_move_outcome(&new_move) != MoveOutcome::None {
-        set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
-        set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
-        game.update_ratings(&client).await?;
-    }
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }

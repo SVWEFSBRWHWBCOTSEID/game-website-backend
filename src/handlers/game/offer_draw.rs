@@ -33,6 +33,8 @@ pub async fn offer_draw(
         status: game.get_draw_game_status(&value, &username)?,
         end_type: None,
         draw_offer: game.get_new_draw_offer(&value, &username)?,
+        frating_diff: game.get_rating_diffs(game.get_draw_game_status(&value, &username)?)?.0,
+        srating_diff: game.get_rating_diffs(game.get_draw_game_status(&value, &username)?)?.1,
     }));
 
     let chat_alert_event = ChatAlertEvent {
@@ -46,6 +48,12 @@ pub async fn offer_draw(
     add_chat_alert_event(&client, &game_id, &chat_alert_event).await?;
     broadcaster.lock().game_send(&game_id, GameEvent::ChatAlertEvent(chat_alert_event));
 
+    if game.get_new_draw_offer(&value, &username)? == Offer::Agreed {
+        set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
+        set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
+        game.update_ratings(&client, game.get_draw_game_status(&value, &username)?).await?;
+    }
+
     client
         .game()
         .update(
@@ -58,12 +66,6 @@ pub async fn offer_draw(
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error updating game with id {} to offer draw", game_id))))?;
-
-    if game.get_new_draw_offer(&value, &username)? == Offer::Agreed {
-        set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
-        set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
-        game.update_ratings(&client).await?;
-    }
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }
