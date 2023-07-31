@@ -2,7 +2,7 @@ use actix_session::Session;
 use actix_web::{web, HttpResponse, post};
 
 use crate::common::WebErr;
-use crate::helpers::general::get_username;
+use crate::helpers::general::{get_username, get_user_with_relations};
 use crate::models::general::Profile;
 use crate::prisma::{PrismaClient, user};
 
@@ -17,7 +17,7 @@ pub async fn update_profile(
 
     let username: String = get_username(&session)?;
     let new_profile: Profile = data.into_inner();
-    let new_user = client
+    client
         .user()
         .update(
             user::username::equals(username.clone()),
@@ -33,5 +33,6 @@ pub async fn update_profile(
         .await
         .or(Err(WebErr::Forbidden(format!("could not find user with username {}", username))))?;
 
+    let new_user = get_user_with_relations(&client, &username).await?;
     Ok(HttpResponse::Ok().json(new_user.to_user_res()?))
 }
