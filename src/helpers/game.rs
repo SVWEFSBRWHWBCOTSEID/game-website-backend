@@ -192,6 +192,27 @@ impl game::Data {
         })
     }
 
+    // Asserts that the provided user is in the game, and it has started.
+    pub fn validate(&self, username: &str) -> Result<game::Data, WebErr> {
+        if GameStatus::from_str(&self.status)? != GameStatus::Started ||
+            self.first_username.clone().unwrap() != username && self.second_username.clone().unwrap() != username {
+            Err(WebErr::Forbidden(format!("could not validate, game not started or not a player")))
+        } else {
+            Ok(self.clone())
+        }
+    }
+
+    // Asserts that the provided user is in the game, and it has ended.
+    pub fn validate_ended(&self, username: &str) -> Result<game::Data, WebErr> {
+        let status = GameStatus::from_str(&self.status)?;
+        if status != GameStatus::FirstWon && status != GameStatus::SecondWon && status != GameStatus::Draw ||
+            self.first_username.clone().unwrap() != username && self.second_username.clone().unwrap() != username {
+            Err(WebErr::Forbidden(format!("could not validate, game not ended or not a player")))
+        } else {
+            Ok(self.clone())
+        }
+    }
+
     // helpers to get updated first and second times
     pub fn get_new_first_time(&self) -> Result<Option<i32>, WebErr> {
         if GameStatus::from_str(&self.status)? != GameStatus::Started {

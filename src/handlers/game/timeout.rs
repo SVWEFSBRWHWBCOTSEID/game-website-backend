@@ -2,7 +2,7 @@ use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, get_game_validate, set_user_playing, add_chat_alert_event};
+use crate::helpers::general::{get_username, set_user_playing, add_chat_alert_event, get_game_with_relations};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent, ChatAlertEvent};
 use crate::models::general::{EndType, Offer};
 use crate::prisma::{PrismaClient, game};
@@ -22,13 +22,15 @@ pub async fn timeout(
 
     let username: String = get_username(&session)?;
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
-    let game = get_game_validate(&client, &game_id, &username).await?;
+    let game = get_game_with_relations(&client, &game_id).await?.validate(&username)?;
     match (game.get_new_first_time()?, game.get_new_second_time()?) {
         (Some(f), Some(s)) => if f > 0 && s > 0 {
             return Err(WebErr::Forbidden(format!("neither player has timed out on server")))
         },
         _ => return Err(WebErr::Forbidden(format!("cannot time out in untimed game"))),
     }
+
+    let rating_diffs = game.get_rating_diffs(game.get_timeout_game_status(&username)?)?;
 
     broadcaster.lock().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
@@ -38,8 +40,8 @@ pub async fn timeout(
         status: game.get_timeout_game_status(&username)?,
         end_type: Some(EndType::Timeout),
         draw_offer: Offer::None,
-        frating_diff: game.get_rating_diffs(game.get_timeout_game_status(&username)?)?.0,
-        srating_diff: game.get_rating_diffs(game.get_timeout_game_status(&username)?)?.1,
+        frating_diff: rating_diffs.0,
+        srating_diff: rating_diffs.1,
     }));
 
     let chat_alert_event = ChatAlertEvent {

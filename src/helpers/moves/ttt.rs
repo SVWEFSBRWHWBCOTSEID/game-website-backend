@@ -8,7 +8,7 @@ pub fn validate_ttt_move(moves: Vec<&str>, new_move: &str) -> bool {
 pub fn ttt_move_outcome(moves: Vec<&str>, new_move: &str) -> MoveOutcome {
     let mut total_moves = moves;
     total_moves.push(new_move);
-    
+
     let mut x = [false; 9];
     let mut o = [false; 9];
     for (i, &m) in total_moves.iter().enumerate() {

@@ -7,7 +7,6 @@ use nanoid::nanoid;
 
 use crate::common::WebErr;
 use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType, Visibility, ChatAlertEvent};
-use crate::models::general::GameStatus;
 use crate::prisma::{user, PrismaClient, message, game};
 use crate::sse::Broadcaster;
 use super::game::LobbyVec;
@@ -33,30 +32,6 @@ pub async fn get_game_by_id(client: &web::Data<PrismaClient>, id: &str) -> Resul
     }
 }
 
-// same as get_game_by_id but checks checks status and username
-pub async fn get_game_validate(client: &web::Data<PrismaClient>, id: &str, username: &str) -> Result<game::Data, WebErr> {
-    let g = get_game_by_id(client, id).await?;
-
-    if GameStatus::from_str(&g.status)? != GameStatus::Started ||
-        g.first_username.clone().unwrap() != username && g.second_username.clone().unwrap() != username {
-            Err(WebErr::Forbidden(format!("could not validate, game not started or not a player")))
-    } else {
-        Ok(g)
-    }
-}
-
-pub async fn get_game_validate_ended(client: &web::Data<PrismaClient>, id: &str, username: &str) -> Result<game::Data, WebErr> {
-    let g = get_game_by_id(client, id).await?;
-
-    let status = GameStatus::from_str(&g.status)?;
-    if status != GameStatus::FirstWon && status != GameStatus::SecondWon && status != GameStatus::Draw ||
-        g.first_username.clone().unwrap() != username && g.second_username.clone().unwrap() != username {
-            Err(WebErr::Forbidden(format!("could not validate, game not ended or not a player")))
-    } else {
-        Ok(g)
-    }
-}
-
 // same as get_game_by_id but fetches user and chat relations
 pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str) -> Result<game::Data, WebErr> {
     match client
@@ -71,29 +46,6 @@ pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str)
     {
         Some(g) => Ok(g),
         None => Err(WebErr::NotFound(format!("could not find game with id {}", id))),
-    }
-}
-
-pub async fn get_game_validate_with_relations(client: &web::Data<PrismaClient>, id: &str, username: &str) -> Result<game::Data, WebErr> {
-    let g = get_game_with_relations(client, id).await?;
-
-    if GameStatus::from_str(&g.status)? != GameStatus::Started ||
-        g.first_username.clone().unwrap() != username && g.second_username.clone().unwrap() != username {
-        Err(WebErr::Forbidden(format!("could not validate, game not started or not a player")))
-    } else {
-        Ok(g)
-    }
-}
-
-pub async fn get_game_validate_ended_with_relations(client: &web::Data<PrismaClient>, id: &str, username: &str) -> Result<game::Data, WebErr> {
-    let g = get_game_with_relations(client, id).await?;
-
-    let status = GameStatus::from_str(&g.status)?;
-    if status != GameStatus::FirstWon && status != GameStatus::SecondWon && status != GameStatus::Draw ||
-        g.first_username.clone().unwrap() != username && g.second_username.clone().unwrap() != username {
-        Err(WebErr::Forbidden(format!("could not validate, game not ended or not a player")))
-    } else {
-        Ok(g)
     }
 }
 

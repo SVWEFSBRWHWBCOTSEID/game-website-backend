@@ -2,7 +2,7 @@ use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, get_game_by_id, time_millis, set_user_playing, get_game_with_relations};
+use crate::helpers::general::{get_username, time_millis, set_user_playing, get_game_with_relations};
 use crate::models::general::{EndType, Offer, MoveOutcome};
 use crate::prisma::{PrismaClient, game};
 use crate::sse::Broadcaster;

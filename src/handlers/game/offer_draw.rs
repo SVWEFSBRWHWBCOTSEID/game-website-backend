@@ -2,7 +2,7 @@ use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, get_game_validate, set_user_playing, add_chat_alert_event, get_game_validate_with_relations};
+use crate::helpers::general::{get_username, set_user_playing, add_chat_alert_event, get_game_with_relations};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent, ChatAlertEvent};
 use crate::models::general::Offer;
 use crate::prisma::{PrismaClient, game};
@@ -23,7 +23,7 @@ pub async fn offer_draw(
     let username: String = get_username(&session)?;
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let value: bool = req.match_info().get("value").unwrap().parse().unwrap();
-    let game = get_game_validate_with_relations(&client, &game_id, &username).await?;
+    let game = get_game_with_relations(&client, &game_id).await?.validate(&username)?;
 
     let rating_diffs = game.get_rating_diffs(game.get_draw_game_status(&value, &username)?)?;
 
