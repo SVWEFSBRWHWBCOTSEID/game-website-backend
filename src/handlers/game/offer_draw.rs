@@ -2,7 +2,7 @@ use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, get_game_validate, set_user_playing, add_chat_alert_event};
+use crate::helpers::general::{get_username, get_game_validate, set_user_playing, add_chat_alert_event, get_game_validate_with_relations};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent, ChatAlertEvent};
 use crate::models::general::Offer;
 use crate::prisma::{PrismaClient, game};
@@ -23,7 +23,9 @@ pub async fn offer_draw(
     let username: String = get_username(&session)?;
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let value: bool = req.match_info().get("value").unwrap().parse().unwrap();
-    let game = get_game_validate(&client, &game_id, &username).await?;
+    let game = get_game_validate_with_relations(&client, &game_id, &username).await?;
+
+    let rating_diffs = game.get_rating_diffs(game.get_draw_game_status(&value, &username)?)?;
 
     broadcaster.lock().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
@@ -33,8 +35,8 @@ pub async fn offer_draw(
         status: game.get_draw_game_status(&value, &username)?,
         end_type: None,
         draw_offer: game.get_new_draw_offer(&value, &username)?,
-        frating_diff: game.get_rating_diffs(game.get_draw_game_status(&value, &username)?)?.0,
-        srating_diff: game.get_rating_diffs(game.get_draw_game_status(&value, &username)?)?.1,
+        frating_diff: rating_diffs.0,
+        srating_diff: rating_diffs.1,
     }));
 
     let chat_alert_event = ChatAlertEvent {

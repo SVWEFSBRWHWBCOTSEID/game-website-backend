@@ -2,7 +2,7 @@ use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, get_game_by_id, time_millis, set_user_playing};
+use crate::helpers::general::{get_username, get_game_by_id, time_millis, set_user_playing, get_game_with_relations};
 use crate::models::general::{EndType, Offer, MoveOutcome};
 use crate::prisma::{PrismaClient, game};
 use crate::sse::Broadcaster;
@@ -23,7 +23,7 @@ pub async fn add_move(
     let username: String = get_username(&session)?;
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let new_move: String = req.match_info().get("move").unwrap().parse().unwrap();
-    let game = get_game_by_id(&client, &game_id).await?;
+    let game = get_game_with_relations(&client, &game_id).await?;
 
     // make sure it is this player's turn and that move is legal
     let first_to_move = game.num_moves() % 2 == 0;
@@ -33,6 +33,8 @@ pub async fn add_move(
     {
         return Err(WebErr::Forbidden(format!("new move is invalid or not player's turn")));
     }
+
+    let rating_diffs = game.get_rating_diffs(game.get_new_move_status(&new_move)?)?;
 
     broadcaster.lock().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
@@ -48,8 +50,8 @@ pub async fn add_move(
             MoveOutcome::None => Offer::from_str(&game.draw_offer)?,
             _ => Offer::None,
         },
-        frating_diff: game.get_rating_diffs(game.get_new_move_status(&new_move)?)?.0,
-        srating_diff: game.get_rating_diffs(game.get_new_move_status(&new_move)?)?.1,
+        frating_diff: rating_diffs.0,
+        srating_diff: rating_diffs.1,
     }));
 
     if game.new_move_outcome(&new_move) != MoveOutcome::None {
