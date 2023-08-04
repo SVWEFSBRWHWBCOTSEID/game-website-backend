@@ -53,7 +53,7 @@ pub struct GamePerf {
     pub rd: f64,
     pub volatility: f64,
     pub tau: f64,
-    pub prog: Vec<f64>,
+    pub prog: f64,
     pub prov: bool,
 }
 

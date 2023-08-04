@@ -32,7 +32,7 @@ impl perf::Data {
             rd: self.rd,
             volatility: self.volatility,
             tau: self.tau,
-            prog: GamePerf::prog_from_str(&self.prog)?,
+            prog: GamePerf::prog_from_str(&self.prog)?.iter().sum(),
             prov: self.prov,
         })
     }

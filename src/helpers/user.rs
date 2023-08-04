@@ -103,7 +103,7 @@ impl user::Data {
                         GamePerf::default().rd,
                         GamePerf::default().volatility,
                         GamePerf::default().tau,
-                        GamePerf::stringify_prog(GamePerf::default().prog),
+                        GamePerf::stringify_prog(vec![0f64; 12]),
                         GamePerf::default().prov,
                         vec![],
                     )
