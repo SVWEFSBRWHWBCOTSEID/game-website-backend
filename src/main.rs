@@ -14,6 +14,12 @@ use game_backend::sse::Broadcaster;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let _guard = sentry::init(("https://3f4ae5fdde0f9e4e30745eb533fcaab8@o4505684851294208.ingest.sentry.io/4505684891467776", sentry::ClientOptions {
+        release: sentry::release_name!(),
+        traces_sample_rate: 1.0,
+        ..Default::default()
+    }));
+
     dotenv().ok();
     let host = env::var("HOST").unwrap();
     let port = env::var("PORT").unwrap().parse::<u16>().unwrap();
@@ -51,6 +57,7 @@ async fn main() -> std::io::Result<()> {
                 .build()
             )
             .wrap(cors)
+            .wrap(sentry_actix::Sentry::with_transaction())
             .configure(config_app)
     })
     .bind((host, port))?

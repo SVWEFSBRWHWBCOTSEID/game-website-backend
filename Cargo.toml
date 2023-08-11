@@ -28,3 +28,5 @@ strum = "0.25.0"
 strum_macros = "0.25.1"
 parking_lot = "0.12.1"
 glicko_2 = "1.0.0"
+sentry = { version = "0.31.5", features = ["tracing"] }
+sentry-actix = "0.31.5"
