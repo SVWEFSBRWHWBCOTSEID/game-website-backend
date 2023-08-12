@@ -58,6 +58,8 @@ pub async fn get_game_validate_ended(client: &web::Data<PrismaClient>, id: &str,
     match client
         .game()
         .find_unique(game::id::equals(id.to_string()))
+        .with(game::first_user::fetch().with(user::perfs::fetch(vec![])))
+        .with(game::second_user::fetch().with(user::perfs::fetch(vec![])))
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error fetching game with id {}", id))))?

@@ -19,7 +19,8 @@ model Game {
     secondUsername  String?
     firstUser       User?       @relation("first", fields: [firstUsername], references: [username])
     secondUser      User?       @relation("second", fields: [secondUsername], references: [username])
-    rating          Int
+    firstRating     Int?
+    secondRating    Int?
     ratingMin       Int
     ratingMax       Int
     startPos        String?

@@ -48,8 +48,7 @@ pub async fn offer_rematch(
             .create(
                 id.clone(),
                 game.rated,
-                game.game_key,
-                game.rating,
+                game.game_key.clone(),
                 game.rating_min,
                 game.rating_max,
                 "".to_string(),
@@ -63,6 +62,8 @@ pub async fn offer_rematch(
                     game::clock_increment::set(game.clock_increment),
                     game::first_time::set(game.clock_initial),
                     game::second_time::set(game.clock_initial),
+                    game::first_rating::set(Some(game.first_user().unwrap().unwrap().get_rating(&game.game_key)?)),
+                    game::second_rating::set(Some(game.second_user().unwrap().unwrap().get_rating(&game.game_key)?)),
                     game::start_pos::set(game.start_pos.clone()),
                     game::first_user::connect(user::username::equals(game.second_username.clone().unwrap())),
                     game::second_user::connect(user::username::equals(game.first_username.clone().unwrap())),
