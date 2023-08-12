@@ -7,6 +7,7 @@ use nanoid::nanoid;
 
 use crate::common::WebErr;
 use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType, Visibility, ChatAlertEvent};
+use crate::models::general::GameStatus;
 use crate::prisma::{user, PrismaClient, message, game};
 use crate::sse::Broadcaster;
 use super::game::LobbyVec;
@@ -28,6 +29,48 @@ pub async fn get_game_by_id(client: &web::Data<PrismaClient>, id: &str) -> Resul
         .or(Err(WebErr::Internal(format!("error fetching game with id {}", id))))?
     {
         Some(g) => Ok(g),
+        None => Err(WebErr::NotFound(format!("could not find game with id {}", id))),
+    }
+}
+
+// same as get_game_by_id but checks checks status and username
+pub async fn get_game_validate(client: &web::Data<PrismaClient>, id: &str, username: &str) -> Result<game::Data, WebErr> {
+    match client
+        .game()
+        .find_unique(game::id::equals(id.to_string()))
+        .exec()
+        .await
+        .or(Err(WebErr::Internal(format!("error fetching game with id {}", id))))?
+    {
+        Some(g) => if GameStatus::from_str(&g.status)? != GameStatus::Started ||
+            g.first_username.clone().unwrap() != username && g.second_username.clone().unwrap() != username {
+                Err(WebErr::Forbidden(format!("could not validate, game not started or not a player")))
+        } else {
+            Ok(g)
+        }
+        None => Err(WebErr::NotFound(format!("could not find game with id {}", id))),
+    }
+}
+
+pub async fn get_game_validate_ended(client: &web::Data<PrismaClient>, id: &str, username: &str) -> Result<game::Data, WebErr> {
+    match client
+        .game()
+        .find_unique(game::id::equals(id.to_string()))
+        .with(game::first_user::fetch().with(user::perfs::fetch(vec![])))
+        .with(game::second_user::fetch().with(user::perfs::fetch(vec![])))
+        .exec()
+        .await
+        .or(Err(WebErr::Internal(format!("error fetching game with id {}", id))))?
+    {
+        Some(g) => {
+            let status = GameStatus::from_str(&g.status)?;
+            if status != GameStatus::FirstWon && status != GameStatus::SecondWon && status != GameStatus::Draw ||
+                g.first_username.clone().unwrap() != username && g.second_username.clone().unwrap() != username {
+                    Err(WebErr::Forbidden(format!("could not validate, game not ended or not a player")))
+            } else {
+                Ok(g)
+            }
+        }
         None => Err(WebErr::NotFound(format!("could not find game with id {}", id))),
     }
 }

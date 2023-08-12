@@ -77,7 +77,6 @@ impl CreateGameReq {
                 id,
                 self.rated,
                 game_key.to_string(),
-                player.rating as i32,
                 self.rating_min,
                 self.rating_max,
                 "".to_string(),
@@ -97,6 +96,11 @@ impl CreateGameReq {
                     } else {
                         game::second_user::connect(user::username::equals(player.username.clone()))
                     },
+                    if player.first {
+                        game::first_rating::set(Some(player.rating as i32))
+                    } else {
+                        game::second_rating::set(Some(player.rating as i32))
+                    }
                 ],
             )
             .exec()
@@ -133,8 +137,12 @@ impl CreateGameReq {
             .or(Err(WebErr::Internal(format!("error fetching games"))))?;
 
         let filtered_games = games.iter().filter(|g| {
-            player.rating_min < g.rating
-                && player.rating_max > g.rating
+            let rating = match g.first_rating {
+                Some(r) => r,
+                None => g.second_rating.unwrap(),
+            };
+            player.rating_min < rating
+                && player.rating_max > rating
                 && g.rating_min < player.rating as i32
                 && g.rating_max > player.rating as i32
         });
