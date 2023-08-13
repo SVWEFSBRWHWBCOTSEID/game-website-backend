@@ -107,9 +107,10 @@ pub async fn get_unmatched_games(client: &web::Data<PrismaClient>) -> Result<Vec
 }
 
 pub async fn send_lobby_event(client: &web::Data<PrismaClient>, broadcaster: &web::Data<Mutex<Broadcaster>>) -> Result<(), WebErr> {
+    let unmatched_games = get_unmatched_games(&client).await?;
     broadcaster.lock().lobby_send(LobbyEvent::AllLobbiesEvent(AllLobbiesEvent {
         r#type: LobbyEventType::AllLobbies,
-        lobbies: get_unmatched_games(&client).await?.to_lobby_vec()?,
+        lobbies: unmatched_games.to_lobby_vec()?,
     }));
     Ok(())
 }

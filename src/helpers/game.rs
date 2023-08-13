@@ -40,16 +40,16 @@ impl game::Data {
             first_player: match game.first_user().unwrap() {
                 Some(u) => Some(Player {
                     username: u.username.clone(),
-                    provisional: u.get_provisional(&self.game_key)?,
-                    rating: u.get_rating(&self.game_key)? as i32,
+                    provisional: self.first_prov.unwrap(),
+                    rating: self.first_rating.unwrap(),
                 }),
                 None => None,
             },
             second_player: match game.second_user().unwrap() {
                 Some(u) => Some(Player {
                     username: u.username.clone(),
-                    provisional: u.get_provisional(&self.game_key)?,
-                    rating: u.get_rating(&self.game_key)? as i32,
+                    provisional: self.second_prov.unwrap(),
+                    rating: self.second_rating.unwrap(),
                 }),
                 None => None,
             },
