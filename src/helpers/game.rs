@@ -83,16 +83,16 @@ impl game::Data {
             first: match self.first_user().unwrap() {
                 Some(u) => Some(Player {
                     username: u.username.clone(),
-                    provisional: u.get_provisional(&self.game_key)?,
-                    rating: u.get_rating(&self.game_key)? as i32,
+                    provisional: self.first_prov.unwrap(),
+                    rating: self.first_rating.unwrap(),
                 }),
                 None => None,
             },
             second: match self.second_user().unwrap() {
                 Some(u) => Some(Player {
                     username: u.username.clone(),
-                    provisional: u.get_provisional(&self.game_key)?,
-                    rating: u.get_rating(&self.game_key)? as i32,
+                    provisional: self.second_prov.unwrap(),
+                    rating: self.second_rating.unwrap(),
                 }),
                 None => None,
             },
@@ -114,13 +114,13 @@ impl game::Data {
             created_at: self.created_at.to_string(),
             first: Player {
                 username: self.first_username.clone().unwrap(),
-                provisional: self.first_user().unwrap().unwrap().get_provisional(&self.game_key).unwrap(),
-                rating: self.first_user().unwrap().unwrap().get_rating(&self.game_key).unwrap() as i32,
+                provisional: self.first_prov.unwrap(),
+                rating: self.first_rating.unwrap(),
             },
             second: Player {
                 username: self.second_username.clone().unwrap(),
-                provisional: self.second_user().unwrap().unwrap().get_provisional(&self.game_key).unwrap(),
-                rating: self.second_user().unwrap().unwrap().get_rating(&self.game_key).unwrap() as i32,
+                provisional: self.second_prov.unwrap(),
+                rating: self.second_rating.unwrap(),
             },
             chat: self.chat.clone().unwrap_or(vec![]).iter().map(|x| Ok::<Chat, WebErr>(if x.game_event {
                 Chat::ChatAlert {
@@ -169,15 +169,15 @@ impl game::Data {
             user: match self.first_user().or(Err(WebErr::Internal(format!("first_user not fetched"))))? {
                 Some(u) => Player {
                     username: u.username.clone(),
-                    provisional: u.get_provisional(&self.game_key)?,
-                    rating: u.get_rating(&self.game_key)? as i32,
+                    provisional: self.first_prov.unwrap(),
+                    rating: self.first_rating.unwrap(),
                 },
                 None => {
                     let u = self.second_user().or(Err(WebErr::Internal(format!("second_user not fetched"))))?.unwrap();
                     Player {
                         username: u.username.clone(),
-                        provisional: u.get_provisional(&self.game_key)?,
-                        rating: u.get_rating(&self.game_key)? as i32,
+                        provisional: self.second_prov.unwrap(),
+                        rating: self.second_rating.unwrap(),
                     }
                 },
             },

@@ -21,6 +21,8 @@ model Game {
     secondUser      User?       @relation("second", fields: [secondUsername], references: [username])
     firstRating     Int?
     secondRating    Int?
+    firstProv       Boolean?
+    secondProv      Boolean?
     ratingMin       Int
     ratingMax       Int
     startPos        String?
