@@ -100,7 +100,12 @@ impl CreateGameReq {
                         game::first_rating::set(Some(player.rating as i32))
                     } else {
                         game::second_rating::set(Some(player.rating as i32))
-                    }
+                    },
+                    if player.first {
+                        game::first_prov::set(Some(player.provisional))
+                    } else {
+                        game::second_prov::set(Some(player.provisional))
+                    },
                 ],
             )
             .exec()
@@ -181,14 +186,21 @@ impl CreateGameReq {
             .game()
             .update(
                 game::id::equals(game.id.clone()),
-                vec![
-                    if player.first {
-                        game::first_user::connect(user::username::equals(player.username.clone()))
-                    } else {
-                        game::second_user::connect(user::username::equals(player.username.clone()))
-                    },
-                    game::status::set(GameStatus::Started.to_string()),
-                ],
+                if player.first {
+                    vec![
+                        game::first_user::connect(user::username::equals(player.username.clone())),
+                        game::first_rating::set(Some(player.rating as i32)),
+                        game::first_prov::set(Some(player.provisional)),
+                        game::status::set(GameStatus::Started.to_string()),
+                    ]
+                } else {
+                    vec![
+                        game::second_user::connect(user::username::equals(player.username.clone())),
+                        game::second_rating::set(Some(player.rating as i32)),
+                        game::second_prov::set(Some(player.provisional)),
+                        game::status::set(GameStatus::Started.to_string()),
+                    ]
+                },
             )
             .exec()
             .await
