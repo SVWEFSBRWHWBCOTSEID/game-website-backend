@@ -31,7 +31,7 @@ The file should look something like:
 ```
 HOST="127.0.0.1"
 PORT=8080
-POSTGRES_URL="postgres://[username]:[password]@localhost:5432/game-db"
+DATABASE_URL="postgres://[username]:[password]@localhost:5432/game-db"
 REDIS_URL="redis://127.0.0.1:6379"
 DOMAIN="127.0.0.1"
 ```
