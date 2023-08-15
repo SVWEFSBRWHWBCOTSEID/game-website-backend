@@ -4,9 +4,10 @@ WORKDIR app
 COPY . .
 RUN ["chmod", "+x", "./scripts/docker_commands.sh"]
 RUN ["chmod", "+x", "./scripts/fix_prisma_str.sh"]
+RUN cargo build -p prisma-cli --release
+RUN ./target/release/prisma-cli db push
 RUN ./scripts/fix_prisma_str.sh
 RUN cargo build --release
-RUN cargo build -p prisma-cli --release
 
 EXPOSE 8080
 EXPOSE 5432
