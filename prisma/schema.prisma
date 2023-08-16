@@ -70,7 +70,6 @@ model Perf {
     user        User    @relation(fields: [username], references: [username])
     username    String
     gameKey     String
-    games       Int
     rating      Float
     rd          Float
     volatility  Float

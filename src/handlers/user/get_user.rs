@@ -2,6 +2,7 @@ use actix_web::{web, HttpRequest, HttpResponse, get};
 
 use crate::common::WebErr;
 use crate::helpers::general::get_user_with_relations;
+use crate::helpers::user::get_user_res;
 use crate::models::res::UserResponse;
 use crate::prisma::PrismaClient;
 
@@ -20,5 +21,5 @@ pub async fn get_user(
     };
     user.update_perfs(&client).await?;
 
-    Ok(HttpResponse::Ok().json(user.to_user_res()?))
+    Ok(HttpResponse::Ok().json(get_user_res(&client, user).await?))
 }

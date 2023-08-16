@@ -51,7 +51,6 @@ impl CreateUserReq {
                     perf::create_unchecked(
                         self.username.clone(),
                         k.to_string(),
-                        GamePerf::default().games,
                         GamePerf::default().rating,
                         GamePerf::default().rd,
                         GamePerf::default().volatility,

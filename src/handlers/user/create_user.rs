@@ -4,6 +4,7 @@ use actix_web::cookie::{Cookie, SameSite};
 use actix_web::{web, HttpResponse, post};
 
 use crate::common::WebErr;
+use crate::helpers::user::get_user_res;
 use crate::prisma::PrismaClient;
 use crate::models::req::CreateUserReq;
 
@@ -33,7 +34,7 @@ pub async fn create_user(
         }
     }
 
-    let mut res = HttpResponse::Ok().json(user.to_user_res()?);
+    let mut res = HttpResponse::Ok().json(get_user_res(&client, user.clone()).await?);
     res.add_cookie(&cookie).or(Err(WebErr::Internal(format!("error adding cookie for username"))))?;
     Ok(res)
 }

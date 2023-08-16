@@ -5,6 +5,7 @@ use actix_web::{web, HttpResponse, post};
 
 use crate::common::WebErr;
 use crate::helpers::general::get_user_with_relations;
+use crate::helpers::user::get_user_res;
 use crate::prisma::PrismaClient;
 use crate::models::req::LoginReq;
 
@@ -35,7 +36,7 @@ pub async fn login(
             cookie.set_domain(x);
         }
     }
-    let mut res = HttpResponse::Ok().json(user.to_user_res()?);
+    let mut res = HttpResponse::Ok().json(get_user_res(&client, user.clone()).await?);
     res.add_cookie(&cookie).or(Err(WebErr::Internal(format!("error adding cookie for username"))))?;
     Ok(res)
 }

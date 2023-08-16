@@ -8,8 +8,8 @@ use crate::models::res::{UserResponse, GameResponse};
 use crate::models::req::CreateGameReq;
 use crate::prisma::{user, PrismaClient};
 use crate::common::WebErr;
+use crate::helpers::perf::get_perfs_struct;
 use super::general::get_user_with_relations;
-use super::perf::PerfVec;
 
 
 impl user::Data {
@@ -98,7 +98,6 @@ impl user::Data {
                     .create_unchecked(
                         self.username.clone(),
                         k.to_string(),
-                        GamePerf::default().games,
                         GamePerf::default().rating,
                         GamePerf::default().rd,
                         GamePerf::default().volatility,
@@ -115,29 +114,6 @@ impl user::Data {
         *self = get_user_with_relations(client, &self.username).await?;
 
         Ok(())
-    }
-
-    // method to construct response from prisma user struct
-    pub fn to_user_res(&self) -> Result<UserResponse, WebErr> {
-        let perfs = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
-        let mut games = self.first_user_games().or(Err(WebErr::Internal(format!("first_user_games not fetched"))))?.clone();
-        games.extend(self.second_user_games().or(Err(WebErr::Internal(format!("second_user_games not fetched"))))?.clone());
-
-        Ok(UserResponse {
-            username: self.username.clone(),
-            created_at: self.created_at.to_string(),
-            perfs: perfs.to_perfs_struct()?,
-            profile: Profile {
-                country: Country::from_str(&self.country)?,
-                location: self.location.clone(),
-                bio: self.bio.clone(),
-                first_name: self.first_name.clone(),
-                last_name: self.last_name.clone(),
-            },
-            url: self.url.clone(),
-            playing: self.playing.clone(),
-            games: games.iter().map(|g| Ok::<GameResponse, WebErr>(g.to_game_res()?)).flatten().collect(),
-        })
     }
 
     pub fn to_match_player(&self, game_key: &str, req: &CreateGameReq) -> MatchPlayer {
@@ -158,4 +134,27 @@ impl user::Data {
             random: req.side == Side::Random,
         }
     }
+}
+
+// method to construct response from prisma user struct
+pub async fn get_user_res(client: &web::Data<PrismaClient>, user: user::Data) -> Result<UserResponse, WebErr> {
+    let perfs = user.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
+    let mut games = user.first_user_games().or(Err(WebErr::Internal(format!("first_user_games not fetched"))))?.clone();
+    games.extend(user.second_user_games().or(Err(WebErr::Internal(format!("second_user_games not fetched"))))?.clone());
+
+    Ok(UserResponse {
+        username: user.username.clone(),
+        created_at: user.created_at.to_string(),
+        perfs: get_perfs_struct(client, perfs.clone()).await?,
+        profile: Profile {
+            country: Country::from_str(&user.country)?,
+            location: user.location.clone(),
+            bio: user.bio.clone(),
+            first_name: user.first_name.clone(),
+            last_name: user.last_name.clone(),
+        },
+        url: user.url.clone(),
+        playing: user.playing.clone(),
+        games: games.iter().map(|g| Ok::<GameResponse, WebErr>(g.to_game_res()?)).flatten().collect(),
+    })
 }
