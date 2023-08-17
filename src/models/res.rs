@@ -20,6 +20,7 @@ pub struct CreateGameResponse {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GameResponse {
+    pub id: String,
     pub rated: bool,
     pub game: GameType,
     pub time_control: TimeControl,

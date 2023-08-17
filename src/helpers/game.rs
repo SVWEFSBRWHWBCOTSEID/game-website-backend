@@ -70,6 +70,7 @@ impl game::Data {
     // method to construct game response object for fetching a game by id
     pub fn to_game_res(&self) -> Result<GameResponse, WebErr> {
         Ok(GameResponse {
+            id: self.id.clone(),
             rated: self.rated,
             game: GameType {
                 key: self.game_key.clone(),

@@ -5,7 +5,7 @@ use actix_web::web::Data;
 use actix_web::{HttpRequest, HttpResponse, post};
 
 use crate::common::WebErr;
-use crate::helpers::general::{get_username, send_lobby_event, set_user_playing};
+use crate::helpers::general::{get_user_with_relations, get_username, send_lobby_event, set_user_playing};
 use crate::models::events::{UserEvent, GameStartEvent, UserEventType};
 use crate::models::general::{GameStatus, GameKey};
 use crate::models::res::OK_RES;
@@ -33,18 +33,28 @@ pub async fn join_game(
         .or(Err(WebErr::Internal(format!("error fetching game with id {}", game_id))))?
         .ok_or(WebErr::NotFound(format!("could not find game with id {}", game_id)))?;
 
+    let user = get_user_with_relations(&client, &username.clone()).await?;
+    let perf = user.perfs.as_ref().unwrap().iter().find(|p| p.game_key == game.game_key).unwrap();
+
     let updated_game = client
         .game()
         .update(
             game::id::equals(game_id.clone()),
-            vec![
-                if game.first_username.is_none() {
-                    game::first_user::connect(user::username::equals(username))
-                } else {
-                    game::second_user::connect(user::username::equals(username))
-                },
-                game::status::set(GameStatus::Started.to_string()),
-            ],
+            if game.first_username.is_none() {
+                vec![
+                    game::status::set(GameStatus::Started.to_string()), // TODO: dedupe?
+                    game::first_user::connect(user::username::equals(username)),
+                    game::first_rating::set(Some(perf.rating as i32)),
+                    game::first_prov::set(Some(perf.prov)),
+                ]
+            } else {
+                vec![
+                    game::status::set(GameStatus::Started.to_string()), // TODO: dedupe?
+                    game::second_user::connect(user::username::equals(username)),
+                    game::second_rating::set(Some(perf.rating as i32)),
+                    game::second_prov::set(Some(perf.prov)),
+                ]
+            },
         )
         .exec()
         .await
