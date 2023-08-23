@@ -5,7 +5,7 @@ use actix_web::web::Data;
 use actix_web::{HttpRequest, HttpResponse, post};
 
 use crate::common::WebErr;
-use crate::helpers::general::{get_username, set_user_playing, gen_nanoid, add_chat_alert_event, get_game_by_id};
+use crate::helpers::general::{get_username, set_user_playing, gen_nanoid, add_chat_alert_event, get_game_with_relations};
 use crate::models::events::{GameEvent, GameEventType, RematchEvent, ChatAlertEvent};
 use crate::models::general::{Offer, GameStatus};
 use crate::models::res::OK_RES;
@@ -25,7 +25,7 @@ pub async fn offer_rematch(
     let username: String = get_username(&session)?;
     let game_id: String = req.match_info().get("id").unwrap().parse().unwrap();
     let value: bool = req.match_info().get("value").unwrap().parse().unwrap();
-    let game = get_game_by_id(&client, &game_id).await?.validate_ended(&username)?;
+    let game = get_game_with_relations(&client, &game_id).await?.validate_ended(&username)?;
 
     client
         .game()
@@ -64,6 +64,8 @@ pub async fn offer_rematch(
                     game::second_time::set(game.clock_initial),
                     game::first_rating::set(Some(game.first_user().unwrap().unwrap().get_rating(&game.game_key)? as i32)),
                     game::second_rating::set(Some(game.second_user().unwrap().unwrap().get_rating(&game.game_key)? as i32)),
+                    game::first_prov::set(Some(game.first_user().unwrap().unwrap().get_provisional(&game.game_key)?)),
+                    game::second_prov::set(Some(game.second_user().unwrap().unwrap().get_provisional(&game.game_key)?)),
                     game::start_pos::set(game.start_pos.clone()),
                     game::first_user::connect(user::username::equals(game.second_username.clone().unwrap())),
                     game::second_user::connect(user::username::equals(game.first_username.clone().unwrap())),
