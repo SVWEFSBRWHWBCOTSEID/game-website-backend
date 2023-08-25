@@ -10,9 +10,8 @@ pub enum TTTSymbol {
     X, O, Empty
 }
 
-pub fn ttt_move_outcome(new_move: &str, move_num: usize, board: &Vec<TTTSymbol>, rows: usize, columns: usize, needed: usize) -> MoveOutcome {
-    let m = str_to_move_num(new_move, columns);
-
+pub fn check_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>, rows: usize, columns: usize, needed: usize) -> MoveOutcome {
+    // TODO: abstract this with the passed-in `is_first` in `wrapper.rs`?
     let x_move = move_num % 2 == 0;
     if move_num == board.len() {
         return MoveOutcome::Draw
@@ -104,11 +103,15 @@ pub fn ttt_move_outcome(new_move: &str, move_num: usize, board: &Vec<TTTSymbol>,
     return MoveOutcome::None;
 }
 
-pub fn str_to_move_num(m: &str, columns: usize) -> usize {
-    (match m.chars().nth(0).unwrap() {
+pub fn row_to_index(row: char) -> usize {
+    row.to_digit(10).unwrap() as usize - 1
+}
+
+pub fn col_to_index(col: char) -> usize {
+    match col {
         'a' => 0,
         'b' => 1,
         'c' => 2,
         _ => panic!("dies")
-    }) + (m.chars().nth(1).unwrap().to_digit(10).unwrap() - 1) as usize * columns
+    }
 }
