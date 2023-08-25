@@ -7,6 +7,7 @@ use crate::models::events::{GameEvent, GameStateEvent, GameEventType, ChatAlertE
 use crate::models::general::{EndType, Offer};
 use crate::prisma::{PrismaClient, game};
 use crate::common::WebErr;
+use crate::lumber_mill::LumberMill;
 use crate::models::res::OK_RES;
 use crate::sse::Broadcaster;
 
@@ -18,6 +19,7 @@ pub async fn resign(
     client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
+    mill: Data<Mutex<LumberMill>>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
@@ -48,6 +50,8 @@ pub async fn resign(
     set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
     set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
     game.update_ratings(&client, game.get_resign_game_status(&username)).await?;
+
+    mill.lock().boards.remove(&game.id);
 
     client
         .game()

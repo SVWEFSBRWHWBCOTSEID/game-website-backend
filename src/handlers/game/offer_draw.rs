@@ -7,6 +7,7 @@ use crate::models::events::{GameEventType, GameStateEvent, GameEvent, ChatAlertE
 use crate::models::general::Offer;
 use crate::prisma::{PrismaClient, game};
 use crate::common::WebErr;
+use crate::lumber_mill::LumberMill;
 use crate::models::res::OK_RES;
 use crate::sse::Broadcaster;
 
@@ -18,6 +19,7 @@ pub async fn offer_draw(
     client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
+    mill: Data<Mutex<LumberMill>>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
@@ -54,6 +56,8 @@ pub async fn offer_draw(
         set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
         set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
         game.update_ratings(&client, game.get_draw_game_status(&value, &username)?).await?;
+
+        mill.lock().boards.remove(&game.id);
     }
 
     client

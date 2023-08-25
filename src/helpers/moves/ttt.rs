@@ -5,51 +5,110 @@ pub fn validate_ttt_move(moves: Vec<&str>, new_move: &str) -> bool {
     !moves.contains(&new_move)
 }
 
-pub fn ttt_move_outcome(moves: Vec<&str>, new_move: &str) -> MoveOutcome {
-    let mut total_moves = moves;
-    total_moves.push(new_move);
+#[derive(PartialEq, Clone)]
+pub enum TTTSymbol {
+    X, O, Empty
+}
 
-    let mut x = [false; 9];
-    let mut o = [false; 9];
-    for (i, &m) in total_moves.iter().enumerate() {
-        match m {
-            "a1" => if i % 2 == 0 {x[0] = true} else {o[0] = true},
-            "a2" => if i % 2 == 0 {x[1] = true} else {o[1] = true},
-            "a3" => if i % 2 == 0 {x[2] = true} else {o[2] = true},
-            "b1" => if i % 2 == 0 {x[3] = true} else {o[3] = true},
-            "b2" => if i % 2 == 0 {x[4] = true} else {o[4] = true},
-            "b3" => if i % 2 == 0 {x[5] = true} else {o[5] = true},
-            "c1" => if i % 2 == 0 {x[6] = true} else {o[6] = true},
-            "c2" => if i % 2 == 0 {x[7] = true} else {o[7] = true},
-            "c3" => if i % 2 == 0 {x[8] = true} else {o[8] = true},
-            _ => {},
+pub fn ttt_move_outcome(new_move: &str, move_num: usize, board: &Vec<TTTSymbol>, rows: usize, columns: usize, needed: usize) -> MoveOutcome {
+    let m = str_to_move_num(new_move, columns);
+
+    let x_move = move_num % 2 == 0;
+    if move_num == board.len() {
+        return MoveOutcome::Draw
+    }
+
+    // Rows
+    let row_start = m - (m % columns);
+    for i in (m - needed).max(row_start)..(m + needed).min(row_start + columns) {
+        let mut cond = board[i] != TTTSymbol::Empty;
+        for j in 1..needed {
+            cond = cond && board[i] == board[i + j];
+        }
+
+        if cond {
+            return if x_move {
+                MoveOutcome::FirstWin
+            } else {
+                MoveOutcome::SecondWin
+            };
         }
     }
-    if
-        x[0] && x[1] && x[2] ||
-        x[3] && x[4] && x[5] ||
-        x[6] && x[7] && x[8] ||
-        x[0] && x[3] && x[6] ||
-        x[1] && x[4] && x[7] ||
-        x[2] && x[5] && x[8] ||
-        x[0] && x[4] && x[8] ||
-        x[2] && x[4] && x[6]
-    {
-        MoveOutcome::FirstWin
-    } else if
-        o[0] && o[1] && o[2] ||
-        o[3] && o[4] && o[5] ||
-        o[6] && o[7] && o[8] ||
-        o[0] && o[3] && o[6] ||
-        o[1] && o[4] && o[7] ||
-        o[2] && o[5] && o[8] ||
-        o[0] && o[4] && o[8] ||
-        o[2] && o[4] && o[6]
-    {
-        MoveOutcome::SecondWin
-    } else if total_moves.len() == 9 {
-        MoveOutcome::Draw
-    } else {
-        MoveOutcome::None
+
+    // Columns
+    let col_start = m % columns;
+    for i in ((m - (needed * columns)).max(col_start)..(m + (needed * columns) + 1).min(board.len())).step_by(columns) {
+        let mut cond = board[i] != TTTSymbol::Empty;
+        for j in 1..needed {
+            cond = cond && board[i] == board[i + (j * columns)];
+        }
+
+        if cond {
+            return if x_move {
+                MoveOutcome::FirstWin
+            } else {
+                MoveOutcome::SecondWin
+            };
+        }
     }
+
+    // Diagonal
+    let row_num = row_start / columns;
+    let diag_start = if row_num > col_start {
+        (row_num - col_start) * columns
+    } else {
+        col_start - row_num
+    };
+
+    if rows.min(columns) - row_num.abs_diff(col_start) >= needed {
+        for i in diag_start..(m + (needed * (columns + 1)) + 1).min(board.len()) {
+            let mut cond = board[i] != TTTSymbol::Empty;
+            for j in 1..needed {
+                cond = cond && board[i] == board[i + (j * (columns + 1))];
+            }
+
+            if cond {
+                return if x_move {
+                    MoveOutcome::FirstWin
+                } else {
+                    MoveOutcome::SecondWin
+                };
+            }
+        }
+    }
+
+    // Anti-diagonal
+    // TODO: condition for checking antidiag?
+    // if (Math.abs(rowNum + colStart) >= needed)
+    let anti_diag_start = if row_num + col_start >= columns {
+        ((row_num + col_start) - (columns - 1)) * columns + (columns - 1)
+    } else {
+        row_num + col_start
+    };
+
+    for i in (anti_diag_start..(m + (needed * (columns - 1)) + 1).min(board.len())).step_by(columns - 1) {
+        let mut cond = board[i] != TTTSymbol::Empty;
+        for j in 1..needed {
+            cond = cond && board[i] == board[i + (j * (columns - 1))];
+        }
+
+        if cond {
+            return if x_move {
+                MoveOutcome::FirstWin
+            } else {
+                MoveOutcome::SecondWin
+            };
+        }
+    }
+
+    return MoveOutcome::None;
+}
+
+pub fn str_to_move_num(m: &str, columns: usize) -> usize {
+    (match m.chars().nth(0).unwrap() {
+        'a' => 0,
+        'b' => 1,
+        'c' => 2,
+        _ => panic!("dies")
+    }) + (m.chars().nth(1).unwrap().to_digit(10).unwrap() - 1) as usize * columns
 }

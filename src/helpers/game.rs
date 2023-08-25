@@ -270,7 +270,7 @@ impl game::Data {
     }
 
     pub fn get_new_move_status(&self, new_move: &str) -> Result<GameStatus, WebErr> {
-        Ok(match self.new_move_outcome(new_move) {
+        Ok(match self.update_and_check(new_move) {
             MoveOutcome::None => GameStatus::Started,
             MoveOutcome::FirstWin => GameStatus::FirstWon,
             MoveOutcome::SecondWin => GameStatus::SecondWon,

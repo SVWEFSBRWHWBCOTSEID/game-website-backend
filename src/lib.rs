@@ -4,6 +4,7 @@ pub mod models;
 pub mod handlers;
 pub mod helpers;
 pub mod sse;
+pub mod lumber_mill;
 
 #[allow(warnings, unused)]
 pub mod prisma;

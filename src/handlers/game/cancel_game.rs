@@ -6,6 +6,7 @@ use prisma_client_rust::or;
 
 use crate::common::WebErr;
 use crate::helpers::general::{get_username, send_lobby_event};
+use crate::lumber_mill::LumberMill;
 use crate::models::res::OK_RES;
 use crate::prisma::{PrismaClient, game, SortOrder};
 use crate::sse::Broadcaster;
@@ -17,6 +18,7 @@ pub async fn cancel_game(
     client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
+    mill: Data<Mutex<LumberMill>>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
@@ -41,6 +43,7 @@ pub async fn cancel_game(
         .await
         .or(Err(WebErr::Internal(format!("error deleting game with id {}", game.id))))?;
 
+    mill.lock().boards.remove(&game.id);
     send_lobby_event(&client, &broadcaster).await?;
 
     Ok(HttpResponse::Ok().json(OK_RES))

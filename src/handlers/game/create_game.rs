@@ -5,6 +5,7 @@ use actix_web::{HttpRequest, HttpResponse, post};
 
 use crate::common::WebErr;
 use crate::helpers::general::{get_username, get_user_with_relations};
+use crate::lumber_mill::LumberMill;
 use crate::prisma::PrismaClient;
 use crate::models::req::CreateGameReq;
 use crate::sse::Broadcaster;
@@ -18,6 +19,7 @@ pub async fn create_game(
     session: Session,
     data: Json<CreateGameReq>,
     broadcaster: Data<Mutex<Broadcaster>>,
+    mill: Data<Mutex<LumberMill>>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
@@ -28,6 +30,8 @@ pub async fn create_game(
         .await?
         .to_match_player(&game_key, &create_game_req);
     let game = create_game_req.create_or_join(&client, &game_key, &match_player, &broadcaster).await?;
+
+    mill.lock().create_new_ttt_board(game.id.clone());
 
     Ok(HttpResponse::Ok().json(game.to_create_game_res(&client).await?))
 }
