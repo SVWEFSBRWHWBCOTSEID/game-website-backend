@@ -26,7 +26,7 @@ impl GameKey {
     pub fn get_game_name(string: &str) -> Result<String, WebErr> {
         match string {
             "ttt" => Ok("Tic-Tac-Toe".to_string()),
-            "uttt" => Ok("ultimate Tic-Tac-Toe".to_string()),
+            "uttt" => Ok("Ultimate Tic-Tac-Toe".to_string()),
             "c4" => Ok("Connect 4".to_string()),
             "pc" => Ok("Pokémon Chess".to_string()),
             _ => Err(WebErr::NotFound(format!("provided game key string does not match an enum variant"))),
