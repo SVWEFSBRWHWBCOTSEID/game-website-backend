@@ -36,24 +36,28 @@ pub async fn add_move(
         return Err(WebErr::Forbidden(format!("new move is invalid or not player's turn")));
     }
 
-    let rating_diffs = game.get_rating_diffs(game.get_new_move_status(&new_move)?)?;
+    // Update the board with the new move and get the new board status
+    let move_outcome = game.update_and_check(&new_move, mill.lock(), first_to_move);
+    let move_status = match move_outcome {
+        MoveOutcome::None => GameStatus::Started,
+        MoveOutcome::FirstWin => GameStatus::FirstWon,
+        MoveOutcome::SecondWin => GameStatus::SecondWon,
+        _ => GameStatus::Draw,
+    };
 
-    let mut guard = mill.lock();
-    let board = guard.boards.get_mut(&game.id).unwrap();
-
-    let outcome = game.update_and_check(&new_move, board, first_to_move);
+    let rating_diffs = game.get_rating_diffs(move_status)?;
 
     broadcaster.lock().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
         r#type: GameEventType::GameState,
         ftime: game.get_new_first_time()?,
         stime: game.get_new_second_time()?,
         moves: vec![new_move.clone()],
-        status: game.get_new_move_status(&new_move)?,
-        end_type: match outcome {
+        status: move_status,
+        end_type: match move_outcome {
             MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(EndType::Normal),
             _ => None,
         },
-        draw_offer: match outcome {
+        draw_offer: match move_outcome {
             MoveOutcome::None => Offer::from_str(&game.draw_offer)?,
             _ => Offer::None,
         },
@@ -61,10 +65,10 @@ pub async fn add_move(
         srating_diff: rating_diffs.1,
     }));
 
-    if outcome != MoveOutcome::None {
+    if move_outcome != MoveOutcome::None {
         set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
         set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
-        game.update_ratings(&client, game.get_new_move_status(&new_move)?).await?;
+        game.update_ratings(&client, move_status).await?;
 
         mill.lock().boards.remove(&game.id);
     }
@@ -88,17 +92,17 @@ pub async fn add_move(
                 game::first_time::set(game.get_new_first_time()?),
                 game::second_time::set(game.get_new_second_time()?),
                 game::last_move_time::set(time_millis()),
-                game::status::set(match outcome {
+                game::status::set(match move_outcome {
                     MoveOutcome::None => GameStatus::Started,
                     MoveOutcome::FirstWin => GameStatus::FirstWon,
                     MoveOutcome::SecondWin => GameStatus::SecondWon,
                     _ => GameStatus::Draw,
                 }.to_string()),
-                game::win_type::set(match outcome {
+                game::win_type::set(match move_outcome {
                     MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(EndType::Normal.to_string()),
                     _ => None,
                 }),
-                game::draw_offer::set(match outcome {
+                game::draw_offer::set(match move_outcome {
                     MoveOutcome::None => game.draw_offer.clone(),
                     _ => Offer::None.to_string(),
                 }),
