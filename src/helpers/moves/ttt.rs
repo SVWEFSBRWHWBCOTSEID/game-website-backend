@@ -8,14 +8,12 @@ pub fn validate_ttt_move(moves: Vec<&str>, new_move: &str) -> bool {
         && new_move.chars().nth(1).is_some_and(|c| c.is_digit(10))
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum TTTSymbol {
     X, O, Empty
 }
 
 pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>, rows: usize, columns: usize, needed: usize) -> MoveOutcome {
-    // TODO: abstract this with the passed-in `is_first` in `wrapper.rs`?
-    let x_move = move_num % 2 == 0;
     if move_num == board.len() {
         return MoveOutcome::Draw
     }
@@ -35,7 +33,7 @@ pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>,
 
         if cond {
             debug!("won on row");
-            return if x_move {
+            return if board[i] == TTTSymbol::X {
                 MoveOutcome::FirstWin
             } else {
                 MoveOutcome::SecondWin
@@ -58,7 +56,7 @@ pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>,
 
         if cond {
             debug!("won on column");
-            return if x_move {
+            return if board[i] == TTTSymbol::X {
                 MoveOutcome::FirstWin
             } else {
                 MoveOutcome::SecondWin
@@ -84,7 +82,7 @@ pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>,
 
             if cond {
                 debug!("won on diagonal");
-                return if x_move {
+                return if board[i] == TTTSymbol::X {
                     MoveOutcome::FirstWin
                 } else {
                     MoveOutcome::SecondWin
@@ -111,7 +109,7 @@ pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>,
 
             if cond {
                 debug!("won on anti-diagonal");
-                return if x_move {
+                return if board[i] == TTTSymbol::X {
                     MoveOutcome::FirstWin
                 } else {
                     MoveOutcome::SecondWin

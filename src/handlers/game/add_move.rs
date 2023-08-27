@@ -37,7 +37,7 @@ pub async fn add_move(
     }
 
     // Update the board with the new move and get the new board status
-    let move_outcome = game.update_and_check(&new_move, mill.lock(), first_to_move);
+    let move_outcome = mill.lock().update_and_check(&game, &new_move, first_to_move)?;
     let move_status = match move_outcome {
         MoveOutcome::None => GameStatus::Started,
         MoveOutcome::FirstWin => GameStatus::FirstWon,

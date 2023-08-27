@@ -80,11 +80,7 @@ pub async fn offer_rematch(
         set_user_playing(&client, &game.first_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
         set_user_playing(&client, &game.second_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
 
-        match game.game_key.as_str() {
-            "ttt" => mill.lock().create_new_ttt_board(id.clone()),
-            "uttt" => mill.lock().create_new_uttt_board(id.clone()),
-            _ => return Err(WebErr::BadReq(format!("game does not exist or is not supported")))
-        }
+        mill.lock().create_board_from_game(&game)?;
 
         broadcaster.lock().game_send(&game.id, GameEvent::RematchEvent(RematchEvent {
             r#type: GameEventType::Rematch,

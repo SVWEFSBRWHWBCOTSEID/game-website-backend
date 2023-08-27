@@ -31,11 +31,7 @@ pub async fn create_game(
         .to_match_player(&game_key, &create_game_req);
     let game = create_game_req.create_or_join(&client, &game_key, &match_player, &broadcaster).await?;
 
-    match game_key.as_str() {
-        "ttt" => mill.lock().create_new_ttt_board(game.id.clone()),
-        "uttt" => mill.lock().create_new_uttt_board(game.id.clone()),
-        _ => return Err(WebErr::BadReq(format!("game does not exist or is not supported")))
-    }
+    mill.lock().create_board_from_game(&game)?;
 
     Ok(HttpResponse::Ok().json(game.to_create_game_res(&client).await?))
 }
