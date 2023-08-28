@@ -31,7 +31,7 @@ pub async fn add_move(
     let first_to_move = game.num_moves() % 2 == 0;
     if first_to_move && game.first_username.clone().unwrap() != username ||
         !first_to_move && game.second_username.clone().unwrap() != username ||
-        !game.validate_new_move(&new_move)
+        !mill.lock().validate_move(&game, &new_move)?
     {
         return Err(WebErr::Forbidden(format!("new move is invalid or not player's turn")));
     }

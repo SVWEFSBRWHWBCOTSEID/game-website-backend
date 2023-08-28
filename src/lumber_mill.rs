@@ -3,7 +3,8 @@ use actix_web::web::Data;
 use parking_lot::Mutex;
 
 use crate::common::WebErr;
-use crate::helpers::moves::ttt::{check_ttt_board_status, col_to_index, row_to_index, TTTSymbol};
+use crate::helpers::moves::ttt::{TTTSymbol, process_ttt_move, validate_ttt_move};
+use crate::helpers::moves::uttt::{process_uttt_move, validate_uttt_move};
 use crate::models::general::MoveOutcome;
 use crate::prisma::game;
 
@@ -55,6 +56,22 @@ impl LumberMill {
         Ok(())
     }
 
+    // Gets whether a move is valid given a game board.
+    pub fn validate_move(&mut self, game: &game::Data, new_move: &str) -> Result<bool, WebErr> {
+        if !self.boards.contains_key(game.id.as_str()) {
+            self.create_board_from_game(&game)?;
+        }
+
+        let board = self.boards.get(game.id.as_str()).unwrap();
+        Ok(match board {
+            // TODO: use board checking instead of moves vec?
+            TTTBoard(_) =>
+                validate_ttt_move(new_move, game.get_moves_vec_str()),
+            UTTTBoard(_, game_states, active_board) =>
+                validate_uttt_move(new_move, game.get_moves_vec_str(), game_states, *active_board)
+        })
+    }
+
     // Updates the given game's board with the provided move, checking the new board for victories
     // and returning the resultant `MoveOutcome`.
     pub fn update_and_check(&mut self, game: &game::Data, new_move: &str, is_first: bool) -> Result<MoveOutcome, WebErr> {
@@ -73,59 +90,11 @@ impl LumberMill {
 // Processes a move string, mutating the given game board with the new state
 // and returning the resultant `MoveOutcome`.
 fn process_move(board: &mut GameBoard, new_move: &str, is_first: bool) -> MoveOutcome {
-    match board{
-        TTTBoard(board) => {
-            let m = col_to_index(new_move.chars().nth(0).unwrap())
-                + row_to_index(new_move.chars().nth(1).unwrap()) * 3;
-
-            board[m] = if is_first {
-                TTTSymbol::X
-            } else {
-                TTTSymbol::O
-            };
-
-            // TODO: better move num calc?
-            let move_num = board.iter().filter(|m| **m != TTTSymbol::Empty).count();
-            check_ttt_board_status(m, move_num, board, 3, 3, 3)
-        },
-        UTTTBoard(board, board_states, active_board) => {
-            let outer = col_to_index(new_move.chars().nth(0).unwrap())
-                + row_to_index(new_move.chars().nth(1).unwrap()) * 3;
-
-            let inner = col_to_index(new_move.chars().nth(2).unwrap())
-                + row_to_index(new_move.chars().nth(3).unwrap()) * 3;
-
-            // 1. Set the square on the inner board to the given player symbol.
-            board[outer][inner] = if is_first {
-                TTTSymbol::X
-            } else {
-                TTTSymbol::O
-            };
-
-            // 2. Update the inner board status by running the ttt board check function on it.
-            // Do this before updating the active board in case the move points back to the
-            // same square and simultaneously wins that square.
-            // TODO: better move num calc?
-            let move_num = board[outer].iter().filter(|m| **m != TTTSymbol::Empty).count();
-            board_states[outer] = check_ttt_board_status(inner, move_num, &board[outer], 3, 3, 3);
-
-            // 3. Finally, update the active board.
-            *active_board = if board_states[inner] != MoveOutcome::None {
-                -1
-            } else {
-                inner as i32
-            };
-
-            // Map game state vec to ttt symbols to check the status of the outer board
-            let outer_move_num = board_states.iter().filter(|m| **m != MoveOutcome::None).count();
-            let outer_board = board_states.iter().map(|m| match m {
-                MoveOutcome::FirstWin => TTTSymbol::X,
-                MoveOutcome::SecondWin => TTTSymbol::O,
-                _ => TTTSymbol::Empty
-            }).collect::<Vec<_>>();
-
-            check_ttt_board_status(outer, outer_move_num, &outer_board, 3, 3, 3)
-        },
+    match board {
+        TTTBoard(board) =>
+            process_ttt_move(new_move, board, is_first),
+        UTTTBoard(board, board_states, active_board) =>
+            process_uttt_move(new_move, board, board_states, active_board, is_first),
         // "c4" => MoveOutcome::None,
         // "pc" => MoveOutcome::None,
     }

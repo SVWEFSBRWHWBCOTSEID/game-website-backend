@@ -2,15 +2,33 @@ use log::debug;
 use crate::models::general::MoveOutcome;
 
 
-pub fn validate_ttt_move(moves: Vec<&str>, new_move: &str) -> bool {
+#[derive(PartialEq, Clone, Copy)]
+pub enum TTTSymbol {
+    X, O, Empty
+}
+
+// Validates a ttt move. A move is invalid if:
+// 1. It is not in the correct format ("a1")
+// 2. It has already been played
+pub fn validate_ttt_move(new_move: &str, moves: Vec<&str>) -> bool {
     !moves.contains(&new_move)
         && new_move.chars().nth(0).is_some_and(|c| matches!(c, 'a'..='c'))
         && new_move.chars().nth(1).is_some_and(|c| c.is_digit(10))
 }
 
-#[derive(PartialEq, Clone, Copy)]
-pub enum TTTSymbol {
-    X, O, Empty
+pub fn process_ttt_move(new_move: &str, board: &mut Vec<TTTSymbol>, is_first: bool) -> MoveOutcome {
+    let m = col_to_index(new_move.chars().nth(0).unwrap())
+        + row_to_index(new_move.chars().nth(1).unwrap()) * 3;
+
+    board[m] = if is_first {
+        TTTSymbol::X
+    } else {
+        TTTSymbol::O
+    };
+
+    // TODO: better move num calc?
+    let move_num = board.iter().filter(|m| **m != TTTSymbol::Empty).count();
+    check_ttt_board_status(m, move_num, board, 3, 3, 3)
 }
 
 pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>, rows: usize, columns: usize, needed: usize) -> MoveOutcome {
