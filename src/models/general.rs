@@ -92,7 +92,7 @@ pub enum FriendRequest {
     Removed,
 }
 
-#[derive(Deserialize, Serialize, PartialEq)]
+#[derive(Deserialize, Serialize, PartialEq, Clone, Copy)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum GameStatus {
     Waiting,
@@ -121,7 +121,7 @@ pub enum Offer {
     Agreed,
 }
 
-#[derive(Deserialize, Serialize, PartialEq)]
+#[derive(Deserialize, Serialize, PartialEq, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum MoveOutcome {
     None,

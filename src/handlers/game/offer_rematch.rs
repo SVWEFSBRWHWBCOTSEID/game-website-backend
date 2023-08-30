@@ -6,6 +6,7 @@ use actix_web::{HttpRequest, HttpResponse, post};
 
 use crate::common::WebErr;
 use crate::helpers::general::{get_username, set_user_playing, gen_nanoid, add_chat_alert_event, get_game_with_relations};
+use crate::lumber_mill::LumberMill;
 use crate::models::events::{GameEvent, GameEventType, RematchEvent, ChatAlertEvent};
 use crate::models::general::{Offer, GameStatus};
 use crate::models::res::OK_RES;
@@ -20,6 +21,7 @@ pub async fn offer_rematch(
     client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
+    mill: Data<Mutex<LumberMill>>
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
@@ -77,6 +79,8 @@ pub async fn offer_rematch(
 
         set_user_playing(&client, &game.first_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
         set_user_playing(&client, &game.second_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
+
+        mill.lock().create_board_from_game(&game)?;
 
         broadcaster.lock().game_send(&game.id, GameEvent::RematchEvent(RematchEvent {
             r#type: GameEventType::Rematch,

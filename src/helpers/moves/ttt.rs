@@ -1,55 +1,153 @@
+use log::debug;
 use crate::models::general::MoveOutcome;
 
 
-pub fn validate_ttt_move(moves: Vec<&str>, new_move: &str) -> bool {
-    !moves.contains(&new_move)
+#[derive(PartialEq, Clone, Copy)]
+pub enum TTTSymbol {
+    X, O, Empty
 }
 
-pub fn ttt_move_outcome(moves: Vec<&str>, new_move: &str) -> MoveOutcome {
-    let mut total_moves = moves;
-    total_moves.push(new_move);
+// Validates a ttt move. A move is invalid if:
+// 1. It is not in the correct format ("a1")
+// 2. It has already been played
+pub fn validate_ttt_move(new_move: &str, moves: Vec<&str>) -> bool {
+    !moves.contains(&new_move)
+        && new_move.chars().nth(0).is_some_and(|c| matches!(c, 'a'..='c'))
+        && new_move.chars().nth(1).is_some_and(|c| c.is_digit(10))
+}
 
-    let mut x = [false; 9];
-    let mut o = [false; 9];
-    for (i, &m) in total_moves.iter().enumerate() {
-        match m {
-            "a1" => if i % 2 == 0 {x[0] = true} else {o[0] = true},
-            "a2" => if i % 2 == 0 {x[1] = true} else {o[1] = true},
-            "a3" => if i % 2 == 0 {x[2] = true} else {o[2] = true},
-            "b1" => if i % 2 == 0 {x[3] = true} else {o[3] = true},
-            "b2" => if i % 2 == 0 {x[4] = true} else {o[4] = true},
-            "b3" => if i % 2 == 0 {x[5] = true} else {o[5] = true},
-            "c1" => if i % 2 == 0 {x[6] = true} else {o[6] = true},
-            "c2" => if i % 2 == 0 {x[7] = true} else {o[7] = true},
-            "c3" => if i % 2 == 0 {x[8] = true} else {o[8] = true},
-            _ => {},
+pub fn process_ttt_move(new_move: &str, board: &mut Vec<TTTSymbol>, is_first: bool) -> MoveOutcome {
+    let m = col_to_index(new_move.chars().nth(0).unwrap())
+        + row_to_index(new_move.chars().nth(1).unwrap()) * 3;
+
+    board[m] = if is_first {
+        TTTSymbol::X
+    } else {
+        TTTSymbol::O
+    };
+
+    // TODO: better move num calc?
+    let move_num = board.iter().filter(|m| **m != TTTSymbol::Empty).count();
+    check_ttt_board_status(m, move_num, board, 3, 3, 3)
+}
+
+pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>, rows: usize, columns: usize, needed: usize) -> MoveOutcome {
+    if move_num == board.len() {
+        return MoveOutcome::Draw
+    }
+
+    // Rows
+    let row_start = m - (m % columns);
+
+    // TODO: less hacky "signed subtraction" between usizes?
+    let rstart = (m as i32 - needed as i32).max(row_start as i32) as usize;
+    let rend = (m + needed).min(row_start + columns);
+    for i in rstart..rend {
+        let mut cond = board[i] != TTTSymbol::Empty;
+        for j in 1..needed {
+            let index = i + j;
+            cond = cond && index < board.len() && board[i] == board[index];
+        }
+
+        if cond {
+            debug!("won on row");
+            return if board[i] == TTTSymbol::X {
+                MoveOutcome::FirstWin
+            } else {
+                MoveOutcome::SecondWin
+            };
         }
     }
-    if
-        x[0] && x[1] && x[2] ||
-        x[3] && x[4] && x[5] ||
-        x[6] && x[7] && x[8] ||
-        x[0] && x[3] && x[6] ||
-        x[1] && x[4] && x[7] ||
-        x[2] && x[5] && x[8] ||
-        x[0] && x[4] && x[8] ||
-        x[2] && x[4] && x[6]
-    {
-        MoveOutcome::FirstWin
-    } else if
-        o[0] && o[1] && o[2] ||
-        o[3] && o[4] && o[5] ||
-        o[6] && o[7] && o[8] ||
-        o[0] && o[3] && o[6] ||
-        o[1] && o[4] && o[7] ||
-        o[2] && o[5] && o[8] ||
-        o[0] && o[4] && o[8] ||
-        o[2] && o[4] && o[6]
-    {
-        MoveOutcome::SecondWin
-    } else if total_moves.len() == 9 {
-        MoveOutcome::Draw
+
+    // Columns
+    let col_start = m % columns;
+
+    // TODO: less hacky "signed subtraction" between usizes?
+    let cstart = (m as i32 - (needed * columns) as i32).max(col_start as i32) as usize;
+    let cend = (m + (needed * columns) + 1).min(board.len());
+    for i in (cstart..cend).step_by(columns) {
+        let mut cond = board[i] != TTTSymbol::Empty;
+        for j in 1..needed {
+            let index = i + (j * columns);
+            cond = cond && index < board.len() && board[i] == board[index];
+        }
+
+        if cond {
+            debug!("won on column");
+            return if board[i] == TTTSymbol::X {
+                MoveOutcome::FirstWin
+            } else {
+                MoveOutcome::SecondWin
+            };
+        }
+    }
+
+    // Diagonal
+    let row_num = row_start / columns;
+    let diag_start = if row_num > col_start {
+        (row_num - col_start) * columns
     } else {
-        MoveOutcome::None
+        col_start - row_num
+    };
+
+    if rows.min(columns) - row_num.abs_diff(col_start) >= needed {
+        for i in (diag_start..(m + (needed * (columns + 1)) + 1).min(board.len())).step_by(columns + 1) {
+            let mut cond = board[i] != TTTSymbol::Empty;
+            for j in 1..needed {
+                let index = i + (j * (columns + 1));
+                cond = cond && index < board.len() && board[i] == board[index];
+            }
+
+            if cond {
+                debug!("won on diagonal");
+                return if board[i] == TTTSymbol::X {
+                    MoveOutcome::FirstWin
+                } else {
+                    MoveOutcome::SecondWin
+                };
+            }
+        }
+    }
+
+    // Anti-diagonal
+    let anti_diag_start = if row_num + col_start >= columns {
+        ((row_num + col_start) - (columns - 1)) * columns + (columns - 1)
+    } else {
+        row_num + col_start
+    };
+
+    // TODO: row check?
+    if anti_diag_start >= needed - 1 {
+        for i in (anti_diag_start..(m + (needed * (columns - 1)) + 1).min(board.len())).step_by(columns - 1) {
+            let mut cond = board[i] != TTTSymbol::Empty;
+            for j in 1..needed {
+                let index = i + (j * (columns - 1));
+                cond = cond && index < board.len() && board[i] == board[index];
+            }
+
+            if cond {
+                debug!("won on anti-diagonal");
+                return if board[i] == TTTSymbol::X {
+                    MoveOutcome::FirstWin
+                } else {
+                    MoveOutcome::SecondWin
+                };
+            }
+        }
+    }
+
+    MoveOutcome::None
+}
+
+pub fn row_to_index(row: char) -> usize {
+    row.to_digit(10).unwrap() as usize - 1
+}
+
+pub fn col_to_index(col: char) -> usize {
+    match col {
+        'a' => 0,
+        'b' => 1,
+        'c' => 2,
+        _ => panic!("dies")
     }
 }

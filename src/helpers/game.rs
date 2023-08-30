@@ -4,7 +4,7 @@ use glicko_2::game::compete;
 use glicko_2::Rating;
 
 use crate::models::res::{CreateGameResponse, GameResponse, LobbyResponse};
-use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, EndType, Side, MoveOutcome, GamePerf};
+use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, EndType, Side, GamePerf};
 use crate::models::events::{GameState, GameFullEvent, GameEventType, Visibility, Chat};
 use crate::prisma::{game, PrismaClient, user, perf};
 use crate::common::WebErr;
@@ -267,15 +267,6 @@ impl game::Data {
         } else {
             vec![]
         }
-    }
-
-    pub fn get_new_move_status(&self, new_move: &str) -> Result<GameStatus, WebErr> {
-        Ok(match self.new_move_outcome(new_move) {
-            MoveOutcome::None => GameStatus::Started,
-            MoveOutcome::FirstWin => GameStatus::FirstWon,
-            MoveOutcome::SecondWin => GameStatus::SecondWon,
-            _ => GameStatus::Draw,
-        })
     }
 
     pub fn get_draw_game_status(&self, value: &bool, username: &str) -> Result<GameStatus, WebErr> {
