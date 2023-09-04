@@ -3,8 +3,8 @@ use crate::models::general::MoveOutcome;
 
 
 #[derive(PartialEq, Clone, Copy)]
-pub enum TTTSymbol {
-    X, O, Empty
+pub enum PlayerSymbol {
+    First, Second, Empty
 }
 
 // Validates a ttt move. A move is invalid if:
@@ -16,22 +16,22 @@ pub fn validate_ttt_move(new_move: &str, moves: Vec<&str>) -> bool {
         && new_move.chars().nth(1).is_some_and(|c| c.is_digit(10))
 }
 
-pub fn process_ttt_move(new_move: &str, board: &mut Vec<TTTSymbol>, is_first: bool) -> MoveOutcome {
+pub fn process_ttt_move(new_move: &str, board: &mut Vec<PlayerSymbol>, is_first: bool) -> MoveOutcome {
     let m = col_to_index(new_move.chars().nth(0).unwrap())
         + row_to_index(new_move.chars().nth(1).unwrap()) * 3;
 
     board[m] = if is_first {
-        TTTSymbol::X
+        PlayerSymbol::First
     } else {
-        TTTSymbol::O
+        PlayerSymbol::Second
     };
 
     // TODO: better move num calc?
-    let move_num = board.iter().filter(|m| **m != TTTSymbol::Empty).count();
-    check_ttt_board_status(m, move_num, board, 3, 3, 3)
+    let move_num = board.iter().filter(|m| **m != PlayerSymbol::Empty).count();
+    check_board_status(m, move_num, board, 3, 3, 3)
 }
 
-pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>, rows: usize, columns: usize, needed: usize) -> MoveOutcome {
+pub fn check_board_status(m: usize, move_num: usize, board: &Vec<PlayerSymbol>, rows: usize, columns: usize, needed: usize) -> MoveOutcome {
     if move_num == board.len() {
         return MoveOutcome::Draw
     }
@@ -43,7 +43,7 @@ pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>,
     let rstart = (m as i32 - needed as i32).max(row_start as i32) as usize;
     let rend = (m + needed).min(row_start + columns);
     for i in rstart..rend {
-        let mut cond = board[i] != TTTSymbol::Empty;
+        let mut cond = board[i] != PlayerSymbol::Empty;
         for j in 1..needed {
             let index = i + j;
             cond = cond && index < board.len() && board[i] == board[index];
@@ -51,7 +51,7 @@ pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>,
 
         if cond {
             debug!("won on row");
-            return if board[i] == TTTSymbol::X {
+            return if board[i] == PlayerSymbol::First {
                 MoveOutcome::FirstWin
             } else {
                 MoveOutcome::SecondWin
@@ -66,7 +66,7 @@ pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>,
     let cstart = (m as i32 - (needed * columns) as i32).max(col_start as i32) as usize;
     let cend = (m + (needed * columns) + 1).min(board.len());
     for i in (cstart..cend).step_by(columns) {
-        let mut cond = board[i] != TTTSymbol::Empty;
+        let mut cond = board[i] != PlayerSymbol::Empty;
         for j in 1..needed {
             let index = i + (j * columns);
             cond = cond && index < board.len() && board[i] == board[index];
@@ -74,7 +74,7 @@ pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>,
 
         if cond {
             debug!("won on column");
-            return if board[i] == TTTSymbol::X {
+            return if board[i] == PlayerSymbol::First {
                 MoveOutcome::FirstWin
             } else {
                 MoveOutcome::SecondWin
@@ -92,7 +92,7 @@ pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>,
 
     if rows.min(columns) - row_num.abs_diff(col_start) >= needed {
         for i in (diag_start..(m + (needed * (columns + 1)) + 1).min(board.len())).step_by(columns + 1) {
-            let mut cond = board[i] != TTTSymbol::Empty;
+            let mut cond = board[i] != PlayerSymbol::Empty;
             for j in 1..needed {
                 let index = i + (j * (columns + 1));
                 cond = cond && index < board.len() && board[i] == board[index];
@@ -100,7 +100,7 @@ pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>,
 
             if cond {
                 debug!("won on diagonal");
-                return if board[i] == TTTSymbol::X {
+                return if board[i] == PlayerSymbol::First {
                     MoveOutcome::FirstWin
                 } else {
                     MoveOutcome::SecondWin
@@ -119,7 +119,7 @@ pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>,
     // TODO: row check?
     if anti_diag_start >= needed - 1 {
         for i in (anti_diag_start..(m + (needed * (columns - 1)) + 1).min(board.len())).step_by(columns - 1) {
-            let mut cond = board[i] != TTTSymbol::Empty;
+            let mut cond = board[i] != PlayerSymbol::Empty;
             for j in 1..needed {
                 let index = i + (j * (columns - 1));
                 cond = cond && index < board.len() && board[i] == board[index];
@@ -127,7 +127,7 @@ pub fn check_ttt_board_status(m: usize, move_num: usize, board: &Vec<TTTSymbol>,
 
             if cond {
                 debug!("won on anti-diagonal");
-                return if board[i] == TTTSymbol::X {
+                return if board[i] == PlayerSymbol::First {
                     MoveOutcome::FirstWin
                 } else {
                     MoveOutcome::SecondWin
@@ -144,10 +144,5 @@ pub fn row_to_index(row: char) -> usize {
 }
 
 pub fn col_to_index(col: char) -> usize {
-    match col {
-        'a' => 0,
-        'b' => 1,
-        'c' => 2,
-        _ => panic!("dies")
-    }
+    col as usize - 97
 }

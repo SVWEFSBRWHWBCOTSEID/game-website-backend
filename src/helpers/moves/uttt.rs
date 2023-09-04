@@ -1,4 +1,4 @@
-use super::ttt::{TTTSymbol, check_ttt_board_status, row_to_index, col_to_index};
+use super::ttt::{PlayerSymbol, check_board_status, row_to_index, col_to_index};
 use crate::models::general::MoveOutcome;
 
 
@@ -28,7 +28,7 @@ pub fn validate_uttt_move(new_move: &str, moves: Vec<&str>, game_states: &Vec<Mo
 
 pub fn process_uttt_move(
     new_move: &str,
-    board: &mut Vec<Vec<TTTSymbol>>,
+    board: &mut Vec<Vec<PlayerSymbol>>,
     board_states: &mut Vec<MoveOutcome>,
     active_board: &mut i32,
     is_first: bool
@@ -41,17 +41,17 @@ pub fn process_uttt_move(
 
     // 1. Set the square on the inner board to the given player symbol.
     board[outer][inner] = if is_first {
-        TTTSymbol::X
+        PlayerSymbol::First
     } else {
-        TTTSymbol::O
+        PlayerSymbol::Second
     };
 
     // 2. Update the inner board status by running the ttt board check function on it.
     // Do this before updating the active board in case the move points back to the
     // same square and simultaneously wins that square.
     // TODO: better move num calc?
-    let move_num = board[outer].iter().filter(|m| **m != TTTSymbol::Empty).count();
-    board_states[outer] = check_ttt_board_status(inner, move_num, &board[outer], 3, 3, 3);
+    let move_num = board[outer].iter().filter(|m| **m != PlayerSymbol::Empty).count();
+    board_states[outer] = check_board_status(inner, move_num, &board[outer], 3, 3, 3);
 
     // 3. Finally, update the active board.
     *active_board = if board_states[inner] != MoveOutcome::None {
@@ -63,10 +63,10 @@ pub fn process_uttt_move(
     // Map game state vec to ttt symbols to check the status of the outer board
     let outer_move_num = board_states.iter().filter(|m| **m != MoveOutcome::None).count();
     let outer_board = board_states.iter().map(|m| match m {
-        MoveOutcome::FirstWin => TTTSymbol::X,
-        MoveOutcome::SecondWin => TTTSymbol::O,
-        _ => TTTSymbol::Empty
+        MoveOutcome::FirstWin => PlayerSymbol::First,
+        MoveOutcome::SecondWin => PlayerSymbol::Second,
+        _ => PlayerSymbol::Empty
     }).collect::<Vec<_>>();
 
-    check_ttt_board_status(outer, outer_move_num, &outer_board, 3, 3, 3)
+    check_board_status(outer, outer_move_num, &outer_board, 3, 3, 3)
 }

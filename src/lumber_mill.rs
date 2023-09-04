@@ -3,12 +3,13 @@ use actix_web::web::Data;
 use parking_lot::Mutex;
 
 use crate::common::WebErr;
-use crate::helpers::moves::ttt::{TTTSymbol, process_ttt_move, validate_ttt_move};
+use crate::helpers::moves::c4::{process_c4_move, validate_c4_move};
+use crate::helpers::moves::ttt::{PlayerSymbol, process_ttt_move, validate_ttt_move};
 use crate::helpers::moves::uttt::{process_uttt_move, validate_uttt_move};
 use crate::models::general::MoveOutcome;
 use crate::prisma::game;
 
-use self::GameBoard::{TTTBoard, UTTTBoard};
+use self::GameBoard::{TTTBoard, UTTTBoard, C4Board};
 
 
 pub struct LumberMill {
@@ -17,8 +18,9 @@ pub struct LumberMill {
 
 #[derive(Clone)]
 pub enum GameBoard {
-    TTTBoard(Vec<TTTSymbol>),
-    UTTTBoard(Vec<Vec<TTTSymbol>>, Vec<MoveOutcome>, i32)
+    TTTBoard(Vec<PlayerSymbol>),
+    UTTTBoard(Vec<Vec<PlayerSymbol>>, Vec<MoveOutcome>, i32),
+    C4Board(Vec<PlayerSymbol>)
 }
 
 impl LumberMill {
@@ -42,6 +44,7 @@ impl LumberMill {
                 vec![MoveOutcome::None; 9],
                 4
             ),
+            "c4" => C4Board(vec![PlayerSymbol::Empty; 42]),
             _ => return Err(WebErr::BadReq(format!("game does not exist or is not supported")))
         };
 
@@ -68,7 +71,9 @@ impl LumberMill {
             TTTBoard(_) =>
                 validate_ttt_move(new_move, game.get_moves_vec_str()),
             UTTTBoard(_, game_states, active_board) =>
-                validate_uttt_move(new_move, game.get_moves_vec_str(), game_states, *active_board)
+                validate_uttt_move(new_move, game.get_moves_vec_str(), game_states, *active_board),
+            C4Board(_) =>
+                validate_c4_move(new_move)
         })
     }
 
@@ -95,11 +100,12 @@ fn process_move(board: &mut GameBoard, new_move: &str, is_first: bool) -> MoveOu
             process_ttt_move(new_move, board, is_first),
         UTTTBoard(board, board_states, active_board) =>
             process_uttt_move(new_move, board, board_states, active_board, is_first),
-        // "c4" => MoveOutcome::None,
+        C4Board(board) =>
+            process_c4_move(new_move, board, is_first)
         // "pc" => MoveOutcome::None,
     }
 }
 
-fn empty_ttt_board() -> Vec<TTTSymbol> {
-    vec![TTTSymbol::Empty; 9]
+fn empty_ttt_board() -> Vec<PlayerSymbol> {
+    vec![PlayerSymbol::Empty; 9]
 }
