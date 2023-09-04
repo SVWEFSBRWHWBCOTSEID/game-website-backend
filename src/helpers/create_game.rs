@@ -45,23 +45,17 @@ impl CreateGameReq {
         if !self.validate(client, player).await? {
             return Err(WebErr::Forbidden(format!("user {} does not meet requirements to join this game", player.username)));
         }
-        Ok(match self.match_if_possible(
-            client,
-            game_key,
-            player,
-            broadcaster,
-        ).await? {
-            Some(g) => g,
-            None => self.create_game(
-                client,
-                game_key,
-                player,
-                broadcaster,
-            ).await?,
+
+        // Try to find a game match; if found, join it. Otherwise, create a new game from the req.
+        Ok(match self.find_match(client, game_key, player).await? {
+            Some(g) =>
+                join_game(client, &g, player.first, player.username.clone(), player.rating as i32, player.provisional, broadcaster).await?,
+            None =>
+                self.create_game(client, game_key, player, broadcaster).await?,
         })
     }
 
-    // method to add a game to table from this game request
+    // Creates a new game from this create game request.
     pub async fn create_game(
         &self,
         client: &web::Data<PrismaClient>,
@@ -117,13 +111,12 @@ impl CreateGameReq {
         Ok(game)
     }
 
-    // method to match player with an existing game if criteria are met
-    pub async fn match_if_possible(
+    // Attempts to find an existing match for this create game request.
+    pub async fn find_match(
         &self,
         client: &web::Data<PrismaClient>,
         game_key: &str,
         player: &MatchPlayer,
-        broadcaster: &web::Data<Mutex<Broadcaster>>,
     ) -> Result<Option<game::Data>, WebErr> {
         let games: Vec<game::Data> = client
             .game()
@@ -154,60 +147,58 @@ impl CreateGameReq {
         if filtered_games.clone().count() == 0 {
             return Ok(None);
         }
-        let game = filtered_games.min_by_key(|g| g.created_at).unwrap();
-
-        set_user_playing(&client, &player.username, Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), game.id.clone()].concat())).await?;
-        set_user_playing(
-            &client,
-            if player.first {
-                game.second_username.as_ref().unwrap()
-            } else {
-                game.first_username.as_ref().unwrap()
-            },
-            Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), game.id.clone()].concat()),
-        ).await?;
-
-        broadcaster.lock().user_send(&player.username, UserEvent::GameStartEvent(GameStartEvent {
-            r#type: UserEventType::GameStart,
-            game: GameKey::from_str(game_key)?,
-            id: game.id.clone(),
-        }));
-        broadcaster.lock().user_send(if player.first {
-            game.second_username.as_ref().unwrap()
-        } else {
-            game.first_username.as_ref().unwrap()
-        }, UserEvent::GameStartEvent(GameStartEvent {
-            r#type: UserEventType::GameStart,
-            game: GameKey::from_str(game_key)?,
-            id: game.id.clone(),
-        }));
-
-        let updated_game = client
-            .game()
-            .update(
-                game::id::equals(game.id.clone()),
-                if player.first {
-                    vec![
-                        game::first_user::connect(user::username::equals(player.username.clone())),
-                        game::first_rating::set(Some(player.rating as i32)),
-                        game::first_prov::set(Some(player.provisional)),
-                        game::status::set(GameStatus::Started.to_string()),
-                    ]
-                } else {
-                    vec![
-                        game::second_user::connect(user::username::equals(player.username.clone())),
-                        game::second_rating::set(Some(player.rating as i32)),
-                        game::second_prov::set(Some(player.provisional)),
-                        game::status::set(GameStatus::Started.to_string()),
-                    ]
-                },
-            )
-            .exec()
-            .await
-            .or(Err(WebErr::Internal(format!("error updating game with id {}", game.id))))?;
-
-        send_lobby_event(&client, &broadcaster).await?;
-
-        Ok(Some(updated_game))
+        Ok(Some(filtered_games.min_by_key(|g| g.created_at).unwrap().clone()))
     }
+}
+
+pub async fn join_game(
+    client: &web::Data<PrismaClient>,
+    game: &game::Data,
+    is_first: bool,
+    username: String,
+    rating: i32,
+    provisional: bool,
+    broadcaster: &web::Data<Mutex<Broadcaster>>,
+) -> Result<game::Data, WebErr> {
+
+    let updated_game = client
+        .game()
+        .update(
+            game::id::equals(game.id.clone()),
+            if is_first {
+                vec![
+                    game::first_user::connect(user::username::equals(username.clone())),
+                    game::first_rating::set(Some(rating)),
+                    game::first_prov::set(Some(provisional)),
+                    game::status::set(GameStatus::Started.to_string()),
+                ]
+            } else {
+                vec![
+                    game::second_user::connect(user::username::equals(username.clone())),
+                    game::second_rating::set(Some(rating)),
+                    game::second_prov::set(Some(provisional)),
+                    game::status::set(GameStatus::Started.to_string()),
+                ]
+            },
+        )
+        .exec()
+        .await
+        .or(Err(WebErr::Internal(format!("error updating game with id {}", game.id))))?;
+
+    broadcaster.lock().user_send(&updated_game.first_username.clone().unwrap(), UserEvent::GameStartEvent(GameStartEvent {
+        r#type: UserEventType::GameStart,
+        game: GameKey::from_str(&updated_game.game_key)?,
+        id: game.id.clone(),
+    }));
+    broadcaster.lock().user_send(&updated_game.second_username.clone().unwrap(), UserEvent::GameStartEvent(GameStartEvent {
+        r#type: UserEventType::GameStart,
+        game: GameKey::from_str(&updated_game.game_key)?,
+        id: game.id.clone(),
+    }));
+
+    set_user_playing(&client, &updated_game.first_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), game.id.clone()].concat())).await?;
+    set_user_playing(&client, &updated_game.second_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), game.id.clone()].concat())).await?;
+    send_lobby_event(&client, &broadcaster).await?;
+
+    Ok(updated_game)
 }
