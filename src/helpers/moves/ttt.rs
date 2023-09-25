@@ -41,8 +41,7 @@ pub fn check_board_status(m: usize, move_num: usize, board: &Vec<PlayerSymbol>, 
 
     // TODO: less hacky "signed subtraction" between usizes?
     let rstart = (m as i32 - needed as i32).max(row_start as i32) as usize;
-    let rend = (m + needed).min(row_start + columns);
-    for i in rstart..rend {
+    for i in rstart..=m {
         let mut cond = board[i] != PlayerSymbol::Empty;
         for j in 1..needed {
             let index = i + j;
@@ -64,8 +63,7 @@ pub fn check_board_status(m: usize, move_num: usize, board: &Vec<PlayerSymbol>, 
 
     // TODO: less hacky "signed subtraction" between usizes?
     let cstart = (m as i32 - (needed * columns) as i32).max(col_start as i32) as usize;
-    let cend = (m + (needed * columns) + 1).min(board.len());
-    for i in (cstart..cend).step_by(columns) {
+    for i in (cstart..=m).step_by(columns) {
         let mut cond = board[i] != PlayerSymbol::Empty;
         for j in 1..needed {
             let index = i + (j * columns);
@@ -91,7 +89,7 @@ pub fn check_board_status(m: usize, move_num: usize, board: &Vec<PlayerSymbol>, 
     };
 
     if rows.min(columns) - row_num.abs_diff(col_start) >= needed {
-        for i in (diag_start..(m + (needed * (columns + 1)) + 1).min(board.len())).step_by(columns + 1) {
+        for i in (diag_start..=m).step_by(columns + 1) {
             let mut cond = board[i] != PlayerSymbol::Empty;
             for j in 1..needed {
                 let index = i + (j * (columns + 1));
@@ -118,10 +116,15 @@ pub fn check_board_status(m: usize, move_num: usize, board: &Vec<PlayerSymbol>, 
 
     // TODO: row check?
     if anti_diag_start >= needed - 1 {
-        for i in (anti_diag_start..(m + (needed * (columns - 1)) + 1).min(board.len())).step_by(columns - 1) {
+        for i in (anti_diag_start..=m).step_by(columns - 1) {
             let mut cond = board[i] != PlayerSymbol::Empty;
             for j in 1..needed {
                 let index = i + (j * (columns - 1));
+                if index % columns == 0 && j != needed - 1 {
+                    cond = false;
+                    break
+                }
+
                 cond = cond && index < board.len() && board[i] == board[index];
             }
 
