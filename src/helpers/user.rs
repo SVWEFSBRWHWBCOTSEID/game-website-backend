@@ -154,6 +154,9 @@ pub async fn get_user_res(client: &web::Data<PrismaClient>, user: user::Data) ->
         },
         url: user.url.clone(),
         playing: user.playing.clone(),
-        games: games.iter().map(|g| Ok::<ProfileGame, WebErr>(g.to_user_game_res()?)).flatten().collect(),
+        games: games.into_iter()
+            .filter_map(|g| g.win_type.clone().map(|_| Ok::<ProfileGame, WebErr>(g.to_user_game_res()?)))
+            .flatten()
+            .collect(),
     })
 }
