@@ -80,7 +80,7 @@ impl user::Data {
 
     // method to get rating progression for game
     pub fn get_prog(&self, game_key: &str) -> Result<String, WebErr> {
-        let perfs: &Vec<crate::prisma::perf::Data> = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
+        let perfs = self.perfs().or(Err(WebErr::Internal(format!("perfs not fetched"))))?;
 
         Ok(perfs.iter().find(|p| p.game_key == game_key)
             .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?
@@ -117,7 +117,6 @@ impl user::Data {
     }
 
     pub fn to_match_player(&self, game_key: &str, req: &CreateGameReq) -> MatchPlayer {
-
         let mut rng = rand::thread_rng();
 
         MatchPlayer {
