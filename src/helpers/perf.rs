@@ -1,5 +1,5 @@
 use actix_web::web;
-use prisma_client_rust::or;
+use prisma_client_rust::{not, or};
 
 use crate::{models::general::{Perfs, GamePerf}, common::WebErr};
 use crate::prisma::{perf, PrismaClient, game};
@@ -32,6 +32,7 @@ impl perf::Data {
                     game::first_username::equals(Some(self.username.clone())),
                     game::second_username::equals(Some(self.username.clone()))
                 ],
+                not!(game::win_type::equals(None)),
                 game::game_key::equals(self.game_key.clone()),
             ])
             .exec()
