@@ -3,8 +3,8 @@ use glicko_2::Tuning;
 use rand::Rng;
 use strum::IntoEnumIterator;
 
-use crate::models::general::{MatchPlayer, Profile, Country, Side, GameKey, GamePerf};
-use crate::models::res::{UserResponse, GameResponse};
+use crate::models::general::{MatchPlayer, Profile, Country, Side, GameKey, GamePerf, ProfileGame};
+use crate::models::res::UserResponse;
 use crate::models::req::CreateGameReq;
 use crate::prisma::{user, PrismaClient};
 use crate::common::WebErr;
@@ -154,6 +154,6 @@ pub async fn get_user_res(client: &web::Data<PrismaClient>, user: user::Data) ->
         },
         url: user.url.clone(),
         playing: user.playing.clone(),
-        games: games.iter().map(|g| Ok::<GameResponse, WebErr>(g.to_game_res()?)).flatten().collect(),
+        games: games.iter().map(|g| Ok::<ProfileGame, WebErr>(g.to_user_game_res()?)).flatten().collect(),
     })
 }

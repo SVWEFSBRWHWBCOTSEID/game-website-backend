@@ -138,3 +138,17 @@ pub enum Side {
     Second,
     Random,
 }
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProfileGame {
+    pub id: String,
+    pub rated: bool,
+    pub game: GameType,
+    pub time_control: TimeControl,
+    pub created_at: String,
+    pub first: Player,
+    pub second: Player,
+    pub status: GameStatus,
+    pub end_type: EndType,
+}

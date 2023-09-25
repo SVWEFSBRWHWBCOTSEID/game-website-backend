@@ -4,7 +4,7 @@ use glicko_2::game::compete;
 use glicko_2::Rating;
 
 use crate::models::res::{CreateGameResponse, GameResponse, LobbyResponse};
-use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, EndType, Side, GamePerf};
+use crate::models::general::{TimeControl, Player, GameStatus, GameType, Offer, GameKey, EndType, Side, GamePerf, ProfileGame};
 use crate::models::events::{GameState, GameFullEvent, GameEventType, Visibility, Chat};
 use crate::prisma::{game, PrismaClient, user, perf};
 use crate::common::WebErr;
@@ -97,6 +97,34 @@ impl game::Data {
                 }),
                 None => None,
             },
+        })
+    }
+
+    pub fn to_user_game_res(&self) -> Result<ProfileGame, WebErr> {
+        Ok(ProfileGame {
+            id: self.id.clone(),
+            rated: self.rated,
+            game: GameType {
+                key: self.game_key.clone(),
+                name: GameKey::get_game_name(&self.game_key)?,
+            },
+            time_control: TimeControl {
+                initial: self.clock_initial,
+                increment: self.clock_increment,
+            },
+            created_at: self.created_at.to_string(),
+            first: Player {
+                username: self.first_user().unwrap().unwrap().username.clone(),
+                provisional: self.first_prov.unwrap(),
+                rating: self.first_rating.unwrap(),
+            },
+            second: Player {
+                username: self.second_user().unwrap().unwrap().username.clone(),
+                provisional: self.second_prov.unwrap(),
+                rating: self.second_rating.unwrap(),
+            },
+            status: GameStatus::from_str(self.status.as_str())?,
+            end_type: EndType::from_str(self.win_type.clone().unwrap().as_str())?,
         })
     }
 

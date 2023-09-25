@@ -34,7 +34,7 @@ pub async fn get_game_by_id(client: &web::Data<PrismaClient>, id: &str) -> Resul
 
 // same as get_game_by_id but fetches user and chat relations
 pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str) -> Result<game::Data, WebErr> {
-    match client
+    client
         .game()
         .find_unique(game::id::equals(id.to_string()))
         .with(game::first_user::fetch().with(user::perfs::fetch(vec![])))
@@ -43,10 +43,7 @@ pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str)
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error fetching game with id {}", id))))?
-    {
-        Some(g) => Ok(g),
-        None => Err(WebErr::NotFound(format!("could not find game with id {}", id))),
-    }
+        .ok_or(WebErr::NotFound(format!("could not find game with id {}", id)))
 }
 
 pub async fn get_unmatched_games(client: &web::Data<PrismaClient>) -> Result<Vec<game::Data>, WebErr> {
@@ -73,7 +70,7 @@ pub async fn send_lobby_event(client: &web::Data<PrismaClient>, broadcaster: &we
 }
 
 pub async fn get_user_with_relations(client: &web::Data<PrismaClient>, username: &str) -> Result<user::Data, WebErr> {
-    match client
+    client
         .user()
         .find_unique(user::username::equals(username.to_string()))
         .with(user::perfs::fetch(vec![]))
@@ -88,10 +85,7 @@ pub async fn get_user_with_relations(client: &web::Data<PrismaClient>, username:
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error fetching user {}", username))))?
-    {
-        Some(u) => Ok(u),
-        None => Err(WebErr::NotFound(format!("could not find user {}", username))),
-    }
+        .ok_or(WebErr::NotFound(format!("could not find user {}", username)))
 }
 
 pub async fn set_user_playing(client: &web::Data<PrismaClient>, username: &str, playing: Option<String>) -> Result<(), WebErr> {

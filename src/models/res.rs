@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use super::{general::{GameType, TimeControl, Player, Profile, Perfs, Side}, events::GameState};
+use super::general::{GameType, TimeControl, Player, Profile, ProfileGame, Perfs, Side};
+use super::events::GameState;
 
 
 #[derive(Deserialize, Serialize)]
@@ -51,7 +52,7 @@ pub struct UserResponse {
     pub profile: Profile,
     pub url: String,
     pub playing: Option<String>,
-    pub games: Vec<GameResponse>,
+    pub games: Vec<ProfileGame>,
 }
 
 #[derive(Deserialize, Serialize, Copy, Clone)]
