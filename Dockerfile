@@ -1,9 +1,7 @@
 FROM rust:1.70.0
 
-WORKDIR app
+WORKDIR /app
 COPY . .
-RUN ["chmod", "+x", "./scripts/docker_commands.sh"]
-RUN ["chmod", "+x", "./scripts/fix_prisma_str.sh"]
 RUN cargo build -p prisma-cli --release
 RUN ./target/release/prisma-cli generate
 RUN ./scripts/fix_prisma_str.sh
