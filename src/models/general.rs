@@ -79,8 +79,16 @@ pub enum GameKey {
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Country {
     Empty,
+    Ad, Ae, Af, Ag, Ai, Al, Am, An, Ao, Aq, Ar, As, At, Au, Aw, Ax, Az,
+    Ba, Bb, Bd, Be, Bf, Bg, Bh, Bi, Bj, Bl, Bm, Bn, Bo, Bq, Br, Bs, Bt, Bv, Bw, By, Bz,
+    Ca, Cc, Cd, Cf, Cg, Ch, Ci, Cl, Cm, Cn, Co, Cr, Cu, Cv, Cw, Cx, Cy, Cz,
+    De, Dj, Dk, Dm, Do, Dz,
+    Ec, Ee, Eg, Er, Es, Et,
+    Fi, Fj, Fk, Fo, Fr,
+    Ga, Gb, Gd, Ge, Gf, Gg, Gh, Gi, Gl, Gm, Gn, Gq, Gr, Gs, Gt, Gu, Gw, Gy,
+    Hk, Hm, Hn, Hr, Ht, Hu,
+    Ic, Id, Ie, Il, Im, In, Io, Iq, Ir, Is, It,
     Us,
-    Uk,
     Mn,
 }
 
