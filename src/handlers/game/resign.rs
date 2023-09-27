@@ -5,6 +5,7 @@ use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 use crate::helpers::general::{get_username, set_user_playing, add_chat_alert_event, get_game_with_relations};
 use crate::models::events::{GameEvent, GameStateEvent, GameEventType, ChatAlertEvent};
 use crate::models::general::{EndType, Offer};
+use crate::player_stats::PlayerStats;
 use crate::prisma::{PrismaClient, game};
 use crate::common::WebErr;
 use crate::lumber_mill::LumberMill;
@@ -19,6 +20,7 @@ pub async fn resign(
     client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
+    player_stats: Data<Mutex<PlayerStats>>,
     mill: Data<Mutex<LumberMill>>,
 ) -> Result<HttpResponse, WebErr> {
 
@@ -50,6 +52,8 @@ pub async fn resign(
     set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
     set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
     game.update_ratings(&client, game.get_resign_game_status(&username)).await?;
+
+    player_stats.lock().update_games(-1, &broadcaster.lock());
 
     mill.lock().boards.remove(&game.id);
 

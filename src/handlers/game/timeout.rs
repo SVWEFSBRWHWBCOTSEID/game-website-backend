@@ -5,6 +5,7 @@ use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 use crate::helpers::general::{get_username, set_user_playing, add_chat_alert_event, get_game_with_relations};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent, ChatAlertEvent};
 use crate::models::general::{EndType, Offer};
+use crate::player_stats::PlayerStats;
 use crate::prisma::{PrismaClient, game};
 use crate::common::WebErr;
 use crate::models::res::OK_RES;
@@ -18,6 +19,7 @@ pub async fn timeout(
     client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
+    player_stats: Data<Mutex<PlayerStats>>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
@@ -54,6 +56,8 @@ pub async fn timeout(
     set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
     set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
     game.update_ratings(&client, game.get_timeout_game_status(&username)?).await?;
+
+    player_stats.lock().update_games(-1, &broadcaster.lock());
 
     client
         .game()

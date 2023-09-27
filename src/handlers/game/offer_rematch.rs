@@ -10,6 +10,7 @@ use crate::lumber_mill::LumberMill;
 use crate::models::events::{GameEvent, GameEventType, RematchEvent, ChatAlertEvent};
 use crate::models::general::{Offer, GameStatus};
 use crate::models::res::OK_RES;
+use crate::player_stats::PlayerStats;
 use crate::prisma::{PrismaClient, game, user};
 use crate::sse::Broadcaster;
 
@@ -21,6 +22,7 @@ pub async fn offer_rematch(
     client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
+    player_stats: Data<Mutex<PlayerStats>>,
     mill: Data<Mutex<LumberMill>>
 ) -> Result<HttpResponse, WebErr> {
 
@@ -79,6 +81,8 @@ pub async fn offer_rematch(
 
         set_user_playing(&client, &game.first_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
         set_user_playing(&client, &game.second_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
+
+        player_stats.lock().update_games(1, &broadcaster.lock());
 
         mill.lock().create_board_from_game(&game)?;
 

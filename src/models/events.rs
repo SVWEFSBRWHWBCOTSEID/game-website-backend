@@ -56,13 +56,17 @@ impl UserEvent {
 }
 
 pub enum LobbyEvent {
+    LobbyFullEvent(LobbyFullEvent),
     AllLobbiesEvent(AllLobbiesEvent),
+    PlayerStatsEvent(PlayerStatsEvent),
 }
 
 impl LobbyEvent {
     pub fn to_string(&self) -> String {
         match self {
+            LobbyEvent::LobbyFullEvent(e) => serde_json::to_string(e).unwrap(),
             LobbyEvent::AllLobbiesEvent(e) => serde_json::to_string(e).unwrap(),
+            LobbyEvent::PlayerStatsEvent(e) => serde_json::to_string(e).unwrap(),
         }
     }
 }
@@ -182,9 +186,26 @@ pub struct FriendEvent {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct LobbyFullEvent {
+    pub r#type: LobbyEventType,
+    pub lobbies: Vec<LobbyResponse>,
+    pub players: i32,
+    pub games: i32,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AllLobbiesEvent {
     pub r#type: LobbyEventType,
     pub lobbies: Vec<LobbyResponse>,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PlayerStatsEvent {
+    pub r#type: LobbyEventType,
+    pub players: i32,
+    pub games: i32,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -207,7 +228,9 @@ pub enum GameEventType {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum LobbyEventType {
+    LobbyFull,
     AllLobbies,
+    PlayerStats,
 }
 
 #[derive(Deserialize, Serialize, Display, EnumString)]

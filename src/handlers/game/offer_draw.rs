@@ -5,6 +5,7 @@ use actix_web::{HttpRequest, post, web::Data, HttpResponse};
 use crate::helpers::general::{get_username, set_user_playing, add_chat_alert_event, get_game_with_relations};
 use crate::models::events::{GameEventType, GameStateEvent, GameEvent, ChatAlertEvent};
 use crate::models::general::Offer;
+use crate::player_stats::PlayerStats;
 use crate::prisma::{PrismaClient, game};
 use crate::common::WebErr;
 use crate::lumber_mill::LumberMill;
@@ -19,6 +20,7 @@ pub async fn offer_draw(
     client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
+    player_stats: Data<Mutex<PlayerStats>>,
     mill: Data<Mutex<LumberMill>>,
 ) -> Result<HttpResponse, WebErr> {
 
@@ -56,6 +58,8 @@ pub async fn offer_draw(
         set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
         set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
         game.update_ratings(&client, game.get_draw_game_status(&value, &username)?).await?;
+
+        player_stats.lock().update_games(-1, &broadcaster.lock());
 
         mill.lock().boards.remove(&game.id);
     }
