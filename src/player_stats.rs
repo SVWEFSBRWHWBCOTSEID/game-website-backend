@@ -23,7 +23,7 @@ impl PlayerStats {
 
     fn broadcast(&self, broadcaster: &Broadcaster) {
         broadcaster.lobby_send(LobbyEvent::PlayerStatsEvent(PlayerStatsEvent {
-            r#type: LobbyEventType::AllLobbies,
+            r#type: LobbyEventType::PlayerStats,
             players: self.players,
             games: self.games,
         }));
