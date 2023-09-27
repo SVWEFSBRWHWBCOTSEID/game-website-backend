@@ -1,5 +1,5 @@
 use crate::common::WebErr;
-use crate::models::general::{EndType, Offer, Country, GameKey, FriendRequest, GameStatus};
+use crate::models::general::{GameKey};
 use crate::models::events::Visibility;
 
 
@@ -34,110 +34,7 @@ impl GameKey {
     }
 }
 
-impl FriendRequest {
-    pub fn to_string(&self) -> String {
-        match self {
-            FriendRequest::Pending => "Pending",
-            FriendRequest::Accepted => "Accepted",
-            FriendRequest::Removed => "Remove",
-        }.to_string()
-    }
-
-    pub fn from_str(string: &str) -> Result<Self, WebErr> {
-        match string {
-            "Pending" => Ok(FriendRequest::Pending),
-            "Accepted" => Ok(FriendRequest::Accepted),
-            "Remove" => Ok(FriendRequest::Removed),
-            _ => Err(WebErr::NotFound(format!("provided friend request string does not match an enum variant"))),
-        }
-    }
-}
-
-impl EndType {
-    pub fn to_string(&self) -> String {
-        match self {
-            Self::Normal => "Normal",
-            Self::Resign => "Resign",
-            Self::Timeout => "Timeout",
-            Self::Disconnect => "Disconnect",
-            Self::Stalemate => "Stalemate",
-        }.to_string()
-    }
-
-    pub fn from_str(string: &str) -> Result<Self, WebErr> {
-        match string {
-            "Normal" => Ok(Self::Normal),
-            "Resign" => Ok(Self::Resign),
-            "Timeout" => Ok(Self::Timeout),
-            "Disconnect" => Ok(Self::Disconnect),
-            "Stalemate" => Ok(Self::Stalemate),
-            _ => Err(WebErr::NotFound(format!("provided wintype string does not match an enum variant"))),
-        }
-    }
-}
-
-impl Offer {
-    pub fn to_string(&self) -> String {
-        match self {
-            Self::None => "None",
-            Self::First => "First",
-            Self::Second => "Second",
-            Self::Agreed => "Agreed",
-        }.to_string()
-    }
-
-    pub fn from_str(string: &str) -> Result<Self, WebErr> {
-        match string {
-            "None" => Ok(Self::None),
-            "First" => Ok(Self::First),
-            "Second" => Ok(Self::Second),
-            "Agreed" => Ok(Self::Second),
-            _ => Err(WebErr::NotFound(format!("provided offer string does not match an enum variant"))),
-        }
-    }
-}
-
-impl Country {
-    pub fn to_string(&self) -> String {
-        match self {
-            Self::Empty => "Empty",
-            Self::Us => "Us",
-            Self::Uk => "Uk",
-            Self::Mn => "Mn",
-        }.to_string()
-    }
-
-    pub fn from_str(string: &str) -> Result<Self, WebErr> {
-        match string {
-            "Empty" => Ok(Self::Empty),
-            "Us" => Ok(Self::Us),
-            "Uk" => Ok(Self::Uk),
-            "Mn" => Ok(Self::Mn),
-            _ => Err(WebErr::NotFound(format!("provided country string does not match an enum variant"))),
-        }
-    }
-}
-
 impl Visibility {
-    pub fn to_string(&self) -> String {
-        match self {
-            Self::Player => "Player",
-            Self::Spectator => "Spectator",
-            Self::Team1 => "Team1",
-            Self::Team2 => "Team2",
-        }.to_string()
-    }
-
-    pub fn from_str(string: &str) -> Result<Self, WebErr> {
-        match string {
-            "Player" => Ok(Self::Player),
-            "Spectator" => Ok(Self::Spectator),
-            "Team1" => Ok(Self::Team1),
-            "Team2" => Ok(Self::Team2),
-            _ => Err(WebErr::NotFound(format!("provided visibility string {} does not match an enum variant", string))),
-        }
-    }
-
     pub fn caps_to_pascal(string: &String) -> Result<String, WebErr> {
         match string.as_str() {
             "PLAYER" => Ok("Player".to_string()),
@@ -145,29 +42,6 @@ impl Visibility {
             "TEAM1" => Ok("Team1".to_string()),
             "TEAM2" => Ok("Team2".to_string()),
             _ => Err(WebErr::NotFound(format!("provided visibility string {} does not match an all caps enum variant", string))),
-        }
-    }
-}
-
-impl GameStatus {
-    pub fn to_string(&self) -> String {
-        match self {
-            Self::Waiting => "Waiting",
-            Self::Started => "Started",
-            Self::FirstWon => "FirstWon",
-            Self::SecondWon => "SecondWon",
-            Self::Draw => "Draw",
-        }.to_string()
-    }
-
-    pub fn from_str(string: &str) -> Result<Self, WebErr> {
-        match string {
-            "Waiting" => Ok(Self::Waiting),
-            "Started" => Ok(Self::Started),
-            "FirstWon" => Ok(Self::FirstWon),
-            "SecondWon" => Ok(Self::SecondWon),
-            "Draw" => Ok(Self::Draw),
-            _ => Err(WebErr::NotFound(format!("string {} does not match any enum variant on GameStatus", string))),
         }
     }
 }

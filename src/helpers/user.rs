@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use actix_web::web;
 use glicko_2::Tuning;
 use rand::Rng;

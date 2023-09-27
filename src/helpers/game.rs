@@ -1,4 +1,5 @@
 use std::cmp::max;
+use std::str::FromStr;
 use actix_web::web;
 use glicko_2::game::compete;
 use glicko_2::Rating;

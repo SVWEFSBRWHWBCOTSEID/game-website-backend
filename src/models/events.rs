@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize, Serializer};
 use serde::ser::SerializeStruct;
+use strum_macros::{Display, EnumString};
 
 use super::{general::{GameStatus, TimeControl, Player, GameType, EndType, Offer, GameKey, FriendRequest}, res::LobbyResponse};
 
@@ -209,7 +210,7 @@ pub enum LobbyEventType {
     AllLobbies,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Display, EnumString)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Visibility {
     Player,
