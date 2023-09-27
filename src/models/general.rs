@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use strum_macros::EnumIter;
+use strum_macros::{EnumString, Display, EnumIter};
 
 
 #[derive(Deserialize, Serialize)]
@@ -75,7 +75,7 @@ pub enum GameKey {
     PC,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Display, EnumString)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Country {
     Empty,
@@ -92,7 +92,7 @@ pub enum Country {
     Mn,
 }
 
-#[derive(Deserialize, Serialize, PartialEq)]
+#[derive(Deserialize, Serialize, Display, EnumString, PartialEq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum FriendRequest {
     Pending,
@@ -100,7 +100,7 @@ pub enum FriendRequest {
     Removed,
 }
 
-#[derive(Deserialize, Serialize, PartialEq, Clone, Copy)]
+#[derive(Deserialize, Serialize, Display, EnumString, PartialEq, Clone, Copy)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum GameStatus {
     Waiting,
@@ -110,7 +110,7 @@ pub enum GameStatus {
     Draw,
 }
 
-#[derive(Deserialize, Serialize, PartialEq)]
+#[derive(Deserialize, Serialize, Display, EnumString, PartialEq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum EndType {
     Normal,
@@ -120,7 +120,7 @@ pub enum EndType {
     Stalemate,
 }
 
-#[derive(Deserialize, Serialize, PartialEq)]
+#[derive(Deserialize, Serialize, Display, EnumString, PartialEq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Offer {
     None,

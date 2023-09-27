@@ -2,6 +2,7 @@ use std::error::Error;
 use std::fmt::{self, Display};
 use actix_web::{ResponseError, HttpResponse};
 use actix_web::http::{header::ContentType, StatusCode};
+use strum::ParseError;
 
 
 #[derive(Debug)]
@@ -45,5 +46,11 @@ impl ResponseError for WebErr {
         HttpResponse::build(self.status_code())
             .insert_header(ContentType::html())
             .body(self.to_string())
+    }
+}
+
+impl From<ParseError> for WebErr {
+    fn from(_: ParseError) -> Self {
+        WebErr::NotFound(format!("provided string does not match an enum variant"))
     }
 }
