@@ -18,6 +18,8 @@ pub async fn new_user_client(
     let username: String = get_username(&session)?;
     let (rx, _) = broadcaster.lock().new_user_client(username);
 
+    // TODO: send preferences
+
     Ok(HttpResponse::Ok()
         .append_header(("content-type", "text/event-stream"))
         .streaming(rx)

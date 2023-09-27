@@ -2,7 +2,8 @@ use serde::{Deserialize, Serialize, Serializer};
 use serde::ser::SerializeStruct;
 use strum_macros::{Display, EnumString};
 
-use super::{general::{GameStatus, TimeControl, Player, GameType, EndType, Offer, GameKey, FriendRequest}, res::LobbyResponse};
+use super::general::{GameStatus, TimeControl, Player, GameType, EndType, Offer, GameKey, FriendRequest, Preferences};
+use super::res::LobbyResponse;
 
 
 pub enum Event {
@@ -43,6 +44,7 @@ impl GameEvent {
 
 pub enum UserEvent {
     GameStartEvent(GameStartEvent),
+    PreferencesUpdateEvent(PreferencesUpdateEvent),
     FriendEvent(FriendEvent),
 }
 
@@ -50,6 +52,7 @@ impl UserEvent {
     pub fn to_string(&self) -> String {
         match self {
             UserEvent::GameStartEvent(e) => serde_json::to_string(e).unwrap(),
+            UserEvent::PreferencesUpdateEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::FriendEvent(e) => serde_json::to_string(e).unwrap(),
         }
     }
@@ -174,6 +177,13 @@ pub struct GameStartEvent {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct PreferencesUpdateEvent {
+    pub r#type: UserEventType,
+    pub preferences: Preferences,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct FriendEvent {
     pub r#type: UserEventType,
     pub username: String,
@@ -191,6 +201,7 @@ pub struct AllLobbiesEvent {
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum UserEventType {
     GameStart,
+    PreferencesUpdate,
     Friend,
 }
 
