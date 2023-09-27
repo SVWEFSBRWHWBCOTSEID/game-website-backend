@@ -34,7 +34,7 @@ pub struct Broadcaster {
 }
 
 impl Broadcaster {
-    pub fn create(player_stats: &Data<Mutex<PlayerStats>>) -> Data<Mutex<Self>> {
+    pub fn create(player_stats: Data<Mutex<PlayerStats>>) -> Data<Mutex<Self>> {
         let broadcaster = Data::new(Mutex::new(Broadcaster::new()));
 
         Broadcaster::spawn_ping(broadcaster.clone(), player_stats);
@@ -50,12 +50,12 @@ impl Broadcaster {
     }
 
     // Heartbeat on 10 second interval
-    fn spawn_ping(me: Data<Mutex<Self>>, player_stats: &Data<Mutex<PlayerStats>>) {
+    fn spawn_ping(me: Data<Mutex<Self>>, player_stats: Data<Mutex<PlayerStats>>) {
         actix_web::rt::spawn(async move {
             let mut interval = interval_at(Instant::now(), Duration::from_secs(10));
             loop {
                 interval.tick().await;
-                me.lock().remove_stale_clients(player_stats);
+                me.lock().remove_stale_clients(&player_stats);
             }
         });
     }

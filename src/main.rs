@@ -29,7 +29,7 @@ async fn main() -> std::io::Result<()> {
     let client = web::Data::new(PrismaClient::_builder().build().await.unwrap());
     let redis_store = RedisSessionStore::new(env::var("REDIS_URL").unwrap()).await.unwrap();
     let player_stats = PlayerStats::create();
-    let broadcaster = Broadcaster::create(&player_stats);
+    let broadcaster = Broadcaster::create(player_stats.clone());
     let lumber_mill = LumberMill::create();
 
     env::set_var("RUST_LOG", "debug");
