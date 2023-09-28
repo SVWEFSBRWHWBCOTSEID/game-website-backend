@@ -62,8 +62,8 @@ impl game::Data {
                 status: GameStatus::from_str(&self.status)?,
                 end_type: None,
                 draw_offer: Offer::None,
-                frating_diff: self.get_rating_diffs(GameStatus::from_str(&self.status)?)?.0,
-                srating_diff: self.get_rating_diffs(GameStatus::from_str(&self.status)?)?.1,
+                frating_diff: None,
+                srating_diff: None,
             },
         })
     }
@@ -130,6 +130,8 @@ impl game::Data {
     }
 
     pub fn to_game_full_event(&self) -> Result<GameFullEvent, WebErr> {
+        let rating_diffs = self.get_rating_diffs(GameStatus::from_str(&self.status)?)?;
+
         Ok(GameFullEvent {
             r#type: GameEventType::GameFull,
             rated: self.rated,
@@ -177,8 +179,8 @@ impl game::Data {
                     None => None,
                 },
                 draw_offer: Offer::from_str(&self.draw_offer)?,
-                frating_diff: self.get_rating_diffs(GameStatus::from_str(&self.status)?)?.0,
-                srating_diff: self.get_rating_diffs(GameStatus::from_str(&self.status)?)?.1,
+                frating_diff: rating_diffs.0,
+                srating_diff: rating_diffs.1,
             },
         })
     }
@@ -363,15 +365,15 @@ impl game::Data {
     }
     
     pub fn get_rating_diffs(&self, new_status: GameStatus) -> Result<(Option<i32>, Option<i32>), WebErr> {
-        if !self.rated {
+        let first_user = self.first_user().or(Err(WebErr::Internal(format!("first user not fetched"))))?;
+        let second_user = self.first_user().or(Err(WebErr::Internal(format!("second user not fetched"))))?;
+
+        if !self.rated || first_user.is_none() || second_user.is_none() {
             return Ok((None, None));
         }
 
-        let first_user = self.first_user().or(Err(WebErr::Internal(format!("first user not fetched"))))?.unwrap();
-        let second_user = self.first_user().or(Err(WebErr::Internal(format!("second user not fetched"))))?.unwrap();
-
-        let first_tuning = first_user.get_tuning(&self.game_key)?;
-        let second_tuning = second_user.get_tuning(&self.game_key)?;
+        let first_tuning = first_user.unwrap().get_tuning(&self.game_key)?;
+        let second_tuning = second_user.unwrap().get_tuning(&self.game_key)?;
 
         let mut first_rating = Rating::new(&first_tuning);
         let mut second_rating = Rating::new(&second_tuning);
