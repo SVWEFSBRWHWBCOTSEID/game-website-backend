@@ -3,7 +3,7 @@ use actix_web::web;
 use strum::IntoEnumIterator;
 
 use crate::common::WebErr;
-use crate::models::general::{GameKey, GamePerf, Profile};
+use crate::models::general::{ClockPreferences, GameKey, GamePerf, GamePreferences, Profile};
 use crate::prisma::{user, PrismaClient, perf};
 use crate::models::req::CreateUserReq;
 use super::general::get_user_with_relations;
@@ -43,6 +43,22 @@ impl CreateUserReq {
             .exec()
             .await
             .or(Err(WebErr::Internal(format!("error creating user {}", self.username))))?;
+
+        // TODO: send local preferences in request, load if sent
+        client
+            .preferences()
+            .create_unchecked(
+                self.username.clone(),
+                ClockPreferences::default().show_tenth_seconds.to_string(),
+                ClockPreferences::default().show_progress_bars,
+                ClockPreferences::default().play_critical_sound,
+                GamePreferences::default().confirm_resign,
+                GamePreferences::default().board_scroll,
+                vec![],
+            )
+            .exec()
+            .await
+            .or(Err(WebErr::Internal(format!("error creating preferences for user {}", self.username))))?;
 
         client
             .perf()

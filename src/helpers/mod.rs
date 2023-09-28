@@ -6,4 +6,5 @@ pub mod enums;
 pub mod general;
 pub mod moves;
 pub mod perf;
+pub mod preferences;
 pub mod model_defaults;
