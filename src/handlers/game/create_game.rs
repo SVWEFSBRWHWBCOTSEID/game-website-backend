@@ -4,7 +4,7 @@ use actix_web::web::{Json, Data};
 use actix_web::{HttpRequest, HttpResponse, post};
 
 use crate::common::WebErr;
-use crate::helpers::general::{get_username, get_user_with_relations};
+use crate::helpers::general::{get_username, get_user_with_relations, get_game_with_relations};
 use crate::lumber_mill::LumberMill;
 use crate::player_stats::PlayerStats;
 use crate::prisma::PrismaClient;
@@ -35,5 +35,7 @@ pub async fn create_game(
 
     mill.lock().create_board_from_game(&game)?;
 
-    Ok(HttpResponse::Ok().json(game.to_create_game_res(&client).await?))
+    let game_with_relations = get_game_with_relations(&client, &game.id).await?;
+
+    Ok(HttpResponse::Ok().json(game_with_relations.to_create_game_res(&client).await?))
 }
