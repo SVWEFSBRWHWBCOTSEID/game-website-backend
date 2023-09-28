@@ -56,6 +56,7 @@ pub async fn add_move(
         status: move_status,
         end_type: match move_outcome {
             MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(EndType::Normal),
+            MoveOutcome::Draw => Some(EndType::Stalemate),
             _ => None,
         },
         draw_offer: match move_outcome {

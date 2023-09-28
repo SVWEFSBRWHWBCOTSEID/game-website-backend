@@ -136,7 +136,6 @@ pub enum MoveOutcome {
     FirstWin,
     SecondWin,
     Draw,
-    Stalemate,
 }
 
 #[derive(Deserialize, Serialize, PartialEq)]
