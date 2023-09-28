@@ -5,6 +5,7 @@ pub mod handlers;
 pub mod helpers;
 pub mod sse;
 pub mod lumber_mill;
+pub mod hourglass;
 pub mod player_stats;
 
 #[allow(warnings, unused)]

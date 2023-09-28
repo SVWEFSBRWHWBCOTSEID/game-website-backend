@@ -8,7 +8,6 @@ mod resign;
 mod offer_draw;
 mod offer_rematch;
 mod send_chat;
-mod timeout;
 
 pub use create_game::*;
 pub use cancel_game::*;
@@ -20,4 +19,3 @@ pub use resign::*;
 pub use offer_draw::*;
 pub use offer_rematch::*;
 pub use send_chat::*;
-pub use timeout::*;

@@ -15,7 +15,6 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
         .service(game::offer_draw)
         .service(game::offer_rematch)
         .service(game::send_chat)
-        .service(game::timeout)
         .service(user::create_user)
         .service(user::create_guest)
         .service(user::get_user)
