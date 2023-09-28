@@ -7,6 +7,7 @@ use crate::common::WebErr;
 use crate::helpers::general::get_username;
 use crate::models::events::{PreferencesUpdateEvent, UserEvent, UserEventType};
 use crate::prisma::{preferences, PrismaClient};
+use crate::player_stats::PlayerStats;
 use crate::sse::Broadcaster;
 
 
@@ -16,10 +17,11 @@ pub async fn new_user_client(
     session: Session,
     client: Data<PrismaClient>,
     broadcaster: Data<Mutex<Broadcaster>>,
+    player_stats: Data<Mutex<PlayerStats>>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
-    let (rx, _) = broadcaster.lock().new_user_client(username.clone());
+    let (rx, _) = broadcaster.lock().new_user_client(username.clone(), &player_stats);
 
     let preferences = client
         .preferences()

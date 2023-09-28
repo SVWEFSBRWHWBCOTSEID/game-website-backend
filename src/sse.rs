@@ -10,6 +10,7 @@ use tokio::time::{interval_at, Instant};
 
 use crate::common::WebErr;
 use crate::models::events::{GameEvent, UserEvent, Event, LobbyEvent};
+use crate::player_stats::PlayerStats;
 
 
 pub struct Client(Receiver<Bytes>);
@@ -33,10 +34,10 @@ pub struct Broadcaster {
 }
 
 impl Broadcaster {
-    pub fn create() -> Data<Mutex<Self>> {
+    pub fn create(player_stats: Data<Mutex<PlayerStats>>) -> Data<Mutex<Self>> {
         let broadcaster = Data::new(Mutex::new(Broadcaster::new()));
 
-        Broadcaster::spawn_ping(broadcaster.clone());
+        Broadcaster::spawn_ping(broadcaster.clone(), player_stats);
         broadcaster
     }
 
@@ -49,21 +50,22 @@ impl Broadcaster {
     }
 
     // Heartbeat on 10 second interval
-    fn spawn_ping(me: Data<Mutex<Self>>) {
+    fn spawn_ping(me: Data<Mutex<Self>>, player_stats: Data<Mutex<PlayerStats>>) {
         actix_web::rt::spawn(async move {
             let mut interval = interval_at(Instant::now(), Duration::from_secs(10));
             loop {
                 interval.tick().await;
-                me.lock().remove_stale_clients();
+                me.lock().remove_stale_clients(&player_stats);
             }
         });
     }
 
-    fn remove_stale_clients(&mut self) {
+    fn remove_stale_clients(&mut self, player_stats: &Data<Mutex<PlayerStats>>) {
         for vec in self.user_clients.values_mut() {
             vec.retain(|x| x.clone().try_send(Bytes::from("event: internal_status\ndata: ping\n\n")).is_ok());
         }
         self.user_clients.retain(|_, v| v.len() != 0);
+        player_stats.lock().set_players(self.user_clients.keys().len() as i32, self);
 
         for vec in self.game_clients.values_mut() {
             vec.retain(|x| x.clone().try_send(Bytes::from("event: internal_status\ndata: ping\n\n")).is_ok());
@@ -73,12 +75,14 @@ impl Broadcaster {
         self.lobby_clients.retain(|x| x.clone().try_send(Bytes::from("event: internal_status\ndata: ping\n\n")).is_ok());
     }
 
-    pub fn new_user_client(&mut self, username: String) -> (Client, Sender<Bytes>) {
+    pub fn new_user_client(&mut self, username: String, player_stats: &Data<Mutex<PlayerStats>>) -> (Client, Sender<Bytes>) {
         let (tx, rx) = channel(100);
 
         self.user_clients.entry(username)
             .and_modify(|v| v.push(tx.clone()))
             .or_insert(vec![tx.clone()]);
+        player_stats.lock().set_players(self.user_clients.keys().len() as i32, self);
+
         (Client(rx), tx)
     }
 

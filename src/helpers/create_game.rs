@@ -6,6 +6,7 @@ use crate::common::WebErr;
 use crate::models::events::{UserEvent, GameStartEvent, UserEventType};
 use crate::models::general::{GameStatus, MatchPlayer, GameKey, Offer};
 use crate::models::req::CreateGameReq;
+use crate::player_stats::PlayerStats;
 use crate::prisma::PrismaClient;
 use crate::prisma::{game, user};
 use crate::sse::Broadcaster;
@@ -40,6 +41,7 @@ impl CreateGameReq {
         game_key: &str,
         player: &MatchPlayer,
         broadcaster: &web::Data<Mutex<Broadcaster>>,
+        player_stats: &web::Data<Mutex<PlayerStats>>,
     ) -> Result<game::Data, WebErr> {
 
         if !self.validate(client, player).await? {
@@ -49,7 +51,7 @@ impl CreateGameReq {
         // Try to find a game match; if found, join it. Otherwise, create a new game from the req.
         Ok(match self.find_match(client, game_key, player).await? {
             Some(g) =>
-                join_game(client, &g, player.first, player.username.clone(), player.rating as i32, player.provisional, broadcaster).await?,
+                join_game(client, &g, player.first, player.username.clone(), player.rating as i32, player.provisional, broadcaster, player_stats).await?,
             None =>
                 self.create_game(client, game_key, player, broadcaster).await?,
         })
@@ -159,6 +161,7 @@ pub async fn join_game(
     rating: i32,
     provisional: bool,
     broadcaster: &web::Data<Mutex<Broadcaster>>,
+    player_stats: &web::Data<Mutex<PlayerStats>>,
 ) -> Result<game::Data, WebErr> {
 
     let updated_game = client
@@ -195,6 +198,7 @@ pub async fn join_game(
         game: GameKey::from_str(&updated_game.game_key)?,
         id: game.id.clone(),
     }));
+    player_stats.lock().update_games(1, &broadcaster.lock());
 
     set_user_playing(&client, &updated_game.first_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), game.id.clone()].concat())).await?;
     set_user_playing(&client, &updated_game.second_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), game.id.clone()].concat())).await?;
