@@ -25,13 +25,12 @@ pub enum GameBoard {
 
 impl LumberMill {
     pub fn create() -> Data<Mutex<Self>> {
-        let mill = Data::new(Mutex::new(LumberMill::new()));
-        mill
+        Data::new(Mutex::new(LumberMill::new()))
     }
 
     fn new() -> Self {
         LumberMill {
-            boards: HashMap::new()
+            boards: HashMap::new(),
         }
     }
 
@@ -42,7 +41,7 @@ impl LumberMill {
             "uttt" => UTTTBoard(
                 vec![empty_ttt_board(); 9],
                 vec![MoveOutcome::None; 9],
-                4
+                4,
             ),
             "c4" => C4Board(vec![PlayerSymbol::Empty; 42]),
             _ => return Err(WebErr::BadReq(format!("game does not exist or is not supported")))
