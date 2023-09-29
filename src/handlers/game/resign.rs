@@ -2,7 +2,7 @@ use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, set_user_playing, add_chat_alert_event, get_game_with_relations};
+use crate::helpers::general::{get_username, set_user_playing, add_chat_alert_event, get_game_with_relations, set_user_can_start_game};
 use crate::models::events::{GameEvent, GameStateEvent, GameEventType, ChatAlertEvent};
 use crate::models::general::{EndType, Offer};
 use crate::player_stats::PlayerStats;
@@ -51,6 +51,8 @@ pub async fn resign(
 
     set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
     set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
+    set_user_can_start_game(&client, &game.first_username.clone().unwrap(), true).await?;
+    set_user_can_start_game(&client, &game.second_username.clone().unwrap(), true).await?;
     game.update_ratings(&client, game.get_resign_game_status(&username)).await?;
 
     player_stats.lock().update_games(-1, &broadcaster.lock());

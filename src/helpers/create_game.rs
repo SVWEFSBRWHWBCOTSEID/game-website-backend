@@ -10,7 +10,7 @@ use crate::player_stats::PlayerStats;
 use crate::prisma::PrismaClient;
 use crate::prisma::{game, user};
 use crate::sse::Broadcaster;
-use super::general::{set_user_playing, send_lobby_event, gen_nanoid};
+use super::general::{set_user_playing, send_lobby_event, gen_nanoid, set_user_can_start_game};
 
 
 impl CreateGameReq {
@@ -32,7 +32,7 @@ impl CreateGameReq {
         Ok(self.time.unwrap_or(1) != 0
             && (player.rating as i32) > self.rating_min
             && (player.rating as i32) < self.rating_max
-            && user.playing == None)
+            && user.can_start_game)
     }
 
     pub async fn create_or_join(
@@ -45,7 +45,7 @@ impl CreateGameReq {
     ) -> Result<game::Data, WebErr> {
 
         if !self.validate(client, player).await? {
-            return Err(WebErr::Forbidden(format!("user {} does not meet requirements to join this game", player.username)));
+            return Err(WebErr::Forbidden(format!("user {} does not meet requirements to create or join this game", player.username)));
         }
 
         // Try to find a game match; if found, join it. Otherwise, create a new game from the req.
@@ -107,6 +107,8 @@ impl CreateGameReq {
             .exec()
             .await
             .or(Err(WebErr::Internal(format!("error creating game"))))?;
+
+        set_user_can_start_game(client, &player.username, false).await?;
 
         send_lobby_event(&client, &broadcaster).await?;
 
@@ -187,6 +189,8 @@ pub async fn join_game(
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error updating game with id {}", game.id))))?;
+
+    set_user_can_start_game(client, &username, false).await?;
 
     broadcaster.lock().user_send(&updated_game.first_username.clone().unwrap(), UserEvent::GameStartEvent(GameStartEvent {
         r#type: UserEventType::GameStart,

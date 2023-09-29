@@ -51,6 +51,7 @@ model User {
     lastName        String
     url             String
     playing         String?
+    canStartGame    Boolean
     firstUserGames  Game[]       @relation("first")
     secondUserGames Game[]       @relation("second")
     friends         Friend[]     @relation(name: "user")

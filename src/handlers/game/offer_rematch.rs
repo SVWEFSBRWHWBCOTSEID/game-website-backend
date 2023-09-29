@@ -5,7 +5,7 @@ use actix_web::web::Data;
 use actix_web::{HttpRequest, HttpResponse, post};
 
 use crate::common::WebErr;
-use crate::helpers::general::{get_username, set_user_playing, gen_nanoid, add_chat_alert_event, get_game_with_relations};
+use crate::helpers::general::{get_username, set_user_playing, gen_nanoid, add_chat_alert_event, get_game_with_relations, set_user_can_start_game};
 use crate::lumber_mill::LumberMill;
 use crate::models::events::{GameEvent, GameEventType, RematchEvent, ChatAlertEvent};
 use crate::models::general::{Offer, GameStatus};
@@ -81,6 +81,8 @@ pub async fn offer_rematch(
 
         set_user_playing(&client, &game.first_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
         set_user_playing(&client, &game.second_username.clone().unwrap(), Some([env::var("DOMAIN").unwrap(), "/game/".to_string(), id.clone()].concat())).await?;
+        set_user_can_start_game(&client, &game.first_username.clone().unwrap(), false).await?;
+        set_user_can_start_game(&client, &game.second_username.clone().unwrap(), false).await?;
 
         player_stats.lock().update_games(1, &broadcaster.lock());
 

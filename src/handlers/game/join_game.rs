@@ -36,7 +36,7 @@ pub async fn join_game(
     let user = get_user_with_relations(&client, &username.clone()).await?;
     let perf = user.perfs().unwrap().iter().find(|p| p.game_key == game.game_key).unwrap();
 
-    join_game_util(&client, &game, game.first_user.is_none(), username, perf.rating as i32, perf.prov, &broadcaster, &player_stats).await?;
+    join_game_util(&client, &game, game.first_username.is_none(), username, perf.rating as i32, perf.prov, &broadcaster, &player_stats).await?;
 
     Ok(HttpResponse::Ok().json(OK_RES))
 }
