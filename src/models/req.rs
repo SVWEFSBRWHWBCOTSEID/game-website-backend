@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::models::general::Preferences;
 
 use super::general::Side;
 
@@ -20,6 +21,7 @@ pub struct CreateGameReq {
 pub struct CreateUserReq {
     pub username: String,
     pub password: String,
+    pub preferences: Option<Preferences>,
 }
 
 #[derive(Deserialize, Serialize)]

@@ -6,7 +6,9 @@ use prisma_client_rust::or;
 use nanoid::nanoid;
 
 use crate::common::WebErr;
-use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType, Visibility, ChatAlertEvent};
+use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType, Visibility, ChatAlertEvent, GameEventType, GameEvent, GameStateEvent};
+use crate::models::general::{EndType, Offer};
+use crate::player_stats::PlayerStats;
 use crate::prisma::{user, PrismaClient, message, game};
 use crate::sse::Broadcaster;
 use super::game::LobbyVec;
@@ -117,6 +119,58 @@ pub async fn add_chat_alert_event(client: &web::Data<PrismaClient>, game_id: &st
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error adding new chat message in game with id {}", game_id))))?;
+    Ok(())
+}
+
+pub async fn timeout_player(
+    client: &web::Data<PrismaClient>,
+    broadcaster: &web::Data<Mutex<Broadcaster>>,
+    player_stats: &web::Data<Mutex<PlayerStats>>,
+    game_id: String,
+    username: String,
+) -> Result<(), WebErr> {
+    let game = get_game_with_relations(&client, &game_id).await?.validate(&username)?;
+    let rating_diffs = game.get_rating_diffs(game.get_timeout_game_status(&username)?)?;
+
+    broadcaster.lock().game_send(&game_id, GameEvent::GameStateEvent(GameStateEvent {
+        r#type: GameEventType::GameState,
+        ftime: game.get_new_first_time()?,
+        stime: game.get_new_second_time()?,
+        moves: vec![],
+        status: game.get_timeout_game_status(&username)?,
+        end_type: Some(EndType::Timeout),
+        draw_offer: Offer::None,
+        frating_diff: rating_diffs.0,
+        srating_diff: rating_diffs.1,
+    }));
+
+    let chat_alert_event = ChatAlertEvent {
+        r#type: GameEventType::ChatAlert,
+        message: format!("{} ran out of time", username),
+    };
+    add_chat_alert_event(&client, &game_id, &chat_alert_event).await?;
+    broadcaster.lock().game_send(&game_id, GameEvent::ChatAlertEvent(chat_alert_event));
+
+    set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
+    set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
+    game.update_ratings(&client, game.get_timeout_game_status(&username)?).await?;
+
+    player_stats.lock().update_games(-1, &broadcaster.lock());
+
+    client
+        .game()
+        .update(
+            game::id::equals(game_id.clone()),
+            vec![
+                game::status::set(game.get_timeout_game_status(&username)?.to_string()),
+                game::win_type::set(Some(EndType::Timeout.to_string())),
+                game::draw_offer::set(Offer::None.to_string()),
+            ],
+        )
+        .exec()
+        .await
+        .or(Err(WebErr::Internal(format!("error updating game with id {} to time out", game_id))))?;
+
     Ok(())
 }
 

@@ -8,6 +8,7 @@ use actix_web::cookie::{Key, SameSite, time::Duration};
 use actix_web::{middleware, web, App, HttpServer};
 
 use game_backend::app_config::config_app;
+use game_backend::hourglass::Hourglass;
 use game_backend::lumber_mill::LumberMill;
 use game_backend::player_stats::PlayerStats;
 use game_backend::prisma::PrismaClient;
@@ -31,6 +32,7 @@ async fn main() -> std::io::Result<()> {
     let player_stats = PlayerStats::create();
     let broadcaster = Broadcaster::create(player_stats.clone());
     let lumber_mill = LumberMill::create();
+    let hourglass = Hourglass::create(client.clone(), broadcaster.clone(), player_stats.clone());
 
     env::set_var("RUST_LOG", "debug");
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
@@ -44,6 +46,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(broadcaster.clone())
             .app_data(lumber_mill.clone())
             .app_data(player_stats.clone())
+            .app_data(hourglass.clone())
             .wrap(middleware::Logger::default())
             .wrap(
                 SessionMiddleware::builder(

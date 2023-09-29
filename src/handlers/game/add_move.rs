@@ -4,6 +4,7 @@ use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
 use crate::helpers::general::{get_username, time_millis, set_user_playing, get_game_with_relations};
+use crate::hourglass::Hourglass;
 use crate::models::general::{EndType, Offer, MoveOutcome};
 use crate::prisma::{PrismaClient, game};
 use crate::sse::Broadcaster;
@@ -20,6 +21,7 @@ pub async fn add_move(
     client: Data<PrismaClient>,
     session: Session,
     broadcaster: Data<Mutex<Broadcaster>>,
+    hourglass: Data<Mutex<Hourglass>>,
     mill: Data<Mutex<LumberMill>>,
 ) -> Result<HttpResponse, WebErr> {
 
@@ -35,6 +37,22 @@ pub async fn add_move(
         !mill.lock().validate_move(&game, &new_move)?
     {
         return Err(WebErr::Forbidden(format!("new move is invalid or not player's turn")));
+    }
+
+    if game.first_time.is_some() {
+        hourglass.lock().set_hourglass(
+            game_id.clone(),
+            if first_to_move {
+                game.second_username.clone().unwrap()
+            } else {
+                game.first_username.clone().unwrap()
+            },
+            if first_to_move {
+                game.second_time.clone().unwrap()
+            } else {
+                game.first_time.clone().unwrap()
+            },
+        );
     }
 
     // Update the board with the new move and get the new board status
@@ -56,6 +74,7 @@ pub async fn add_move(
         status: move_status,
         end_type: match move_outcome {
             MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(EndType::Normal),
+            MoveOutcome::Draw => Some(EndType::Stalemate),
             _ => None,
         },
         draw_offer: match move_outcome {
