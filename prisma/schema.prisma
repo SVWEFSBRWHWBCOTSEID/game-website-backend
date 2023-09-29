@@ -36,7 +36,7 @@ model Game {
   drawOffer      String
   rematchOffer   String
   randomSide     Boolean
-  Challenge      Challenge[]
+  challenge      Challenge?
 }
 
 model User {
@@ -134,5 +134,7 @@ model Challenge {
   opponent     User     @relation("in", fields: [opponentName], references: [username])
   opponentName String
   game         Game     @relation(fields: [gameId], references: [id])
-  gameId       String
+  gameId       String   @unique
+
+  @@unique([username, opponentName])
 }

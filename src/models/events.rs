@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize, Serializer};
 use serde::ser::SerializeStruct;
 use strum_macros::{Display, EnumString};
 
-use super::general::{GameStatus, TimeControl, Player, GameType, EndType, Offer, GameKey, FriendRequest, Preferences};
+use super::general::{GameStatus, TimeControl, Player, GameType, EndType, Offer, GameKey, FriendRequest, Preferences, Side};
 use super::res::LobbyResponse;
 
 
@@ -47,6 +47,8 @@ pub enum UserEvent {
     PreferencesUpdateEvent(PreferencesUpdateEvent),
     FriendEvent(FriendEvent),
     UserMessageEvent(UserMessageEvent),
+    ChallengeEvent(ChallengeEvent),
+    ChallengeDeclinedEvent(ChallengeDeclinedEvent),
 }
 
 impl UserEvent {
@@ -56,6 +58,8 @@ impl UserEvent {
             UserEvent::PreferencesUpdateEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::FriendEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::UserMessageEvent(e) => serde_json::to_string(e).unwrap(),
+            UserEvent::ChallengeEvent(e) => serde_json::to_string(e).unwrap(),
+            UserEvent::ChallengeDeclinedEvent(e) => serde_json::to_string(e).unwrap(),
         }
     }
 }
@@ -207,6 +211,27 @@ pub struct UserMessageEvent {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ChallengeEvent {
+    pub r#type: UserEventType,
+    pub username: String,
+    pub opponent: String,
+    pub id: String,
+    pub rated: bool,
+    pub game: GameType,
+    pub time_control: TimeControl,
+    pub side: Side,
+    pub created_at: String,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChallengeDeclinedEvent {
+    pub r#type: UserEventType,
+    pub opponent: String,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LobbyFullEvent {
     pub r#type: LobbyEventType,
     pub lobbies: Vec<LobbyResponse>,
@@ -236,6 +261,8 @@ pub enum UserEventType {
     PreferencesUpdate,
     Friend,
     UserMessage,
+    Challenge,
+    ChallengeDeclined,
 }
 
 #[derive(Deserialize, Serialize)]

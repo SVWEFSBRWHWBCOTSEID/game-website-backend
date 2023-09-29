@@ -134,6 +134,7 @@ impl CreateGameReq {
                     game::second_username::equals(None)
                 },
             ])
+            .with(game::challenge::fetch())
             .exec()
             .await
             .or(Err(WebErr::Internal(format!("error fetching games"))))?;
@@ -147,6 +148,7 @@ impl CreateGameReq {
                 && player.rating_max > rating
                 && g.rating_min < player.rating as i32
                 && g.rating_max > player.rating as i32
+                && g.challenge().unwrap().is_none()
         });
         if filtered_games.clone().count() == 0 {
             return Ok(None);
@@ -165,7 +167,6 @@ pub async fn join_game(
     broadcaster: &web::Data<Mutex<Broadcaster>>,
     player_stats: &web::Data<Mutex<PlayerStats>>,
 ) -> Result<game::Data, WebErr> {
-
     let updated_game = client
         .game()
         .update(

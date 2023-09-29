@@ -25,6 +25,7 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
         .service(user::unfriend)
         .service(user::send_message)
         .service(user::get_conversations)
+        .service(user::challenge_request)
         .service(user::login)
         .service(user::logout)
         .service(sse::new_user_client)
