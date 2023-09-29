@@ -1,6 +1,6 @@
 use actix_session::Session;
 use actix_web::web::Data;
-use actix_web::{HttpResponse, post};
+use actix_web::{HttpResponse, get};
 use prisma_client_rust::or;
 
 use crate::common::WebErr;
@@ -10,7 +10,7 @@ use crate::prisma::{PrismaClient, conversation};
 
 
 // route for getting signed in user's conversations
-#[post("/api/conversations")]
+#[get("/api/conversations")]
 pub async fn get_conversations(
     client: Data<PrismaClient>,
     session: Session,
