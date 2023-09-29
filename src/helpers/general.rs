@@ -105,6 +105,21 @@ pub async fn set_user_playing(client: &web::Data<PrismaClient>, username: &str, 
     Ok(())
 }
 
+pub async fn set_user_can_start_game(client: &web::Data<PrismaClient>, username: &str, can_start_game: bool) -> Result<(), WebErr> {
+    client
+        .user()
+        .update(
+            user::username::equals(username.to_string()),
+            vec![
+                user::can_start_game::set(can_start_game),
+            ],
+        )
+        .exec()
+        .await
+        .or(Err(WebErr::Internal(format!("error setting 'canStartGame' field on user {}", username))))?;
+    Ok(())
+}
+
 pub async fn add_chat_alert_event(client: &web::Data<PrismaClient>, game_id: &str, event: &ChatAlertEvent) -> Result<(), WebErr> {
     client
         .message()

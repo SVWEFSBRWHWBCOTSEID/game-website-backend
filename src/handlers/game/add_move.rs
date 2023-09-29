@@ -3,7 +3,7 @@ use parking_lot::Mutex;
 use actix_session::Session;
 use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 
-use crate::helpers::general::{get_username, time_millis, set_user_playing, get_game_with_relations};
+use crate::helpers::general::{get_username, time_millis, set_user_playing, get_game_with_relations, set_user_can_start_game};
 use crate::hourglass::Hourglass;
 use crate::models::general::{EndType, Offer, MoveOutcome};
 use crate::prisma::{PrismaClient, game};
@@ -88,6 +88,8 @@ pub async fn add_move(
     if move_outcome != MoveOutcome::None {
         set_user_playing(&client, &game.first_username.clone().unwrap(), None).await?;
         set_user_playing(&client, &game.second_username.clone().unwrap(), None).await?;
+        set_user_can_start_game(&client, &game.first_username.clone().unwrap(), true).await?;
+        set_user_can_start_game(&client, &game.second_username.clone().unwrap(), true).await?;
         game.update_ratings(&client, move_status).await?;
 
         mill.lock().boards.remove(&game.id);

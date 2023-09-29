@@ -5,7 +5,7 @@ use actix_web::{HttpResponse, post};
 use prisma_client_rust::or;
 
 use crate::common::WebErr;
-use crate::helpers::general::{get_username, send_lobby_event};
+use crate::helpers::general::{get_username, send_lobby_event, set_user_can_start_game};
 use crate::lumber_mill::LumberMill;
 use crate::models::res::OK_RES;
 use crate::prisma::{PrismaClient, game, SortOrder};
@@ -42,6 +42,8 @@ pub async fn cancel_game(
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error deleting game with id {}", game.id))))?;
+
+    set_user_can_start_game(&client, &username, true).await?;
 
     mill.lock().boards.remove(&game.id);
     send_lobby_event(&client, &broadcaster).await?;
