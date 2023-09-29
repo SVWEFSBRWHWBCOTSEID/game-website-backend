@@ -44,16 +44,16 @@ impl CreateUserReq {
             .await
             .or(Err(WebErr::Internal(format!("error creating user {}", self.username))))?;
 
-        // TODO: send local preferences in request, load if sent
+        let preferences = self.preferences.clone().unwrap_or_default();
         client
             .preferences()
             .create_unchecked(
                 self.username.clone(),
-                ClockPreferences::default().show_tenth_seconds.to_string(),
-                ClockPreferences::default().show_progress_bars,
-                ClockPreferences::default().play_critical_sound,
-                GamePreferences::default().confirm_resign,
-                GamePreferences::default().board_scroll,
+                preferences.clock.show_tenth_seconds.to_string(),
+                preferences.clock.show_progress_bars,
+                preferences.clock.play_critical_sound,
+                preferences.game.confirm_resign,
+                preferences.game.board_scroll,
                 vec![],
             )
             .exec()
