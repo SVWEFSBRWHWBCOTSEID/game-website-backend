@@ -32,15 +32,15 @@ model Game {
     secondTime     Int?
     lastMoveTime   BigInt
     status         String
-    winType        String?
+    winType     String?
     drawOffer      String
     rematchOffer   String
     randomSide     Boolean
 }
 
 model User {
-    username        String       @unique
-    createdAt       DateTime     @default(now())
+    username        String         @unique
+    createdAt       DateTime       @default(now())
     password        String
     guest           Boolean
     perfs           Perf[]
@@ -52,10 +52,11 @@ model User {
     url             String
     playing         String?
     canStartGame    Boolean
-    firstUserGames  Game[]       @relation("first")
-    secondUserGames Game[]       @relation("second")
-    friends         Friend[]     @relation(name: "user")
-    friendsRelation Friend[]     @relation(name: "friend")
+    firstUserGames  Game[]         @relation("first")
+    secondUserGames Game[]         @relation("second")
+    friends         Friend[]       @relation("user")
+    friendsRelation Friend[]       @relation("friend")
+    conversations   Conversation[]
     preferences     Preferences?
 }
 
@@ -71,8 +72,8 @@ model Preferences {
 
 model Friend {
     type       String
-    user       User   @relation(name: "user", fields: [username], references: [username])
-    friend     User   @relation(name: "friend", fields: [friendName], references: [username])
+    user       User   @relation("user", fields: [username], references: [username])
+    friend     User   @relation("friend", fields: [friendName], references: [username])
     username   String
     friendName String
 
@@ -101,4 +102,23 @@ model Message {
     text       String
     visibility String
     gameEvent  Boolean
+}
+
+model Conversation {
+    id        String        @id @default(uuid())
+    user      User          @relation(fields: [username], references: [username])
+    username  String
+    otherName String
+    messages  UserMessage[]
+
+    @@unique([username, otherName])
+}
+
+model UserMessage {
+    id           String       @id @default(uuid())
+    createdAt    DateTime     @default(now())
+    conversation Conversation @relation(fields: [convId], references: [id])
+    convId       String
+    username     String
+    text         String
 }
