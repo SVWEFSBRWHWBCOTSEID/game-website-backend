@@ -36,3 +36,10 @@ pub struct LoginReq {
 pub struct ChatMessageReq {
     pub message: String,
 }
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UserMessageReq {
+    pub other_name: String,
+    pub message: String,
+}

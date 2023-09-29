@@ -46,6 +46,7 @@ pub enum UserEvent {
     GameStartEvent(GameStartEvent),
     PreferencesUpdateEvent(PreferencesUpdateEvent),
     FriendEvent(FriendEvent),
+    UserMessageEvent(UserMessageEvent),
 }
 
 impl UserEvent {
@@ -54,6 +55,7 @@ impl UserEvent {
             UserEvent::GameStartEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::PreferencesUpdateEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::FriendEvent(e) => serde_json::to_string(e).unwrap(),
+            UserEvent::UserMessageEvent(e) => serde_json::to_string(e).unwrap(),
         }
     }
 }
@@ -196,6 +198,15 @@ pub struct FriendEvent {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct UserMessageEvent {
+    pub r#type: UserEventType,
+    pub username: String,
+    pub text: String,
+    pub created_at: String,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LobbyFullEvent {
     pub r#type: LobbyEventType,
     pub lobbies: Vec<LobbyResponse>,
@@ -224,6 +235,7 @@ pub enum UserEventType {
     GameStart,
     PreferencesUpdate,
     Friend,
+    UserMessage,
 }
 
 #[derive(Deserialize, Serialize)]
