@@ -26,8 +26,6 @@ impl game::Data {
             .or(Err(WebErr::Internal(format!("could not find game with id {}", self.id))))?
             .unwrap();
 
-        let rating_diffs = self.get_rating_diffs(GameStatus::from_str(&self.status)?)?;
-
         Ok(CreateGameResponse {
             id: self.id.clone(),
             created_at: self.created_at.to_string(),

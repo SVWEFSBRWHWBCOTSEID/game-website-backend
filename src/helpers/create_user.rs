@@ -3,7 +3,7 @@ use actix_web::web;
 use strum::IntoEnumIterator;
 
 use crate::common::WebErr;
-use crate::models::general::{ClockPreferences, GameKey, GamePerf, GamePreferences, Profile};
+use crate::models::general::{GameKey, GamePerf, Profile};
 use crate::prisma::{user, PrismaClient, perf};
 use crate::models::req::CreateUserReq;
 use super::general::get_user_with_relations;
