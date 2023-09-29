@@ -1,124 +1,138 @@
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
-    provider = "cargo prisma"
-    output   = "../src/prisma.rs"
+  provider = "cargo prisma"
+  output   = "../src/prisma.rs"
 }
 
 model Game {
-    id             String    @id
-    createdAt      DateTime  @default(now())
-    rated          Boolean
-    gameKey        String
-    clockInitial   Int?
-    clockIncrement Int?
-    firstUsername  String?
-    secondUsername String?
-    firstUser      User?     @relation("first", fields: [firstUsername], references: [username])
-    secondUser     User?     @relation("second", fields: [secondUsername], references: [username])
-    firstRating    Int?
-    secondRating   Int?
-    firstProv      Boolean?
-    secondProv     Boolean?
-    ratingMin      Int
-    ratingMax      Int
-    startPos       String?
-    moves          String
-    chat           Message[]
-    firstTime      Int?
-    secondTime     Int?
-    lastMoveTime   BigInt
-    status         String
-    winType     String?
-    drawOffer      String
-    rematchOffer   String
-    randomSide     Boolean
+  id             String      @id
+  createdAt      DateTime    @default(now())
+  rated          Boolean
+  gameKey        String
+  clockInitial   Int?
+  clockIncrement Int?
+  firstUsername  String?
+  secondUsername String?
+  firstUser      User?       @relation("first", fields: [firstUsername], references: [username])
+  secondUser     User?       @relation("second", fields: [secondUsername], references: [username])
+  firstRating    Int?
+  secondRating   Int?
+  firstProv      Boolean?
+  secondProv     Boolean?
+  ratingMin      Int
+  ratingMax      Int
+  startPos       String?
+  moves          String
+  chat           Message[]
+  firstTime      Int?
+  secondTime     Int?
+  lastMoveTime   BigInt
+  status         String
+  winType        String?
+  drawOffer      String
+  rematchOffer   String
+  randomSide     Boolean
+  Challenge      Challenge[]
 }
 
 model User {
-    username        String         @unique
-    createdAt       DateTime       @default(now())
-    password        String
-    guest           Boolean
-    perfs           Perf[]
-    country         String
-    location        String
-    bio             String
-    firstName       String
-    lastName        String
-    url             String
-    playing         String?
-    canStartGame    Boolean
-    firstUserGames  Game[]         @relation("first")
-    secondUserGames Game[]         @relation("second")
-    friends         Friend[]       @relation("user")
-    friendsRelation Friend[]       @relation("friend")
-    conversations   Conversation[]
-    preferences     Preferences?
+  username        String         @unique
+  createdAt       DateTime       @default(now())
+  password        String
+  guest           Boolean
+  perfs           Perf[]
+  country         String
+  location        String
+  bio             String
+  firstName       String
+  lastName        String
+  url             String
+  playing         String?
+  canStartGame    Boolean
+  firstUserGames  Game[]         @relation("first")
+  secondUserGames Game[]         @relation("second")
+  friends         Friend[]       @relation("user")
+  friendsRelation Friend[]       @relation("friend")
+  conversations   Conversation[]
+  challenge       Challenge?     @relation("out")
+  challengesIn    Challenge[]    @relation("in")
+  preferences     Preferences?
 }
 
 model Preferences {
-    user              User    @relation(fields: [username], references: [username])
-    username          String  @unique
-    showTenthSeconds  String
-    showProgressBars  Boolean
-    playCriticalSound Boolean
-    confirmResign     Boolean
-    boardScroll       Boolean
+  user              User    @relation(fields: [username], references: [username])
+  username          String  @unique
+  showTenthSeconds  String
+  showProgressBars  Boolean
+  playCriticalSound Boolean
+  confirmResign     Boolean
+  boardScroll       Boolean
 }
 
 model Friend {
-    type       String
-    user       User   @relation("user", fields: [username], references: [username])
-    friend     User   @relation("friend", fields: [friendName], references: [username])
-    username   String
-    friendName String
+  type       String
+  user       User   @relation("user", fields: [username], references: [username])
+  friend     User   @relation("friend", fields: [friendName], references: [username])
+  username   String
+  friendName String
 
-    @@unique([username, friendName])
+  @@unique([username, friendName])
 }
 
 model Perf {
-    user       User    @relation(fields: [username], references: [username])
-    username   String
-    gameKey    String
-    rating     Float
-    rd         Float
-    volatility Float
-    tau        Float
-    prog       String
-    prov       Boolean
+  user       User    @relation(fields: [username], references: [username])
+  username   String
+  gameKey    String
+  rating     Float
+  rd         Float
+  volatility Float
+  tau        Float
+  prog       String
+  prov       Boolean
 
-    @@unique([username, gameKey])
+  @@unique([username, gameKey])
 }
 
 model Message {
-    id         String  @id @default(uuid())
-    game       Game    @relation(fields: [gameId], references: [id])
-    gameId     String
-    username   String
-    text       String
-    visibility String
-    gameEvent  Boolean
+  id         String  @id @default(uuid())
+  game       Game    @relation(fields: [gameId], references: [id])
+  gameId     String
+  username   String
+  text       String
+  visibility String
+  gameEvent  Boolean
 }
 
 model Conversation {
-    id        String        @id @default(uuid())
-    user      User          @relation(fields: [username], references: [username])
-    username  String
-    otherName String
-    messages  UserMessage[]
+  id        String        @id @default(uuid())
+  user      User          @relation(fields: [username], references: [username])
+  username  String
+  otherName String
+  messages  UserMessage[]
 
-    @@unique([username, otherName])
+  @@unique([username, otherName])
 }
 
 model UserMessage {
-    id           String       @id @default(uuid())
-    createdAt    DateTime     @default(now())
-    conversation Conversation @relation(fields: [convId], references: [id])
-    convId       String
-    username     String
-    text         String
+  id           String       @id @default(uuid())
+  createdAt    DateTime     @default(now())
+  conversation Conversation @relation(fields: [convId], references: [id])
+  convId       String
+  username     String
+  text         String
+}
+
+model Challenge {
+  id           String   @id @default(uuid())
+  createdAt    DateTime @default(now())
+  user         User     @relation("out", fields: [username], references: [username])
+  username     String   @unique
+  opponent     User     @relation("in", fields: [opponentName], references: [username])
+  opponentName String
+  game         Game     @relation(fields: [gameId], references: [id])
+  gameId       String
 }
