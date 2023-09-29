@@ -41,7 +41,7 @@ pub fn check_board_status(m: usize, move_num: usize, board: &Vec<PlayerSymbol>, 
 
     // TODO: less hacky "signed subtraction" between usizes?
     let rstart = (m as i32 - needed as i32).max(row_start as i32) as usize;
-    for i in rstart..=m {
+    for i in rstart..=(m.min(row_start + columns - needed)) {
         let mut cond = board[i] != PlayerSymbol::Empty;
         for j in 1..needed {
             let index = i + j;
