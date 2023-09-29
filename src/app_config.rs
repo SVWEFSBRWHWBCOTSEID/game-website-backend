@@ -20,6 +20,7 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
         .service(user::get_user)
         .service(user::get_current_user)
         .service(user::update_profile)
+        .service(user::update_preferences)
         .service(user::friend_request)
         .service(user::unfriend)
         .service(user::login)

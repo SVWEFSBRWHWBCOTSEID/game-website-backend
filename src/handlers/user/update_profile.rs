@@ -1,5 +1,6 @@
 use actix_session::Session;
-use actix_web::{web, HttpResponse, post};
+use actix_web::{post, HttpResponse};
+use actix_web::web::{Json, Data};
 
 use crate::common::WebErr;
 use crate::helpers::general::{get_username, get_user_with_relations};
@@ -8,12 +9,12 @@ use crate::models::general::Profile;
 use crate::prisma::{PrismaClient, user};
 
 
-// route for updaing user profile
+// route for updating a user's profile
 #[post("/api/profile/update")]
 pub async fn update_profile(
-    client: web::Data<PrismaClient>,
+    client: Data<PrismaClient>,
     session: Session,
-    data: web::Json<Profile>,
+    data: Json<Profile>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;

@@ -1,4 +1,5 @@
-use crate::{models::general::{GamePerf, Profile, Country}, common::WebErr};
+use crate::models::general::{GamePerf, Profile, Country, ClockPreferences, GamePreferences, TenthSeconds, Preferences};
+use crate::common::WebErr;
 
 
 impl Default for GamePerf {
@@ -41,6 +42,34 @@ impl Default for Profile {
             bio: "".to_string(),
             first_name: "".to_string(),
             last_name: "".to_string(),
+        }
+    }
+}
+
+impl Default for Preferences {
+    fn default() -> Self {
+        Preferences {
+            clock: ClockPreferences::default(),
+            game: GamePreferences::default(),
+        }
+    }
+}
+
+impl Default for ClockPreferences {
+    fn default() -> Self {
+        ClockPreferences {
+            show_tenth_seconds: TenthSeconds::Critical,
+            show_progress_bars: true,
+            play_critical_sound: true,
+        }
+    }
+}
+
+impl Default for GamePreferences {
+    fn default() -> Self {
+        GamePreferences {
+            confirm_resign: true,
+            board_scroll: true,
         }
     }
 }

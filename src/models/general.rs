@@ -22,6 +22,36 @@ pub struct Player {
     pub rating: i32,
 }
 
+#[derive(Deserialize, Serialize, Copy, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Preferences {
+    pub clock: ClockPreferences,
+    pub game: GamePreferences,
+}
+
+#[derive(Deserialize, Serialize, Copy, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ClockPreferences {
+    pub show_tenth_seconds: TenthSeconds,
+    pub show_progress_bars: bool,
+    pub play_critical_sound: bool,
+}
+
+#[derive(Deserialize, Serialize, Copy, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct GamePreferences {
+    pub confirm_resign: bool,
+    pub board_scroll: bool,
+}
+
+#[derive(Deserialize, Serialize, Display, EnumString, Copy, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum TenthSeconds {
+    Always,
+    Critical,
+    Never,
+}
+
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GameType {
