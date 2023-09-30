@@ -138,22 +138,3 @@ model Challenge {
 
   @@unique([username, opponentName])
 }
-
-model Conversation {
-    id        String        @id @default(uuid())
-    user      User          @relation(fields: [username], references: [username])
-    username  String
-    otherName String
-    messages  UserMessage[]
-
-    @@unique([username, otherName])
-}
-
-model UserMessage {
-    id           String       @id @default(uuid())
-    createdAt    DateTime     @default(now())
-    conversation Conversation @relation(fields: [convId], references: [id])
-    convId       String
-    username     String
-    text         String
-}
