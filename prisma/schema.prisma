@@ -9,16 +9,16 @@ generator client {
 }
 
 model Game {
-  id             String      @id
-  createdAt      DateTime    @default(now())
+  id             String     @id
+  createdAt      DateTime   @default(now())
   rated          Boolean
   gameKey        String
   clockInitial   Int?
   clockIncrement Int?
   firstUsername  String?
   secondUsername String?
-  firstUser      User?       @relation("first", fields: [firstUsername], references: [username])
-  secondUser     User?       @relation("second", fields: [secondUsername], references: [username])
+  firstUser      User?      @relation("first", fields: [firstUsername], references: [username])
+  secondUser     User?      @relation("second", fields: [secondUsername], references: [username])
   firstRating    Int?
   secondRating   Int?
   firstProv      Boolean?
@@ -64,7 +64,7 @@ model User {
 }
 
 model Preferences {
-  user              User    @relation(fields: [username], references: [username])
+  user              User    @relation(fields: [username], references: [username], onDelete: Cascade)
   username          String  @unique
   showTenthSeconds  String
   showProgressBars  Boolean
@@ -75,8 +75,8 @@ model Preferences {
 
 model Friend {
   type       String
-  user       User   @relation("user", fields: [username], references: [username])
-  friend     User   @relation("friend", fields: [friendName], references: [username])
+  user       User   @relation("user", fields: [username], references: [username], onDelete: Cascade)
+  friend     User   @relation("friend", fields: [friendName], references: [username], onDelete: Cascade)
   username   String
   friendName String
 
@@ -84,7 +84,7 @@ model Friend {
 }
 
 model Perf {
-  user       User    @relation(fields: [username], references: [username])
+  user       User    @relation(fields: [username], references: [username], onDelete: Cascade)
   username   String
   gameKey    String
   rating     Float
@@ -99,7 +99,7 @@ model Perf {
 
 model Message {
   id         String  @id @default(uuid())
-  game       Game    @relation(fields: [gameId], references: [id])
+  game       Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId     String
   username   String
   text       String
@@ -109,7 +109,7 @@ model Message {
 
 model Conversation {
   id        String        @id @default(uuid())
-  user      User          @relation(fields: [username], references: [username])
+  user      User          @relation(fields: [username], references: [username], onDelete: Cascade)
   username  String
   otherName String
   messages  UserMessage[]
@@ -120,7 +120,7 @@ model Conversation {
 model UserMessage {
   id           String       @id @default(uuid())
   createdAt    DateTime     @default(now())
-  conversation Conversation @relation(fields: [convId], references: [id])
+  conversation Conversation @relation(fields: [convId], references: [id], onDelete: Cascade)
   convId       String
   username     String
   text         String
@@ -129,9 +129,9 @@ model UserMessage {
 model Challenge {
   id           String   @id @default(uuid())
   createdAt    DateTime @default(now())
-  user         User     @relation("out", fields: [username], references: [username])
+  user         User     @relation("out", fields: [username], references: [username], onDelete: Cascade)
   username     String   @unique
-  opponent     User     @relation("in", fields: [opponentName], references: [username])
+  opponent     User     @relation("in", fields: [opponentName], references: [username], onDelete: Cascade)
   opponentName String
   game         Game     @relation(fields: [gameId], references: [id])
   gameId       String   @unique

@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "Game" ALTER COLUMN "firstTime" DROP NOT NULL,
-ALTER COLUMN "secondTime" DROP NOT NULL;
