@@ -7,7 +7,7 @@ use crate::common::WebErr;
 use crate::helpers::create_game::join_game;
 use crate::helpers::general::{get_username, gen_nanoid, get_user_with_relations, set_user_can_start_game};
 use crate::models::events::{UserEvent, UserEventType, ChallengeEvent, ChallengeDeclinedEvent};
-use crate::models::general::{Offer, GameStatus, Side, GameKey, GameType, TimeControl};
+use crate::models::general::{Offer, GameStatus, Side, GameKey, GameType, TimeControl, Challenge};
 use crate::models::req::ChallengeReq;
 use crate::models::res::OK_RES;
 use crate::player_stats::PlayerStats;
@@ -131,20 +131,22 @@ pub async fn challenge_request(
 
             broadcaster.lock().user_send(&opponent.clone(), UserEvent::ChallengeEvent(ChallengeEvent {
                 r#type: UserEventType::Challenge,
-                username,
-                opponent,
-                game: GameType {
-                    key: challenge_req.game_key.to_string(),
-                    name: GameKey::get_game_name(&challenge_req.game_key.to_string())?,
+                challenge: Challenge {
+                    username,
+                    opponent,
+                    game: GameType {
+                        key: challenge_req.game_key.to_string(),
+                        name: GameKey::get_game_name(&challenge_req.game_key.to_string())?,
+                    },
+                    id: game.id,
+                    rated: challenge_req.rated,
+                    side: challenge_req.side,
+                    time_control: TimeControl {
+                        initial: challenge_req.time,
+                        increment: challenge_req.increment,
+                    },
+                    created_at: challenge.created_at.to_string(),
                 },
-                id: game.id,
-                rated: challenge_req.rated,
-                side: challenge_req.side,
-                time_control: TimeControl {
-                    initial: challenge_req.time,
-                    increment: challenge_req.increment,
-                },
-                created_at: challenge.created_at.to_string(),
             }));
         },
     }

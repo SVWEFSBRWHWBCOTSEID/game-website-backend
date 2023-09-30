@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize, Serializer};
 use serde::ser::SerializeStruct;
 use strum_macros::{Display, EnumString};
 
-use super::general::{GameStatus, TimeControl, Player, GameType, EndType, Offer, GameKey, FriendRequest, Preferences, Side};
+use super::general::{GameStatus, TimeControl, Player, GameType, EndType, Offer, GameKey, FriendRequest, Preferences, Conversation, Challenge};
 use super::res::LobbyResponse;
 
 
@@ -45,6 +45,7 @@ impl GameEvent {
 pub enum UserEvent {
     GameStartEvent(GameStartEvent),
     PreferencesUpdateEvent(PreferencesUpdateEvent),
+    ConvsAndChallengesEvent(ConvsAndChallengesEvent),
     FriendEvent(FriendEvent),
     UserMessageEvent(UserMessageEvent),
     ChallengeEvent(ChallengeEvent),
@@ -56,6 +57,7 @@ impl UserEvent {
         match self {
             UserEvent::GameStartEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::PreferencesUpdateEvent(e) => serde_json::to_string(e).unwrap(),
+            UserEvent::ConvsAndChallengesEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::FriendEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::UserMessageEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::ChallengeEvent(e) => serde_json::to_string(e).unwrap(),
@@ -194,6 +196,14 @@ pub struct PreferencesUpdateEvent {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ConvsAndChallengesEvent {
+    pub r#type: UserEventType,
+    pub conversations: Vec<Conversation>,
+    pub challenges: Vec<Challenge>,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct FriendEvent {
     pub r#type: UserEventType,
     pub username: String,
@@ -213,14 +223,7 @@ pub struct UserMessageEvent {
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeEvent {
     pub r#type: UserEventType,
-    pub username: String,
-    pub opponent: String,
-    pub id: String,
-    pub rated: bool,
-    pub game: GameType,
-    pub time_control: TimeControl,
-    pub side: Side,
-    pub created_at: String,
+    pub challenge: Challenge,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -259,6 +262,7 @@ pub struct PlayerStatsEvent {
 pub enum UserEventType {
     GameStart,
     PreferencesUpdate,
+    ConvsAndChallenges,
     Friend,
     UserMessage,
     Challenge,

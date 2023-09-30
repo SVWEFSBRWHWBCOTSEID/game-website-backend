@@ -1,9 +1,9 @@
-use crate::{models::res::ConversationResponse, prisma::conversation};
+use crate::{models::general::Conversation, prisma::conversation};
 
 
 impl conversation::Data {
-    pub fn to_conversation_res(&self, username: &str) -> ConversationResponse {
-        ConversationResponse {
+    pub fn to_conversation(&self, username: &str) -> Conversation {
+        Conversation {
             other_name: if self.username == username {
                 self.other_name.clone()
             } else {

@@ -54,6 +54,25 @@ pub enum TenthSeconds {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct Conversation {
+    pub other_name: String,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Challenge {
+    pub username: String,
+    pub opponent: String,
+    pub id: String,
+    pub rated: bool,
+    pub game: GameType,
+    pub time_control: TimeControl,
+    pub side: Side,
+    pub created_at: String,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GameType {
     pub key: String,
     pub name: String,

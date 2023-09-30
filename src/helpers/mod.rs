@@ -3,6 +3,7 @@ pub mod create_user;
 pub mod game;
 pub mod user;
 pub mod conversation;
+pub mod challenge;
 pub mod enums;
 pub mod general;
 pub mod moves;

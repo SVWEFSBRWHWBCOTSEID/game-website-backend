@@ -55,12 +55,6 @@ pub struct UserResponse {
     pub games: Vec<ProfileGame>,
 }
 
-#[derive(Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ConversationResponse {
-    pub other_name: String,
-}
-
 #[derive(Deserialize, Serialize, Copy, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct OkResponse {
