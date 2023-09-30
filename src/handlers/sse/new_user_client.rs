@@ -4,7 +4,7 @@ use actix_web::web::Data;
 use actix_web::{HttpResponse, get};
 
 use crate::common::WebErr;
-use crate::helpers::general::{get_username, get_user_conversations, get_incoming_challenges};
+use crate::helpers::general::{get_username, get_user_conversations, get_incoming_challenges, get_user_with_relations};
 use crate::models::events::{PreferencesUpdateEvent, UserEvent, UserEventType, ConvsAndChallengesEvent};
 use crate::prisma::{preferences, PrismaClient};
 use crate::player_stats::PlayerStats;
@@ -21,6 +21,9 @@ pub async fn new_user_client(
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
+    let mut user = get_user_with_relations(&client, &username).await?;
+    user.update_perfs(&client).await?;
+
     let (rx, _) = broadcaster.lock().new_user_client(username.clone(), &player_stats);
 
     let preferences = client
