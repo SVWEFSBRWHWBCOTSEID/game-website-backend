@@ -80,7 +80,8 @@ pub async fn get_user_conversations(client: &web::Data<PrismaClient>, username: 
         .await
         .or(Err(WebErr::Internal(format!("error getting conversations for user {}", username))))?
         .iter()
-        .map(|c| c.to_conversation(&username))
+        .map(|c| Ok::<Conversation, WebErr>(c.to_conversation(&username)?))
+        .flatten()
         .collect())
 }
 

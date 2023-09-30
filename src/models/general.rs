@@ -56,6 +56,15 @@ pub enum TenthSeconds {
 #[serde(rename_all = "camelCase")]
 pub struct Conversation {
     pub other_name: String,
+    pub messages: Vec<UserMessage>,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UserMessage {
+    pub username: String,
+    pub text: String,
+    pub created_at: String,
 }
 
 #[derive(Deserialize, Serialize)]
