@@ -6,7 +6,7 @@ use actix_web::{HttpResponse, HttpRequest, post};
 use crate::common::WebErr;
 use crate::helpers::create_game::join_game;
 use crate::helpers::general::{get_username, gen_nanoid, get_user_with_relations, set_user_can_start_game};
-use crate::models::events::{UserEvent, UserEventType, ChallengeEvent, ChallengeDeclinedEvent};
+use crate::models::events::{UserEvent, UserEventType, ChallengeEvent, ChallengeDeclinedEvent, ChallengeCanceledEvent};
 use crate::models::general::{Offer, GameStatus, Side, GameKey, GameType, TimeControl, Challenge};
 use crate::models::req::ChallengeReq;
 use crate::models::res::OK_RES;
@@ -34,15 +34,44 @@ pub async fn challenge_request(
     let user = get_user_with_relations(&client, &username).await?;
     let perf = user.perfs().unwrap().iter().find(|p| p.game_key == challenge_req.game_key.to_string()).unwrap();
 
-    match client
+    if let Some(existing) = client
         .challenge()
         .find_unique(challenge::username_opponent_name(username.clone(), opponent.clone()))
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error searching for challenge for user {}", username))))?
     {
+        if accept {
+            return Err(WebErr::BadReq(format!("user {} already sent a challenge request to {}", username, opponent)));
+        } else {
+            client
+                .game()
+                .delete(game::id::equals(existing.id.clone()))
+                .exec()
+                .await
+                .or(Err(WebErr::Internal(format!("error deleting challenge game with id {}", existing.id))))?;
+
+            set_user_can_start_game(&client, &opponent, true).await?;
+
+            broadcaster.lock().user_send(&opponent.clone(), UserEvent::ChallengeCanceledEvent(ChallengeCanceledEvent {
+                r#type: UserEventType::ChallengeCanceled,
+                opponent: opponent.clone(),
+            }));
+        }
+    }
+
+    match client
+        .challenge()
+        .find_unique(challenge::username_opponent_name(opponent.clone(), username.clone()))
+        .exec()
+        .await
+        .or(Err(WebErr::Internal(format!("error searching for challenge for user {}", username))))?
+    {
         Some(existing) => {
             if accept {
+                if !user.can_start_game {
+                    return Err(WebErr::BadReq(format!("user {} cannot send challenge (can_start_game is false)", username)));
+                }
                 let game = client
                     .game()
                     .find_unique(game::id::equals(existing.id.clone()))
@@ -69,7 +98,7 @@ pub async fn challenge_request(
             }
         },
         None => {
-            if !accept {
+            if !accept || !user.can_start_game {
                 return Err(WebErr::BadReq(format!("cannot decline challenge from user {} -- challenge doesn't exist", opponent)));
             }
             let game_id = gen_nanoid(&client).await;

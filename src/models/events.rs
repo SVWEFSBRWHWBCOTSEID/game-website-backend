@@ -50,6 +50,7 @@ pub enum UserEvent {
     UserMessageEvent(UserMessageEvent),
     ChallengeEvent(ChallengeEvent),
     ChallengeDeclinedEvent(ChallengeDeclinedEvent),
+    ChallengeCanceledEvent(ChallengeCanceledEvent),
 }
 
 impl UserEvent {
@@ -62,6 +63,7 @@ impl UserEvent {
             UserEvent::UserMessageEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::ChallengeEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::ChallengeDeclinedEvent(e) => serde_json::to_string(e).unwrap(),
+            UserEvent::ChallengeCanceledEvent(e) => serde_json::to_string(e).unwrap(),
         }
     }
 }
@@ -235,6 +237,13 @@ pub struct ChallengeDeclinedEvent {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ChallengeCanceledEvent {
+    pub r#type: UserEventType,
+    pub opponent: String,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LobbyFullEvent {
     pub r#type: LobbyEventType,
     pub lobbies: Vec<LobbyResponse>,
@@ -267,6 +276,7 @@ pub enum UserEventType {
     UserMessage,
     Challenge,
     ChallengeDeclined,
+    ChallengeCanceled,
 }
 
 #[derive(Deserialize, Serialize)]
