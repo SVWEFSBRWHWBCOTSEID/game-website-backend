@@ -7,6 +7,8 @@ mod update_preferences;
 mod friend_request;
 mod unfriend;
 mod send_message;
+mod get_conversations;
+mod challenge_request;
 mod login;
 mod logout;
 
@@ -19,5 +21,7 @@ pub use update_preferences::*;
 pub use friend_request::*;
 pub use unfriend::*;
 pub use send_message::*;
+pub use get_conversations::*;
+pub use challenge_request::*;
 pub use login::*;
 pub use logout::*;

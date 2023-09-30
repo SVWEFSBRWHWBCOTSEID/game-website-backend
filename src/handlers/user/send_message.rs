@@ -65,6 +65,12 @@ pub async fn send_message(
 
     broadcaster.lock().user_send(&other_name, UserEvent::UserMessageEvent(UserMessageEvent {
         r#type: UserEventType::UserMessage,
+        username: username.clone(),
+        text: message.text.clone(),
+        created_at: message.created_at.to_string(),
+    }));
+    broadcaster.lock().user_send(&username.clone(), UserEvent::UserMessageEvent(UserMessageEvent {
+        r#type: UserEventType::UserMessage,
         username,
         text: message.text,
         created_at: message.created_at.to_string(),

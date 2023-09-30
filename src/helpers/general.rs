@@ -7,9 +7,9 @@ use nanoid::nanoid;
 
 use crate::common::WebErr;
 use crate::models::events::{LobbyEvent, AllLobbiesEvent, LobbyEventType, Visibility, ChatAlertEvent, GameEventType, GameEvent, GameStateEvent};
-use crate::models::general::{EndType, Offer};
+use crate::models::general::{EndType, Offer, Conversation, Challenge};
 use crate::player_stats::PlayerStats;
-use crate::prisma::{user, PrismaClient, message, game};
+use crate::prisma::{user, PrismaClient, message, game, conversation, challenge};
 use crate::sse::Broadcaster;
 use super::game::LobbyVec;
 
@@ -42,6 +42,7 @@ pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str)
         .with(game::first_user::fetch().with(user::perfs::fetch(vec![])))
         .with(game::second_user::fetch().with(user::perfs::fetch(vec![])))
         .with(game::chat::fetch(vec![message::game_id::equals(id.to_string())]))
+        .with(game::challenge::fetch())
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error fetching game with id {}", id))))?
@@ -49,7 +50,7 @@ pub async fn get_game_with_relations(client: &web::Data<PrismaClient>, id: &str)
 }
 
 pub async fn get_unmatched_games(client: &web::Data<PrismaClient>) -> Result<Vec<game::Data>, WebErr> {
-    Ok(client
+    let mut candidates = client
         .game()
         .find_many(vec![or![
             game::first_username::equals(None),
@@ -57,9 +58,45 @@ pub async fn get_unmatched_games(client: &web::Data<PrismaClient>) -> Result<Vec
         ]])
         .with(game::first_user::fetch().with(user::perfs::fetch(vec![])))
         .with(game::second_user::fetch().with(user::perfs::fetch(vec![])))
+        .with(game::challenge::fetch())
         .exec()
         .await
-        .or(Err(WebErr::NotFound(format!("error getting all unmatched games"))))?)
+        .or(Err(WebErr::NotFound(format!("error getting all unmatched games"))))?;
+
+    candidates.retain(|g| g.challenge().unwrap().is_none());
+    Ok(candidates)
+}
+
+pub async fn get_user_conversations(client: &web::Data<PrismaClient>, username: &str) -> Result<Vec<Conversation>, WebErr> {
+    Ok(client
+        .conversation()
+        .find_many(vec![
+            or![
+                conversation::username::equals(username.to_string()),
+                conversation::other_name::equals(username.to_string()),
+            ],
+        ])
+        .exec()
+        .await
+        .or(Err(WebErr::Internal(format!("error getting conversations for user {}", username))))?
+        .iter()
+        .map(|c| Ok::<Conversation, WebErr>(c.to_conversation(&username)?))
+        .flatten()
+        .collect())
+}
+
+pub async fn get_incoming_challenges(client: &web::Data<PrismaClient>, username: &str) -> Result<Vec<Challenge>, WebErr> {
+    Ok(client
+        .challenge()
+        .find_many(vec![challenge::opponent_name::equals(username.to_string())])
+        .with(challenge::game::fetch())
+        .exec()
+        .await
+        .or(Err(WebErr::Internal(format!("error getting incoming challenges for user {}", username))))?
+        .iter()
+        .map(|c| Ok::<Challenge, WebErr>(c.to_challenge()?))
+        .flatten()
+        .collect())
 }
 
 pub async fn send_lobby_event(client: &web::Data<PrismaClient>, broadcaster: &web::Data<Mutex<Broadcaster>>) -> Result<(), WebErr> {
