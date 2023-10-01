@@ -187,7 +187,7 @@ pub enum Offer {
     Agreed,
 }
 
-#[derive(Deserialize, Serialize, PartialEq, Clone)]
+#[derive(Deserialize, Serialize, PartialEq, Clone, Debug)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum MoveOutcome {
     None,
