@@ -38,10 +38,13 @@ pub async fn new_user_client(
         r#type: UserEventType::PreferencesUpdate,
         preferences: preferences.to_preferences_res()?,
     }));
+
+    let conversations = get_user_conversations(&client, &username).await?;
+    let challenges = get_incoming_challenges(&client, &username).await?;
     broadcaster.lock().user_send(&username, UserEvent::ConvsAndChallengesEvent(ConvsAndChallengesEvent {
         r#type: UserEventType::ConvsAndChallenges,
-        conversations: get_user_conversations(&client, &username).await?,
-        challenges: get_incoming_challenges(&client, &username).await?,
+        conversations,
+        challenges,
     }));
 
     Ok(HttpResponse::Ok()
