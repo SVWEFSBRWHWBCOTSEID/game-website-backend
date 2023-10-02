@@ -6,6 +6,7 @@ use actix_web::{post, HttpRequest, web::Data, HttpResponse};
 use crate::helpers::general::{get_username, time_millis, set_user_playing, get_game_with_relations, set_user_can_start_game};
 use crate::hourglass::Hourglass;
 use crate::models::general::{EndType, Offer, MoveOutcome};
+use crate::player_stats::PlayerStats;
 use crate::prisma::{PrismaClient, game};
 use crate::sse::Broadcaster;
 use crate::common::WebErr;
@@ -23,6 +24,7 @@ pub async fn add_move(
     broadcaster: Data<Mutex<Broadcaster>>,
     hourglass: Data<Mutex<Hourglass>>,
     mill: Data<Mutex<LumberMill>>,
+    player_stats: Data<Mutex<PlayerStats>>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
@@ -92,6 +94,7 @@ pub async fn add_move(
         set_user_can_start_game(&client, &game.second_username.clone().unwrap(), true).await?;
         game.update_ratings(&client, move_status).await?;
 
+        player_stats.lock().update_games(-1, &broadcaster.lock());
         mill.lock().boards.remove(&game.id);
     }
 
