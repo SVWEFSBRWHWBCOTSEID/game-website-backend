@@ -5,7 +5,7 @@ use actix_web::{HttpResponse, get};
 
 use crate::common::WebErr;
 use crate::helpers::general::{get_username, get_user_conversations, get_incoming_challenges, get_user_with_relations};
-use crate::models::events::{PreferencesUpdateEvent, UserEvent, UserEventType, ConvsAndChallengesEvent};
+use crate::models::events::{UserEvent, UserEventType, UserFullEvent};
 use crate::prisma::{preferences, PrismaClient};
 use crate::player_stats::PlayerStats;
 use crate::sse::Broadcaster;
@@ -34,17 +34,13 @@ pub async fn new_user_client(
         .or(Err(WebErr::Internal(format!("error fetching preferences for user {}", username))))?
         .ok_or(WebErr::NotFound(format!("could not find preferences for user {}", username)))?;
 
-    broadcaster.lock().user_send(&username, UserEvent::PreferencesUpdateEvent(PreferencesUpdateEvent {
-        r#type: UserEventType::PreferencesUpdate,
-        preferences: preferences.to_preferences_res()?,
-    }));
-
     let conversations = get_user_conversations(&client, &username).await?;
     let challenges = get_incoming_challenges(&client, &username).await?;
-    broadcaster.lock().user_send(&username, UserEvent::ConvsAndChallengesEvent(ConvsAndChallengesEvent {
-        r#type: UserEventType::ConvsAndChallenges,
+    broadcaster.lock().user_send(&username, UserEvent::UserFullEvent(UserFullEvent {
+        r#type: UserEventType::UserFull,
         conversations,
         challenges,
+        preferences: preferences.to_preferences_res()?,
     }));
 
     Ok(HttpResponse::Ok()

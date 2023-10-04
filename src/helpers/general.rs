@@ -76,12 +76,12 @@ pub async fn get_user_conversations(client: &web::Data<PrismaClient>, username: 
                 conversation::other_name::equals(username.to_string()),
             ],
         ])
+        .with(conversation::messages::fetch(vec![]))
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error getting conversations for user {}", username))))?
         .iter()
-        .map(|c| Ok::<Conversation, WebErr>(c.to_conversation(&username)?))
-        .flatten()
+        .flat_map(|c| Ok::<Conversation, WebErr>(c.to_conversation(&username)?))
         .collect())
 }
 
@@ -94,8 +94,7 @@ pub async fn get_incoming_challenges(client: &web::Data<PrismaClient>, username:
         .await
         .or(Err(WebErr::Internal(format!("error getting incoming challenges for user {}", username))))?
         .iter()
-        .map(|c| Ok::<Challenge, WebErr>(c.to_challenge()?))
-        .flatten()
+        .flat_map(|c| Ok::<Challenge, WebErr>(c.to_challenge()?))
         .collect())
 }
 

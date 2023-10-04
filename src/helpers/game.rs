@@ -342,8 +342,7 @@ impl game::Data {
             (false, true, Offer::None) => Offer::Second,
             (true, true, Offer::Second) => Offer::Agreed,
             (false, true, Offer::First) => Offer::Agreed,
-            (true, false, Offer::Second) => Offer::None,
-            (false, false, Offer::First) => Offer::None,
+            (_, false, _) => Offer::None,
             _ => Offer::from_str(&self.draw_offer)?,
         })
     }

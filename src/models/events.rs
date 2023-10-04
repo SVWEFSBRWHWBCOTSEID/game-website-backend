@@ -43,9 +43,9 @@ impl GameEvent {
 }
 
 pub enum UserEvent {
+    UserFullEvent(UserFullEvent),
     GameStartEvent(GameStartEvent),
     PreferencesUpdateEvent(PreferencesUpdateEvent),
-    ConvsAndChallengesEvent(ConvsAndChallengesEvent),
     FriendEvent(FriendEvent),
     UserMessageEvent(UserMessageEvent),
     ChallengeEvent(ChallengeEvent),
@@ -56,9 +56,9 @@ pub enum UserEvent {
 impl UserEvent {
     pub fn to_string(&self) -> String {
         match self {
+            UserEvent::UserFullEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::GameStartEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::PreferencesUpdateEvent(e) => serde_json::to_string(e).unwrap(),
-            UserEvent::ConvsAndChallengesEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::FriendEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::UserMessageEvent(e) => serde_json::to_string(e).unwrap(),
             UserEvent::ChallengeEvent(e) => serde_json::to_string(e).unwrap(),
@@ -198,10 +198,11 @@ pub struct PreferencesUpdateEvent {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ConvsAndChallengesEvent {
+pub struct UserFullEvent {
     pub r#type: UserEventType,
     pub conversations: Vec<Conversation>,
     pub challenges: Vec<Challenge>,
+    pub preferences: Preferences,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -269,9 +270,9 @@ pub struct PlayerStatsEvent {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum UserEventType {
+    UserFull,
     GameStart,
     PreferencesUpdate,
-    ConvsAndChallenges,
     Friend,
     UserMessage,
     Challenge,
