@@ -218,6 +218,7 @@ pub struct FriendEvent {
 pub struct UserMessageEvent {
     pub r#type: UserEventType,
     pub username: String,
+    pub other_name: String,
     pub text: String,
     pub created_at: String,
 }
