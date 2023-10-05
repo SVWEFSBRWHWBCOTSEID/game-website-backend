@@ -125,6 +125,7 @@ pub async fn add_move(
                 }.to_string()),
                 game::win_type::set(match move_outcome {
                     MoveOutcome::FirstWin | MoveOutcome::SecondWin => Some(EndType::Normal.to_string()),
+                    MoveOutcome::Draw => Some(EndType::Stalemate.to_string()),
                     _ => None,
                 }),
                 game::draw_offer::set(match move_outcome {
