@@ -41,7 +41,7 @@ pub async fn add_move(
         return Err(WebErr::Forbidden(format!("new move is invalid or not player's turn")));
     }
 
-    if game.first_time.is_some() {
+    if game.first_time.is_some() && game.get_moves_vec().len() > 1 {
         hourglass.lock().set_hourglass(
             game_id.clone(),
             if first_to_move {
