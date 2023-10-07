@@ -46,7 +46,6 @@ pub struct UserMessageReq {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChallengeReq {
-    pub opponent: String,
     pub game_key: GameKey,
     pub rated: bool,
     pub time: Option<i32>,

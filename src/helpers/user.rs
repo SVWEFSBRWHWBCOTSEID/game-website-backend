@@ -4,7 +4,7 @@ use glicko_2::Tuning;
 use rand::Rng;
 use strum::IntoEnumIterator;
 
-use crate::models::general::{MatchPlayer, Profile, Country, Side, GameKey, GamePerf, ProfileGame};
+use crate::models::general::{MatchPlayer, Profile, Country, Side, GameKey, GamePerf, ProfileGame, Player};
 use crate::models::res::UserResponse;
 use crate::models::req::CreateGameReq;
 use crate::prisma::{user, PrismaClient};
@@ -115,6 +115,20 @@ impl user::Data {
         *self = get_user_with_relations(client, &self.username).await?;
 
         Ok(())
+    }
+
+    // TODO: abstract this with `get_provisional` and such?
+    pub fn to_player(&self, game_key: &str) -> Result<Player, WebErr> {
+        let perf = self.perfs()
+            .or(Err(WebErr::Internal(format!("perfs not fetched"))))?
+            .iter().find(|p| p.game_key == game_key)
+            .ok_or(WebErr::Internal(format!("could not find perf for {}", game_key)))?;
+
+        Ok(Player {
+            username: self.username.clone(),
+            provisional: perf.prov,
+            rating: perf.rating as i32,
+        })
     }
 
     pub fn to_match_player(&self, game_key: &str, req: &CreateGameReq) -> MatchPlayer {

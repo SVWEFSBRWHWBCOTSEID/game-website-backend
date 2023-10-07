@@ -70,8 +70,7 @@ pub struct UserMessage {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Challenge {
-    pub username: String,
-    pub opponent: String,
+    pub user: Player,
     pub id: String,
     pub rated: bool,
     pub game: GameType,
@@ -126,6 +125,7 @@ pub struct Profile {
 }
 
 #[derive(Deserialize, Serialize, EnumIter)]
+#[serde(rename_all = "lowercase")]
 pub enum GameKey {
     TTT,
     UTTT,

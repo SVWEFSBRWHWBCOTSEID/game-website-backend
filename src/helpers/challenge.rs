@@ -6,10 +6,10 @@ use crate::models::general::{Challenge, GameKey, GameType, TimeControl, Side};
 impl challenge::Data {
     pub fn to_challenge(&self) -> Result<Challenge, WebErr> {
         let game = self.game().or(Err(WebErr::Internal(format!("game relation not fetched"))))?;
+        let user = self.user().or(Err(WebErr::Internal(format!("user relation not fetched"))))?;
 
         Ok(Challenge {
-            username: self.username.clone(),
-            opponent: self.opponent_name.clone(),
+            user: user.to_player(game.game_key.as_str())?,
             id: self.game_id.clone(),
             rated: game.rated,
             game: GameType {

@@ -161,8 +161,7 @@ pub async fn challenge_request(
             broadcaster.lock().user_send(&opponent.clone(), UserEvent::ChallengeEvent(ChallengeEvent {
                 r#type: UserEventType::Challenge,
                 challenge: Challenge {
-                    username,
-                    opponent,
+                    user: user.to_player(&challenge_req.game_key.to_string())?,
                     game: GameType {
                         key: challenge_req.game_key.to_string(),
                         name: GameKey::get_game_name(&challenge_req.game_key.to_string())?,
