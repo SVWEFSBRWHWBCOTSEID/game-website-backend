@@ -90,6 +90,7 @@ pub async fn get_incoming_challenges(client: &web::Data<PrismaClient>, username:
         .challenge()
         .find_many(vec![challenge::opponent_name::equals(username.to_string())])
         .with(challenge::game::fetch())
+        .with(challenge::user::fetch().with(user::perfs::fetch(vec![])))
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error getting incoming challenges for user {}", username))))?
