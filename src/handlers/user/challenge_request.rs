@@ -21,18 +21,16 @@ pub async fn challenge_request(
     req: HttpRequest,
     client: Data<PrismaClient>,
     session: Session,
-    data: Json<ChallengeReq>,
+    data: Option<Json<ChallengeReq>>,
     broadcaster: Data<Mutex<Broadcaster>>,
     player_stats: Data<Mutex<PlayerStats>>,
 ) -> Result<HttpResponse, WebErr> {
 
     let username: String = get_username(&session)?;
-    let challenge_req = data.into_inner();
     let opponent: String = req.match_info().get("username").unwrap().parse().unwrap();
     let accept: bool = req.match_info().get("accept").unwrap().parse().unwrap();
 
     let user = get_user_with_relations(&client, &username).await?;
-    let perf = user.perfs().unwrap().iter().find(|p| p.game_key == challenge_req.game_key.to_string()).unwrap();
 
     if accept && !user.can_start_game {
         return Err(WebErr::BadReq(format!("user {} cannot accept or send challenge (can_start_game is false)", username)));
@@ -53,10 +51,10 @@ pub async fn challenge_request(
         // Cancel the challenge if the original challenger sends `false`
         client
             .game()
-            .delete(game::id::equals(existing.id.clone()))
+            .delete(game::id::equals(existing.game_id.clone()))
             .exec()
             .await
-            .or(Err(WebErr::Internal(format!("error deleting challenge game with id {}", existing.id))))?;
+            .or(Err(WebErr::Internal(format!("error deleting challenge game with id {}", existing.game_id))))?;
 
         set_user_can_start_game(&client, &opponent, true).await?;
 
@@ -80,21 +78,22 @@ pub async fn challenge_request(
             // Start the game if the `opponent` sends `true`
             let game = client
                 .game()
-                .find_unique(game::id::equals(existing.id.clone()))
+                .find_unique(game::id::equals(existing.game_id.clone()))
                 .exec()
                 .await
-                .or(Err(WebErr::Internal(format!("error fetching challenge game with id {}", existing.id))))?
-                .ok_or(WebErr::NotFound(format!("could not find challenge game with id {}", existing.id)))?;
+                .or(Err(WebErr::Internal(format!("error fetching challenge game with id {}", existing.game_id))))?
+                .ok_or(WebErr::NotFound(format!("could not find challenge game with id {}", existing.game_id)))?;
 
+            let perf = user.perfs().unwrap().iter().find(|p| p.game_key == game.game_key.to_string()).unwrap();
             join_game(&client, &game, game.first_username.is_none(), username.clone(), perf.rating as i32, perf.prov, &broadcaster, &player_stats).await?;
         } else {
             // Decline the challenge if the `opponent` sends `false`
             client
                 .game()
-                .delete(game::id::equals(existing.id.clone()))
+                .delete(game::id::equals(existing.game_id.clone()))
                 .exec()
                 .await
-                .or(Err(WebErr::Internal(format!("error deleting challenge game with id {}", existing.id))))?;
+                .or(Err(WebErr::Internal(format!("error deleting challenge game with id {}", existing.game_id))))?;
 
             set_user_can_start_game(&client, &opponent, true).await?;
 
@@ -111,6 +110,10 @@ pub async fn challenge_request(
     if !accept {
         return Err(WebErr::BadReq(format!("cannot decline challenge from user {} -- challenge doesn't exist", opponent)));
     }
+
+    let challenge_req = data
+        .unwrap_or(Err(WebErr::BadReq(format!("new challenge request missing json body")))?)
+        .into_inner();
     let game_id = gen_nanoid(&client).await;
 
     let game = client
