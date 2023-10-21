@@ -2,6 +2,8 @@ use std::error::Error;
 use std::fmt::{self, Display};
 use actix_web::{ResponseError, HttpResponse};
 use actix_web::http::{header::ContentType, StatusCode};
+use aws_sdk_s3::error::SdkError;
+use aws_sdk_s3::operation::put_object::PutObjectError;
 use strum::ParseError;
 
 
@@ -52,5 +54,29 @@ impl ResponseError for WebErr {
 impl From<ParseError> for WebErr {
     fn from(_: ParseError) -> Self {
         WebErr::NotFound(format!("provided string does not match an enum variant"))
+    }
+}
+
+impl From<SdkError<PutObjectError>> for WebErr {
+    fn from(e: SdkError<PutObjectError>) -> Self {
+        match e {
+            SdkError::ConstructionFailure(_)
+                => WebErr::Internal(format!("S3 put object failed with construction error")),
+            SdkError::TimeoutError(_)
+                => WebErr::Internal(format!("S3 put object failed with timeout error")),
+            SdkError::DispatchFailure(_)
+                => WebErr::Internal(format!("S3 put object failed with dispatch error")),
+            SdkError::ResponseError(_)
+                => WebErr::Internal(format!("S3 put object failed with response error")),
+            SdkError::ServiceError(_)
+                => WebErr::Internal(format!("S3 put object failed with service error")),
+            _ => WebErr::Internal(format!("S3 put object failed with unknown error")),
+        }
+    }
+}
+
+impl From<std::io::Error> for WebErr {
+    fn from(e: std::io::Error) -> Self {
+        WebErr::Internal(format!("unexpected IO error: {}", e))
     }
 }

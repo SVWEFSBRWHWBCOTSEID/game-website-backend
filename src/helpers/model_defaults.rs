@@ -42,6 +42,7 @@ impl Default for Profile {
             bio: "".to_string(),
             first_name: "".to_string(),
             last_name: "".to_string(),
+            image_url: None,
         }
     }
 }
