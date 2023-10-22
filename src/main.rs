@@ -1,4 +1,5 @@
 use std::env;
+use std::sync::Arc;
 use dotenv::dotenv;
 use actix_cors::Cors;
 use actix_session::config::PersistentSession;
@@ -21,6 +22,15 @@ async fn main() -> std::io::Result<()> {
     let _guard = sentry::init(("https://3f4ae5fdde0f9e4e30745eb533fcaab8@o4505684851294208.ingest.sentry.io/4505684891467776", sentry::ClientOptions {
         release: sentry::release_name!(),
         traces_sample_rate: 1.0,
+        before_send: Some(Arc::new(|e| {
+            // Filter out events where `e.environment == "development"` to prevent tracking errors on `localhost`.
+            // See https://github.com/getsentry/sentry/issues/12341
+            if e.environment.clone().is_some_and(|environment| environment.to_string() != "development") {
+                Some(e)
+            } else {
+                None
+            }
+        })),
         ..Default::default()
     }));
 
