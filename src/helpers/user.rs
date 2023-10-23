@@ -166,6 +166,7 @@ pub async fn get_user_res(client: &web::Data<PrismaClient>, user: user::Data) ->
             bio: user.bio.clone(),
             first_name: user.first_name.clone(),
             last_name: user.last_name.clone(),
+            image_url: user.image_url.clone(),
         },
         url: user.url.clone(),
         playing: user.playing.clone(),

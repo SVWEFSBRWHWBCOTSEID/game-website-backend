@@ -122,6 +122,7 @@ pub struct Profile {
     pub bio: String,
     pub first_name: String,
     pub last_name: String,
+    pub image_url: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, EnumIter)]
@@ -133,7 +134,7 @@ pub enum GameKey {
     PC,
 }
 
-#[derive(Deserialize, Serialize, Display, EnumString)]
+#[derive(Debug, Deserialize, Serialize, Display, EnumString)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Country {
     Empty,

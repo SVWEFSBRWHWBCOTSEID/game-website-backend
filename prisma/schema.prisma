@@ -50,6 +50,7 @@ model User {
   bio             String
   firstName       String
   lastName        String
+  imageUrl        String?
   url             String
   playing         String?
   canStartGame    Boolean

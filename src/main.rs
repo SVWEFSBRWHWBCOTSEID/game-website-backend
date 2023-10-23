@@ -1,4 +1,5 @@
 use std::env;
+use std::sync::Arc;
 use dotenv::dotenv;
 use actix_cors::Cors;
 use actix_session::config::PersistentSession;
@@ -6,6 +7,7 @@ use actix_session::storage::RedisSessionStore;
 use actix_session::SessionMiddleware;
 use actix_web::cookie::{Key, SameSite, time::Duration};
 use actix_web::{middleware, web, App, HttpServer};
+use aws_config::meta::region::RegionProviderChain;
 
 use game_backend::app_config::config_app;
 use game_backend::hourglass::Hourglass;
@@ -20,6 +22,15 @@ async fn main() -> std::io::Result<()> {
     let _guard = sentry::init(("https://3f4ae5fdde0f9e4e30745eb533fcaab8@o4505684851294208.ingest.sentry.io/4505684891467776", sentry::ClientOptions {
         release: sentry::release_name!(),
         traces_sample_rate: 1.0,
+        before_send: Some(Arc::new(|e| {
+            // Filter out events where `e.environment == "development"` to prevent tracking errors on `localhost`.
+            // See https://github.com/getsentry/sentry/issues/12341
+            if e.environment.clone().is_some_and(|environment| environment.to_string() != "development") {
+                Some(e)
+            } else {
+                None
+            }
+        })),
         ..Default::default()
     }));
 
@@ -27,12 +38,18 @@ async fn main() -> std::io::Result<()> {
     let host = env::var("HOST").unwrap();
     let port = env::var("PORT").unwrap().parse::<u16>().unwrap();
 
-    let client = web::Data::new(PrismaClient::_builder().build().await.unwrap());
+    // AWS S3 client
+    let region_provider = RegionProviderChain::default_provider().or_else("us-east-2");
+    let config = aws_config::from_env().region(region_provider).load().await;
+    let aws_client = web::Data::new(aws_sdk_s3::Client::new(&config));
+
+    let prisma_client = web::Data::new(PrismaClient::_builder().build().await.unwrap());
     let redis_store = RedisSessionStore::new(env::var("REDIS_URL").unwrap()).await.unwrap();
+
     let player_stats = PlayerStats::create();
     let broadcaster = Broadcaster::create(player_stats.clone());
     let lumber_mill = LumberMill::create();
-    let hourglass = Hourglass::create(client.clone(), broadcaster.clone(), player_stats.clone());
+    let hourglass = Hourglass::create(prisma_client.clone(), broadcaster.clone(), player_stats.clone());
 
     env::set_var("RUST_LOG", "debug");
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
@@ -42,7 +59,8 @@ async fn main() -> std::io::Result<()> {
         let cors = Cors::permissive();
 
         App::new()
-            .app_data(client.clone())
+            .app_data(prisma_client.clone())
+            .app_data(aws_client.clone())
             .app_data(broadcaster.clone())
             .app_data(lumber_mill.clone())
             .app_data(player_stats.clone())

@@ -1,5 +1,8 @@
+use actix_multipart::form::MultipartForm;
+use actix_multipart::form::tempfile::TempFile;
+use actix_multipart::form::text::Text;
 use serde::{Deserialize, Serialize};
-use crate::models::general::Preferences;
+use crate::models::general::{Country, Preferences};
 
 use super::general::{Side, GameKey};
 
@@ -52,4 +55,19 @@ pub struct ChallengeReq {
     pub increment: Option<i32>,
     pub side: Side,
     pub start_pos: Option<String>,
+}
+
+#[derive(Debug, MultipartForm)]
+pub struct ProfileReq {
+    pub country: Text<Country>,
+    pub location: Text<String>,
+    pub bio: Text<String>,
+
+    #[multipart(rename = "firstName")]
+    pub first_name: Text<String>,
+
+    #[multipart(rename = "lastName")]
+    pub last_name: Text<String>,
+
+    pub pfp: Option<TempFile>,
 }
