@@ -74,14 +74,13 @@ async fn main() -> std::io::Result<()> {
                 )
                 .session_lifecycle(PersistentSession::default().session_ttl(Duration::days(3)))
                 .cookie_same_site(SameSite::None)
-                .cookie_domain(match env::var("DOMAIN") {
-                    Ok(x) => if x == "http://localhost:3000" {
+                .cookie_domain(env::var("DOMAIN").ok().and_then(|x| {
+                    if x == "http://localhost:3000" {
                         None
                     } else {
                         Some(x)
-                    },
-                    Err(_) => None,
-                })
+                    }
+                }))
                 .build()
             )
             .wrap(cors)
