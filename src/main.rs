@@ -7,6 +7,7 @@ use actix_session::storage::RedisSessionStore;
 use actix_session::SessionMiddleware;
 use actix_web::cookie::{Key, SameSite, time::Duration};
 use actix_web::{middleware, web, App, HttpServer};
+use aws_config::BehaviorVersion;
 use aws_config::meta::region::RegionProviderChain;
 
 use game_backend::app_config::config_app;
@@ -40,7 +41,7 @@ async fn main() -> std::io::Result<()> {
 
     // AWS S3 client
     let region_provider = RegionProviderChain::default_provider().or_else("us-east-2");
-    let config = aws_config::from_env().region(region_provider).load().await;
+    let config = aws_config::defaults(BehaviorVersion::latest()).region(region_provider).load().await;
     let aws_client = web::Data::new(aws_sdk_s3::Client::new(&config));
 
     let prisma_client = web::Data::new(PrismaClient::_builder().build().await.unwrap());
