@@ -57,8 +57,6 @@ async fn main() -> std::io::Result<()> {
     log::info!("starting HTTP server at {}:{}", host, port);
 
     HttpServer::new(move || {
-        let cors = Cors::permissive();
-
         App::new()
             .app_data(prisma_client.clone())
             .app_data(aws_client.clone())
@@ -83,7 +81,7 @@ async fn main() -> std::io::Result<()> {
                 }))
                 .build()
             )
-            .wrap(cors)
+            .wrap(Cors::permissive())
             .wrap(sentry_actix::Sentry::with_transaction())
             .configure(config_app)
     })
