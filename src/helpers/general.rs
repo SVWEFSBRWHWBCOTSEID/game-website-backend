@@ -22,16 +22,13 @@ pub fn get_username(session: &Session) -> Result<String, WebErr> {
 }
 
 pub async fn get_game_by_id(client: &web::Data<PrismaClient>, id: &str) -> Result<game::Data, WebErr> {
-    match client
+    client
         .game()
         .find_unique(game::id::equals(id.to_string()))
         .exec()
         .await
         .or(Err(WebErr::Internal(format!("error fetching game with id {}", id))))?
-    {
-        Some(g) => Ok(g),
-        None => Err(WebErr::NotFound(format!("could not find game with id {}", id))),
-    }
+        .ok_or(WebErr::NotFound(format!("could not find game with id {}", id)))
 }
 
 // same as get_game_by_id but fetches user and chat relations
