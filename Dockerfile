@@ -1,4 +1,5 @@
-FROM rust:1.70.0
+FROM ubuntu:latest
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain 1.70.0 -y
 
 WORKDIR /app
 COPY . .
