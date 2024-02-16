@@ -37,6 +37,7 @@ model Game {
   rematchOffer   String
   randomSide     Boolean
   challenge      Challenge?
+  withFriend     Boolean
 }
 
 model User {

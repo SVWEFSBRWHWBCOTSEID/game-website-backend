@@ -81,6 +81,7 @@ impl CreateGameReq {
                 Offer::None.to_string(),
                 Offer::None.to_string(),
                 player.random,
+                self.with_friend,
                 vec![
                     game::clock_initial::set(self.time),
                     game::clock_increment::set(self.increment),

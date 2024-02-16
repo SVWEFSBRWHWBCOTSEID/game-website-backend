@@ -61,6 +61,7 @@ pub async fn offer_rematch(
                 Offer::None.to_string(),
                 Offer::None.to_string(),
                 false,
+                false,
                 vec![
                     game::clock_initial::set(game.clock_initial),
                     game::clock_increment::set(game.clock_increment),

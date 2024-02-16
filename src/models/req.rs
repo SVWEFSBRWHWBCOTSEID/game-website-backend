@@ -11,6 +11,7 @@ use super::general::{Side, GameKey};
 #[serde(rename_all = "camelCase")]
 pub struct CreateGameReq {
     pub rated: bool,
+    pub with_friend: bool,
     pub time: Option<i32>,
     pub increment: Option<i32>,
     pub side: Side,
@@ -23,6 +24,7 @@ pub struct CreateGameReq {
 #[serde(rename_all = "camelCase")]
 pub struct CreateUserReq {
     pub username: String,
+    pub guest: bool,
     pub password: String,
     pub preferences: Option<Preferences>,
 }

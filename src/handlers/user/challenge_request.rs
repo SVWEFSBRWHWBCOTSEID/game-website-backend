@@ -130,6 +130,7 @@ pub async fn challenge_request(
             Offer::None.to_string(),
             Offer::None.to_string(),
             challenge_req.side == Side::Random,
+            false,
             vec![
                 game::clock_initial::set(challenge_req.time),
                 game::clock_increment::set(challenge_req.increment),
